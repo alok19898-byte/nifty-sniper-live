@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sniper Master v3 - Full Protocol</title>
+    <title>Sniper Master - Bull/Bear Dynamic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #010409; color: #e6edf3; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 220px; }
         .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; }
         .spot-glow { border-top: 4px solid #ff0000; border-bottom: 4px solid #ff0000; background: rgba(255, 0, 0, 0.15) !important; box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
         .card-pro { background: #0d1117; border: 2px solid #30363d; border-radius: 12px; }
-        /* ASLI COLOR CODES */
+        /* REAL COLOR CODES */
         .max-vol { background: #7c3aed !important; color: white !important; padding: 2px 6px; border-radius: 4px; font-weight: 900; box-shadow: 0 0 10px #7c3aed; }
         .max-oi { background: #2563eb !important; color: white !important; padding: 2px 6px; border-radius: 4px; font-weight: 900; box-shadow: 0 0 10px #2563eb; }
         .ltp-green { color: #22c55e !important; font-weight: 900; }
@@ -19,21 +19,21 @@
         @keyframes blinker { 50% { opacity: 0.2; } }
     </style>
 </head>
-<body onload="runFinalProtocol()">
+<body onload="runSniper()">
 
     <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50 shadow-2xl">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal v3 🎯</h1>
-            <div id="status-badge" class="px-4 py-1 rounded bg-blue-600 text-white text-[11px] font-black uppercase">Neutral</div>
+            <h1 class="text-2xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal v4 🎯</h1>
+            <div id="trend-badge" class="px-4 py-1 rounded bg-blue-600 text-white text-[11px] font-black uppercase">Neutral</div>
         </div>
 
-        <div class="card-pro p-4 border-l-8 border-blue-600 flex justify-between items-center">
+        <div id="signal-card" class="card-pro p-4 border-l-8 border-blue-600 flex justify-between items-center">
             <div>
-                <p id="logic-label" class="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic">Logic Active</p>
-                <h2 id="main-instruction" class="text-2xl font-black text-white italic italic">SCANNING...</h2>
+                <p id="logic-label" class="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic">Current Trade Logic</p>
+                <h2 id="entry-text" class="text-2xl font-black text-white italic">SCANNING MARKET...</h2>
             </div>
             <div class="text-right">
-                <p class="text-[10px] text-gray-400 font-bold uppercase">Target Strike</p>
+                <p class="text-[10px] text-gray-400 font-bold uppercase">Target Price</p>
                 <p id="target-strike" class="text-3xl font-black text-[#58a6ff]">---</p>
             </div>
         </div>
@@ -55,7 +55,7 @@
                     <td class="ltp-red">35.20</td><td>45k</td><td><span class="max-oi">18k</span></td><td class="text-red-400">-2k</td><td>11.4</td>
                 </tr>
                 <tr class="spot-glow">
-                    <td>11.5</td><td id="call-oi-chg" class="text-green-400 text-lg">+12,500</td><td><span class="max-oi">45k</span></td><td>98k</td><td class="ltp-green text-xl underline">165.80</td>
+                    <td>11.5</td><td class="text-green-400 text-lg">+12,500</td><td><span class="max-oi">45k</span></td><td>98k</td><td class="ltp-green text-xl underline">165.80</td>
                     <td class="strike-col text-xl">25200</td>
                     <td class="ltp-red text-xl underline">55.10</td><td><span class="max-vol">112k</span></td><td>25k</td><td class="text-green-400">+8k</td><td>12.8</td>
                 </tr>
@@ -70,86 +70,94 @@
 
     <div class="fixed bottom-0 w-full bg-[#0d1117] border-t-2 border-[#30363d] p-4 shadow-2xl z-50">
         <div class="grid grid-cols-4 gap-2 text-center mb-3">
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase">Res (R)</p><p id="f-res" class="text-lg font-black">25320</p></div>
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase">Supp (S)</p><p id="f-supp" class="text-lg font-black text-green-400">25270</p></div>
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase">Speed %</p><p id="f-speed" class="text-lg font-black text-blue-400">0%</p></div>
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase">OI Alert</p><p id="f-oi-alert" class="text-lg font-black text-red-500">OFF</p></div>
+            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">Res (R)</p><p id="f-res" class="text-lg font-black">25320</p></div>
+            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">Supp (S)</p><p id="f-supp" class="text-lg font-black text-green-400">25270</p></div>
+            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">Speed %</p><p id="f-speed" class="text-lg font-black text-blue-400">0%</p></div>
+            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">11K ALERT</p><p id="f-oi-alert" class="text-lg font-black text-gray-600">OFF</p></div>
         </div>
-        <div id="rule-desc" class="w-full text-center text-[10px] font-black text-blue-100 uppercase bg-blue-900/40 border border-blue-500/50 rounded py-1 italic">
-            MASTER PROTOCOL INITIALIZING...
+        <div id="footer-logic" class="w-full text-center text-[10px] font-black text-blue-100 uppercase bg-blue-900/40 border border-blue-500/50 rounded py-1 italic">
+            DYNAMIC PRESSURE MONITORING...
         </div>
     </div>
 
     <script>
-        let sec = 0;
-        const R = 25320; 
-        const S = 25270;
+        let seconds = 0;
+        const RES = 25320; 
+        const SUPP = 25270;
 
-        function runFinalProtocol() {
+        function runSniper() {
             setInterval(() => {
-                sec += 2;
-                let pct = Math.floor(Math.random() * 101);
-                let oi_chg = 12500; // Simulated OI Change
+                seconds += 2;
+                let pct = Math.floor(Math.random() * 101); // Simulated Speed
+                let trend = Math.random() > 0.5 ? 'Bullish' : 'Bearish'; // Randomly testing both sides
+                let oiChg = 12500;
 
-                const status = document.getElementById('status-badge');
-                const instruction = document.getElementById('main-instruction');
+                const badge = document.getElementById('trend-badge');
+                const entry = document.getElementById('entry-text');
                 const target = document.getElementById('target-strike');
-                const ruleDesc = document.getElementById('rule-desc');
-                const oiAlert = document.getElementById('f-oi-alert');
-
+                const footer = document.getElementById('footer-logic');
+                const oiLabel = document.getElementById('f-oi-alert');
+                
                 document.getElementById('f-speed').innerText = pct + "%";
 
-                // --- MASTER PROTOCOL LOGIC ---
-
-                // Rule: 11k OI Situation Change [cite: 2026-02-14]
-                if (oi_chg >= 11000) {
-                    oiAlert.innerText = "11K ALERT";
-                    oiAlert.className = "text-lg font-black text-red-500 blink-alert";
-                    ruleDesc.innerText = "SITUATION CHANGE: 11K OI CHANGE DETECTED!";
+                // --- 1. SITUATION CHANGE (11K OI RULE) ---
+                if (oiChg >= 11000) {
+                    oiLabel.innerText = "11K CROSS";
+                    oiLabel.className = "text-lg font-black text-red-500 blink-alert";
+                    footer.innerText = "SITUATION CHANGE: OI CROSSED 11,000!";
                 }
 
-                // Rule: 90% Freeze [cite: 2026-02-14]
+                // --- 2. THE MASTER DYNAMIC LOGIC ---
+
+                // A. 90% FREEZE RULE
                 if (pct >= 90) {
-                    status.innerText = "90% FREEZE";
-                    status.className = "px-4 py-1 rounded bg-red-600 text-white text-[11px] font-black uppercase blink-alert";
-                    instruction.innerText = "SCENARIO CHANGING: WAIT";
-                    target.innerText = "HOLD";
+                    badge.innerText = "SCENARIO CHANGING";
+                    badge.className = "px-4 py-1 rounded bg-red-600 text-white text-[11px] font-black uppercase blink-alert";
+                    entry.innerText = "90% FREEZE: WAIT FOR STABILITY";
+                    target.innerText = "FREEZE";
                 }
-                // Rule: 3H SOC Reversal [cite: 2026-02-15]
-                else if (sec >= 10800) {
-                    status.innerText = "SOC ALERT (3H)";
+                // B. BULLISH PRESSURE LOGIC
+                else if (trend === 'Bullish') {
+                    badge.innerText = "BULLISH PRESSURE 🐂";
+                    badge.className = "px-4 py-1 rounded bg-green-600 text-white text-[11px] font-black uppercase";
+                    
                     if (pct >= 75) {
-                        instruction.innerText = "STUCK FAVOR: ENTRY @ S";
-                        target.innerText = S;
+                        entry.innerText = "TEZ SPEED: ENTRY @ S+1 (CALL)";
+                        target.innerText = RES; 
                     } else {
-                        instruction.innerText = "STUCK NO-FAVOR: ENTRY @ S-1";
-                        target.innerText = S - 50;
+                        entry.innerText = "NORMAL SPEED: ENTRY @ SUPPORT";
+                        target.innerText = SUPP;
                     }
                 }
-                // Rule: 5% Stuck [cite: 2026-02-15]
-                else if (pct <= 5) {
-                    status.innerText = "5% STUCK";
-                    instruction.innerText = "WTT-1 / WTB+1 ONLY";
-                    target.innerText = "S-1 / R+1";
+                // C. BEARISH PRESSURE LOGIC (NEW FIXED)
+                else if (trend === 'Bearish') {
+                    badge.innerText = "BEARISH PRESSURE 🐻";
+                    badge.className = "px-4 py-1 rounded bg-red-600 text-white text-[11px] font-black uppercase";
+                    
+                    if (pct >= 75) {
+                        entry.innerText = "TEZ SPEED: ENTRY @ R-1 (PUT)";
+                        target.innerText = SUPP; 
+                    } else {
+                        entry.innerText = "NORMAL SPEED: ENTRY @ RESISTANCE";
+                        target.innerText = RES;
+                    }
                 }
-                // Rule: Speed Logic (>75% = S+1) [cite: 2026-02-15]
-                else if (pct >= 75) {
-                    status.innerText = "BULLISH PRESSURE";
-                    status.className = "px-4 py-1 rounded bg-green-600 text-white text-[11px] font-black uppercase";
-                    instruction.innerText = "SPEED TEZ: ENTRY @ S+1";
-                    target.innerText = R;
-                }
-                // Default: Safe Support Entry
-                else {
-                    status.innerText = "NORMAL SPEED";
-                    status.className = "px-4 py-1 rounded bg-blue-600 text-white text-[11px] font-black uppercase";
-                    instruction.innerText = "SPEED NORMAL: ENTRY @ S";
-                    target.innerText = S;
+
+                // D. 3H SOC REVERSAL RULE
+                if (seconds >= 10800) {
+                    badge.innerText = "SOC ACTIVE (3H)";
+                    if (pct >= 75) {
+                        entry.innerText = "SOC FAVOR: REVERSAL FROM S/R";
+                        target.innerText = trend === 'Bullish' ? SUPP : RES;
+                    } else {
+                        entry.innerText = "SOC NO-FAVOR: REVERSAL FROM S-1/R+1";
+                        target.innerText = trend === 'Bullish' ? SUPP - 50 : RES + 50;
+                    }
                 }
 
             }, 2000);
         }
     </script>
 </body>
-    </html>
-                                                                        
+                                     </html>
+                                                                                         
