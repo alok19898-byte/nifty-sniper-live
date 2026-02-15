@@ -2,30 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Nifty Sniper - IL & IV Edition</title>
+    <title>Nifty Sniper - Red Line Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #010409; color: #e6edf3; font-family: sans-serif; }
-        .max-vol { background-color: #d122e3 !important; color: white !important; font-weight: bold; border-radius: 4px; }
-        .max-oi { background-color: #0070f3 !important; color: white !important; font-weight: bold; border-radius: 4px; }
-        .max-oic { background-color: #f5a623 !important; color: black !important; font-weight: bold; border-radius: 4px; }
+        /* HIGHLIGHT COLORS */
+        .max-vol { background-color: #d122e3 !important; color: white !important; font-weight: bold; border-radius: 4px; box-shadow: 0 0 10px #d122e3; }
+        .max-oi { background-color: #0070f3 !important; color: white !important; font-weight: bold; border-radius: 4px; box-shadow: 0 0 10px #0070f3; }
+        .max-oic { background-color: #f5a623 !important; color: black !important; font-weight: bold; border-radius: 4px; box-shadow: 0 0 10px #f5a623; }
         
-        .strike-col { background-color: #161b22; color: #58a6ff; font-weight: 900; border: 1px solid #30363d; }
-        /* IMAGINARY LINE STYLE */
-        .il-row { border-bottom: 4px dashed #f1c40f !important; }
-        .data-font { font-family: 'Courier New', monospace; font-size: 12px; }
+        .strike-col { background-color: #161b22; color: #58a6ff; font-weight: 900; border-left: 1px solid #30363d; border-right: 1px solid #30363d; }
+        
+        /* RED IMAGINARY LINE - FIXED */
+        .il-row { border-bottom: 5px solid #ff0000 !important; } 
+        
+        .data-font { font-family: 'Courier New', monospace; font-size: 13px; }
     </style>
 </head>
 <body onload="runSniper()">
 
-    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center sticky top-0 z-50 shadow-lg">
+    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center sticky top-0 z-50">
         <div>
             <h1 class="text-xl font-black text-[#58a6ff] italic">SNIPER TERMINAL 🎯</h1>
-            <p class="text-[9px] font-bold text-yellow-500 uppercase">IV & IMAGINARY LINE ACTIVE</p>
+            <p class="text-[10px] font-bold text-red-500 uppercase">Red Line: Market Crossover | IV Active</p>
         </div>
         <div class="text-right">
-            <p id="spot" class="text-2xl font-mono font-bold text-white tracking-tighter">25215.50</p>
-            <span class="text-[9px] text-gray-400 uppercase">Spot Price</span>
+            <p id="spot" class="text-2xl font-mono font-bold text-white tracking-tighter">25218.40</p>
         </div>
     </div>
 
@@ -33,20 +35,20 @@
         <table class="w-full text-center border-collapse">
             <thead>
                 <tr class="bg-[#161b22] text-gray-500 text-[10px] uppercase border-b border-[#30363d]">
-                    <th class="p-2">IV</th>
-                    <th class="p-2">OI Chg</th>
-                    <th class="p-2">OI</th>
-                    <th class="p-2">Vol</th>
-                    <th class="p-2 bg-green-900/10 text-green-400">LTP (C)</th>
-                    <th class="p-2 bg-[#0d1117] text-blue-400">STRIKE</th>
-                    <th class="p-2 bg-red-900/10 text-red-400">LTP (P)</th>
-                    <th class="p-2">Vol</th>
-                    <th class="p-2">OI</th>
-                    <th class="p-2">OI Chg</th>
-                    <th class="p-2">IV</th>
+                    <th class="p-3">IV</th>
+                    <th class="p-3">OI Chg</th>
+                    <th class="p-3">OI</th>
+                    <th class="p-3">Vol</th>
+                    <th class="p-3 bg-green-900/10 text-green-400">LTP (C)</th>
+                    <th class="p-3 bg-[#0d1117] text-blue-400">STRIKE</th>
+                    <th class="p-3 bg-red-900/10 text-red-400">LTP (P)</th>
+                    <th class="p-3">Vol</th>
+                    <th class="p-3">OI</th>
+                    <th class="p-3">OI Chg</th>
+                    <th class="p-3">IV</th>
                 </tr>
             </thead>
-            <tbody id="table-body" class="data-font"></tbody>
+            <tbody id="table-body" class="data-font text-white"></tbody>
         </table>
     </div>
 
@@ -71,21 +73,21 @@
 
     <script>
         function runSniper() {
-            const spot = 25215.50; // Mock Spot
+            const spot = 25218.40;
             const strikes = [25100, 25150, 25200, 25250, 25300, 25350, 25400];
             
             let data = strikes.map(s => ({
                 strike: s,
-                cIv: (12 + Math.random() * 5).toFixed(2),
+                cIv: (12 + Math.random() * 4).toFixed(2),
                 cOic: Math.floor(Math.random() * 20000),
-                cOi: Math.floor(Math.random() * 40000) + (s === 25350 ? 25000 : 0),
-                cVol: Math.floor(Math.random() * 80000) + (s === 25300 ? 50000 : 0),
-                cLtp: (105 + Math.random() * 30).toFixed(2),
-                pLtp: (95 + Math.random() * 30).toFixed(2),
+                cOi: Math.floor(Math.random() * 40000) + (s === 25300 ? 30000 : 0),
+                cVol: Math.floor(Math.random() * 80000) + (s === 25350 ? 50000 : 0),
+                cLtp: (100 + Math.random() * 20).toFixed(2),
+                pLtp: (90 + Math.random() * 20).toFixed(2),
                 pVol: Math.floor(Math.random() * 80000) + (s === 25150 ? 50000 : 0),
-                pOi: Math.floor(Math.random() * 40000) + (s === 25100 ? 25000 : 0),
+                pOi: Math.floor(Math.random() * 40000) + (s === 25100 ? 30000 : 0),
                 pOic: Math.floor(Math.random() * 20000),
-                pIv: (12 + Math.random() * 5).toFixed(2)
+                pIv: (12 + Math.random() * 4).toFixed(2)
             }));
 
             const max = {
@@ -97,11 +99,10 @@
                 pOic: Math.max(...data.map(d => d.pOic))
             };
 
-            // R & S Calculation
-            let rObj = data.reduce((p, c) => (c.cVol >= max.cVol || c.cOi >= max.cOi) ? c : p);
-            let sObj = data.reduce((p, c) => (c.pVol >= max.pVol || c.pOi >= max.pOi) ? c : p);
-            let rE = rObj.strike + parseFloat(rObj.cLtp);
-            let sE = sObj.strike - parseFloat(sObj.pLtp);
+            let resObj = data.reduce((p, c) => (c.cVol >= max.cVol || c.cOi >= max.cOi) ? c : p);
+            let supObj = data.reduce((p, c) => (c.pVol >= max.pVol || c.pOi >= max.pOi) ? c : p);
+            let rE = resObj.strike + parseFloat(resObj.cLtp);
+            let sE = supObj.strike - parseFloat(supObj.pLtp);
 
             document.getElementById('r-ext').innerText = rE.toFixed(2);
             document.getElementById('r-div').innerText = (rE - 50).toFixed(2);
@@ -110,28 +111,28 @@
 
             let tableHtml = "";
             data.forEach((d, i) => {
-                // Determine if this is the strike where the Imaginary Line should be
-                let isIl = (spot > d.strike && spot < (strikes[i+1] || 99999));
+                // Determine if this is the crossover point for the Red Line
+                let isCrossover = (spot > d.strike && spot < (strikes[i+1] || 999999));
                 
                 tableHtml += `
-                    <tr class="border-b border-[#30363d] ${isIl ? 'il-row' : ''}">
-                        <td class="p-3 text-gray-400 italic">${d.cIv}</td>
-                        <td class="p-3 ${d.cOic === max.cOic ? 'highest-oic' : 'text-green-500'}">${d.cOic}</td>
-                        <td class="p-3 ${d.cOi === max.cOi ? 'highest-oi' : ''}">${d.cOi}</td>
-                        <td class="p-3 ${d.cVol === max.cVol ? 'highest-vol' : ''}">${d.cVol}</td>
-                        <td class="p-3 font-bold text-white">${d.cLtp}</td>
-                        <td class="p-3 strike-col">${d.strike}</td>
-                        <td class="p-3 font-bold text-white">${d.pLtp}</td>
-                        <td class="p-3 ${d.pVol === max.pVol ? 'highest-vol' : ''}">${d.pVol}</td>
-                        <td class="p-3 ${d.pOi === max.pOi ? 'highest-oi' : ''}">${d.pOi}</td>
-                        <td class="p-3 ${d.pOic === max.pOic ? 'highest-oic' : 'text-red-500'}">${d.pOic}</td>
-                        <td class="p-3 text-gray-400 italic">${d.pIv}</td>
+                    <tr class="${isCrossover ? 'il-row' : 'border-b border-[#30363d]'}">
+                        <td class="p-4 text-gray-500 italic">${d.cIv}</td>
+                        <td class="p-4 ${d.cOic === max.cOic ? 'max-oic' : 'text-green-500'}">${d.cOic}</td>
+                        <td class="p-4 ${d.cOi === max.cOi ? 'max-oi' : ''}">${d.cOi}</td>
+                        <td class="p-4 ${d.cVol === max.cVol ? 'max-vol' : ''}">${d.cVol}</td>
+                        <td class="p-4 font-bold text-white">${d.cLtp}</td>
+                        <td class="p-4 strike-col">${d.strike}</td>
+                        <td class="p-4 font-bold text-white">${d.pLtp}</td>
+                        <td class="p-4 ${d.pVol === max.pVol ? 'max-vol' : ''}">${d.pVol}</td>
+                        <td class="p-4 ${d.pOi === max.pOi ? 'max-oi' : ''}">${d.pOi}</td>
+                        <td class="p-4 ${d.pOic === max.pOic ? 'max-oic' : 'text-red-500'}">${d.pOic}</td>
+                        <td class="p-4 text-gray-500 italic">${d.pIv}</td>
                     </tr>`;
             });
             document.getElementById('table-body').innerHTML = tableHtml;
         }
-        runScanner();
-        setInterval(runScanner, 2000);
+        runSniper();
+        setInterval(runSniper, 2000);
     </script>
 </body>
 </html>
