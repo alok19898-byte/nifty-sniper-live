@@ -2,22 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Nifty Sniper Pro - Fixed Layout</title>
+    <title>Nifty Sniper Pro - Multi-Color Scanner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #020617; color: white; font-family: sans-serif; }
-        .max-highlight { background-color: #1d4ed8 !important; color: white !important; font-weight: bold; border-radius: 2px; }
-        .strike-col { background-color: #1e293b; color: #60a5fa; font-weight: 900; border-left: 1px solid #334155; border-right: 1px solid #334155; }
+        /* Different Colors for different Highests */
+        .max-vol { background-color: #7c3aed !important; color: white !important; font-weight: bold; border-radius: 4px; } /* Purple for Volume */
+        .max-oi { background-color: #2563eb !important; color: white !important; font-weight: bold; border-radius: 4px; }  /* Blue for OI */
+        .max-oic { background-color: #ea580c !important; color: white !important; font-weight: bold; border-radius: 4px; } /* Orange for OI Chg */
+        
+        .strike-col { background-color: #1e293b; color: #60a5fa; font-weight: 900; border: 1px solid #334155; }
         .il-line { border-bottom: 3px dashed #facc15; }
+        .data-row:hover { background-color: #1e293b; }
     </style>
 </head>
 <body onload="updateDashboard()">
 
     <div class="p-4 bg-slate-900 border-b border-blue-600 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-xl font-bold text-blue-500 italic">NIFTY SNIPER TERMINAL 🎯</h1>
+        <div>
+            <h1 class="text-xl font-bold text-blue-500 italic">SNIPER TERMINAL 🎯</h1>
+            <p class="text-[9px] text-gray-400">VOL: PURPLE | OI: BLUE | OIC: ORANGE</p>
+        </div>
         <div class="text-right">
             <p id="spot" class="text-2xl font-mono font-bold text-white">25215.50</p>
-            <p class="text-[10px] text-yellow-500 font-bold">STANDARD LAYOUT ACTIVE</p>
         </div>
     </div>
 
@@ -43,19 +50,19 @@
 
     <div class="fixed bottom-0 w-full p-4 bg-slate-950 border-t-2 border-blue-900 grid grid-cols-2 md:grid-cols-4 gap-2">
         <div class="bg-slate-900 p-2 rounded border border-blue-500/50">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">R - Extension (Strike+LTP)</p>
+            <p class="text-[9px] text-blue-400 font-bold uppercase">R - Extension</p>
             <p id="r-ext" class="text-lg font-black text-white">---</p>
         </div>
         <div class="bg-slate-900 p-2 rounded border border-red-500/50">
-            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion (-50)</p>
+            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion</p>
             <p id="r-div" class="text-lg font-black text-white">---</p>
         </div>
         <div class="bg-slate-900 p-2 rounded border border-blue-500/50">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">S - Extension (Strike-LTP)</p>
+            <p class="text-[9px] text-blue-400 font-bold uppercase">S - Extension</p>
             <p id="s-ext" class="text-lg font-black text-white">---</p>
         </div>
         <div class="bg-slate-900 p-2 rounded border border-green-500/50">
-            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion (+50)</p>
+            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion</p>
             <p id="s-div" class="text-lg font-black text-white">---</p>
         </div>
     </div>
@@ -67,12 +74,12 @@
             
             let data = strikes.map(s => ({
                 strike: s,
-                cVol: Math.floor(Math.random() * 80000) + (s === 25300 ? 50000 : 0),
-                cOi: Math.floor(Math.random() * 40000),
+                cVol: Math.floor(Math.random() * 80000) + (s === 25300 ? 50000 : 10000),
+                cOi: Math.floor(Math.random() * 40000) + (s === 25350 ? 30000 : 5000),
                 cOic: Math.floor(Math.random() * 20000),
                 cLtp: (100 + Math.random() * 30).toFixed(2),
-                pVol: Math.floor(Math.random() * 80000) + (s === 25150 ? 50000 : 0),
-                pOi: Math.floor(Math.random() * 40000),
+                pVol: Math.floor(Math.random() * 80000) + (s === 25150 ? 50000 : 10000),
+                pOi: Math.floor(Math.random() * 40000) + (s === 25100 ? 30000 : 5000),
                 pOic: Math.floor(Math.random() * 20000),
                 pLtp: (90 + Math.random() * 30).toFixed(2)
             }));
@@ -86,37 +93,8 @@
                 pOic: Math.max(...data.map(d => d.pOic))
             };
 
-            // R: Max Data on Call Side | S: Max Data on Put Side
-            let resObj = data.reduce((prev, curr) => (curr.cVol > prev.cVol || curr.cOi > prev.cOi) ? curr : prev);
-            let supObj = data.reduce((prev, curr) => (curr.pVol > prev.pVol || curr.pOi > prev.pOi) ? curr : prev);
+            // Logic for R and S based on highest values
+            let resObj = data.reduce((prev, curr) => (curr.cVol >= max.cVol || curr.cOi >= max.cOi) ? curr : prev);
+            let supObj = data.reduce((prev, curr) => (curr.pVol >= max.pVol || curr.pOi >= max.pOi) ? curr : prev);
 
-            let rE = resObj.strike + parseFloat(resObj.cLtp);
-            let sE = supObj.strike - parseFloat(supObj.pLtp);
-
-            document.getElementById('r-ext').innerText = rE.toFixed(2);
-            document.getElementById('r-div').innerText = (rE - 50).toFixed(2);
-            document.getElementById('s-ext').innerText = sE.toFixed(2);
-            document.getElementById('s-div').innerText = (sE + 50).toFixed(2);
-
-            let html = "";
-            data.forEach((d, i) => {
-                let isIl = (spotPrice > d.strike && spotPrice < (strikes[i+1] || 99999));
-                html += `
-                    <tr class="border-b border-slate-800 ${isIl ? 'il-line' : ''}">
-                        <td class="p-3 ${d.cOic === max.cOic ? 'max-highlight' : 'text-green-500'}">${d.cOic}</td>
-                        <td class="p-3 ${d.cOi === max.cOi ? 'max-highlight' : ''}">${d.cOi}</td>
-                        <td class="p-3 ${d.cVol === max.cVol ? 'max-highlight' : ''}">${d.cVol}</td>
-                        <td class="p-3 font-bold text-white">${d.cLtp}</td>
-                        <td class="p-3 strike-col">${d.strike}</td>
-                        <td class="p-3 font-bold text-white">${d.pLtp}</td>
-                        <td class="p-3 ${d.pVol === max.pVol ? 'max-highlight' : ''}">${d.pVol}</td>
-                        <td class="p-3 ${d.pOi === max.pOi ? 'max-highlight' : ''}">${d.pOi}</td>
-                        <td class="p-3 ${d.pOic === max.pOic ? 'max-highlight' : 'text-red-500'}">${d.pOic}</td>
-                    </tr>`;
-            });
-            document.getElementById('table-body').innerHTML = html;
-        }
-        setInterval(updateDashboard, 1500);
-    </script>
-</body>
-</html>
+            let rE = res
