@@ -3,43 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sniper Terminal Pro</title>
+    <title>Sniper Terminal - Pro Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #010409; color: #e6edf3; font-family: sans-serif; margin: 0; }
+        body { background: #010409; color: #e6edf3; font-family: sans-serif; margin: 0; padding-bottom: 150px; }
         .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; }
         .red-line { border-bottom: 5px solid #ff0000 !important; }
-        .prob-card { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; }
-        .status-blink { animation: blink 1.5s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .prob-card { background: #0d1117; border: 2px solid #30363d; border-radius: 12px; }
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.3; } }
     </style>
 </head>
-<body onload="runTerminal()">
+<body>
 
-    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50">
+    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50 shadow-xl">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-xl font-black text-[#58a6ff] italic">SNIPER TERMINAL 🎯</h1>
-            <div id="risk-tag" class="px-3 py-1 rounded bg-green-600 text-white text-[10px] font-black">SAFE ZONE</div>
+            <h1 class="text-2xl font-black text-[#58a6ff] italic">SNIPER TERMINAL 🎯</h1>
+            <div class="px-4 py-1 rounded bg-green-600 text-white text-[10px] font-black uppercase">SAFE ZONE</div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-            <div class="prob-card p-3 border-l-4 border-red-500">
-                <p class="text-[8px] text-gray-500 font-bold uppercase">R+1 Extension (80% Prob)</p>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="prob-card p-4 border-l-8 border-red-600">
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">R+1 Extension (80% Prob)</p>
                 <div class="flex justify-between items-center">
-                    <span id="r1-val" class="text-xl font-black text-red-400">25370</span>
-                    <span class="text-[9px] font-black bg-red-600 text-white px-2 rounded-full status-blink">ENTRY</span>
+                    <span class="text-3xl font-black text-red-500">25370</span>
+                    <span class="text-[11px] font-black bg-red-600 text-white px-3 py-1 rounded-full blink">ENTRY</span>
                 </div>
             </div>
-            <div class="prob-card p-3 border-l-4 border-green-500">
-                <p class="text-[8px] text-gray-500 font-bold uppercase">S-1 Diversion (20% Prob)</p>
+            <div class="prob-card p-4 border-l-8 border-green-600">
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">S-1 Diversion (20% Prob)</p>
                 <div class="flex justify-between items-center">
-                    <span id="s1-val" class="text-xl font-black text-green-400">25270</span>
-                    <span class="text-[9px] font-black bg-green-600 text-white px-2 rounded-full">RETEST</span>
+                    <span class="text-3xl font-black text-green-500">25270</span>
+                    <span class="text-[11px] font-black bg-green-600 text-white px-3 py-1 rounded-full">RETEST</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="p-2 mb-40 overflow-x-auto">
+    <div class="p-2 overflow-x-auto">
         <table class="w-full text-center border-collapse">
-            <thead class="bg-[#0d1117] text-[10px] text-gray-50
+            <thead class="bg-[#0d1117] text-[11px] text-gray-500 uppercase">
+                <tr class="border-b border-gray-800">
+                    <th class="p-3">IV</th><th class="p-3">OI CHG</th><th class="p-3">OI</th><th class="p-3 text-green-400">LTP(C)</th>
+                    <th class="p-3 text-blue-400">STRIKE</th>
+                    <th class="p-3 text-red-400">LTP(P)</th><th class="p-3">VOL</th><th class="p-3">OI</th>
+                </tr>
+            </thead>
+            <tbody class="font-mono text-[14px] text-white">
+                <tr class="border-b border-gray-900"><td>11.2</td><td>8k</td><td>22k</td><td class="font-bold text-green-400">210.4</td><td class="strike-col">25150</td><td>35.2</td><td>65k</td><td>12k</td></tr>
+                <tr class="border-b border-gray-900"><td>11.5</td><td>12k</td><td>35k</td><td class="font-bold text-green-400">165.8</td><td class="strike-col">25200</td><td>55.1</td><td>88k</td><td>22k</td></tr>
+                <tr class="red-line bg-red-900/10"><td>11.8</td><td>15k</td><td>45k</td><td class="font-bold text-green-400">120.0</td><td class="strike-col">25250</td><td>82.4</td><td>95k</td><td>35k</td></tr>
+                <tr class="border-b border-gray-900"><td>12.1</td><td>10k</td><td>32k</td><td class="font-bold text-green-400">85.3</td><td class="strike-col">25300</td><td>115.6</td><td>72k</td><td>42k</td></tr>
+                <tr class="border-b border-gray-900"><td>12.4</td><td>5k</td><td>18k</td><td class="font-bold text-green-400">55.1</td><td class="strike-col">25350</td><td>155.9</td><td>45k</td><td>55k</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-[#30363d] shadow-2xl">
+        <div class="grid grid-cols-3 gap-2 text-center mb-3">
+            <div class="bg-black/50 p-2 rounded border border-gray-800">
+                <p class="text-[9px] text-gray-500 uppercase">Resistance (R)</p>
+                <p class="text-lg font-black text-white">25320</p>
+            </div>
+            <div class="bg-black/50 p-2 rounded border border-gray-800">
+                <p class="text-[9px] text-gray-500 uppercase">Diversion 2</p>
+                <p class="text-lg font-black text-yellow-500">25220</p>
+            </div>
+            <div class="bg-black/50 p-2 rounded border border-gray-800">
+                <p class="text-[9px] text-gray-500 uppercase">Strength</p>
+                <p class="text-lg font-black text-blue-400">78%</p>
+            </div>
+        </div>
+        <div class="p-2 bg-blue-900/20 border border-blue-500/50 rounded text-[11px] text-center uppercase font-black text-blue-100 italic">
+            MONITORING: STRIKE + LTP CALCULATION ACTIVE
+        </div>
+    </div>
+
+</body>
+</html>
