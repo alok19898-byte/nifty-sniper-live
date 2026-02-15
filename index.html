@@ -3,75 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nifty Sniper Live - Master</title>
+    <title>Nifty Sniper Live</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #030712; color: #d1d5db; font-family: 'Segoe UI', sans-serif; }
-        .bg-card { background-color: #111827; }
-        .border-sniper { border-color: #1d4ed8; }
-        .text-sniper { color: #3b82f6; }
-        .highlight-blue { background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-        .sticky-strike { position: sticky; left: 0; right: 0; background-color: #1f2937; z-index: 10; font-weight: bold; }
+        body { background-color: #0b1120; color: #e2e8f0; font-family: sans-serif; }
+        .blue-glow { border: 1px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+        .strike-col { background-color: #1e293b; font-weight: 800; color: #60a5fa; position: sticky; left: 0; }
     </style>
 </head>
 <body>
 
-    <div class="p-4 bg-gray-900 border-b border-gray-800 sticky top-0 z-30">
-        <div class="flex justify-between items-center max-w-5xl mx-auto">
+    <div class="p-4 bg-slate-900 border-b border-blue-900 sticky top-0 z-30 shadow-2xl">
+        <div class="flex justify-between items-center max-w-4xl mx-auto">
             <div>
-                <h1 class="text-xl font-black text-blue-500 tracking-tighter italic">NIFTY SNIPER 🎯</h1>
-                <p class="text-[10px] text-gray-500 uppercase font-bold">50-Point Frequency Logic</p>
+                <h1 class="text-xl font-black text-blue-500 italic">NIFTY SNIPER 🎯</h1>
+                <p class="text-[10px] text-blue-300 font-bold uppercase tracking-widest">50-PT Frequency Logic</p>
             </div>
             <div class="text-right">
-                <span class="text-xs text-gray-400 block">LIVE SPOT</span>
-                <span id="spot-price" class="text-lg font-mono font-bold text-white">25210.45</span>
+                <p class="text-[10px] text-gray-500 font-bold uppercase italic">Live Demo Data</p>
+                <p id="spot" class="text-xl font-mono font-bold text-white">25210.45</p>
             </div>
         </div>
     </div>
 
-    <div class="max-w-6xl mx-auto p-2">
-        <div class="overflow-x-auto rounded-lg border border-gray-800">
-            <table class="w-full text-[11px] text-center border-collapse">
+    <div class="p-2 max-w-5xl mx-auto">
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/50">
+            <table class="w-full text-[11px] text-center">
                 <thead>
-                    <tr class="bg-gray-800 text-gray-400 uppercase tracking-wider">
-                        <th class="p-2">OI Chg</th>
-                        <th class="p-2">OI</th>
-                        <th class="p-2">Vol</th>
-                        <th class="p-2 border-r border-gray-700">LTP (P)</th>
-                        <th class="p-2 bg-gray-900 text-blue-400 font-bold">STRIKE</th>
-                        <th class="p-2 border-l border-gray-700">LTP (C)</th>
-                        <th class="p-2">Vol</th>
-                        <th class="p-2">OI</th>
-                        <th class="p-2">OI Chg</th>
+                    <tr class="bg-slate-800 text-gray-400 border-b border-slate-700">
+                        <th class="p-3">OI CHG</th>
+                        <th class="p-3">OI</th>
+                        <th class="p-3 border-r border-slate-700">LTP (P)</th>
+                        <th class="p-3 bg-slate-900 text-blue-400">STRIKE</th>
+                        <th class="p-3 border-l border-slate-700">LTP (C)</th>
+                        <th class="p-3">OI</th>
+                        <th class="p-3 text-right pr-4">OI CHG</th>
                     </tr>
                 </thead>
-                <tbody id="sniper-table">
+                <tbody id="sniper-table-body">
                     </tbody>
             </table>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 border-t border-blue-900 z-40">
-        <div class="max-w-xl mx-auto grid grid-cols-2 gap-4">
-            <div class="bg-blue-950/40 p-3 rounded-lg border border-blue-500">
-                <p class="text-[10px] text-blue-300 font-bold">SNIPER RESISTANCE (R-50)</p>
+    <div class="fixed bottom-4 left-4 right-4 z-40 max-w-md mx-auto">
+        <div class="grid grid-cols-2 gap-3">
+            <div class="blue-glow bg-slate-900/95 p-3 rounded-xl backdrop-blur-md">
+                <p class="text-[9px] text-blue-400 font-bold uppercase">Sniper Resistance (R-50)</p>
                 <p id="res-val" class="text-xl font-black text-white">---</p>
             </div>
-            <div class="bg-blue-950/40 p-3 rounded-lg border border-blue-500">
-                <p class="text-[10px] text-blue-300 font-bold">SNIPER SUPPORT (S+50)</p>
+            <div class="blue-glow bg-slate-900/95 p-3 rounded-xl backdrop-blur-md">
+                <p class="text-[9px] text-blue-400 font-bold uppercase">Sniper Support (S+50)</p>
                 <p id="sup-val" class="text-xl font-black text-white">---</p>
             </div>
         </div>
     </div>
 
     <script>
-        // DATA SETTINGS
-        const atmStrike = 25200;
         const strikes = [25050, 25100, 25150, 25200, 25250, 25300, 25350];
+        const atm = 25200;
 
-        function updateUI() {
-            const table = document.getElementById('sniper-table');
-            table.innerHTML = "";
+        function refreshData() {
+            const tbody = document.getElementById('sniper-table-body');
+            tbody.innerHTML = '';
 
             strikes.forEach(s => {
-                const callLtp = (120 + (Math.random()
+                const callLtp = (110 + Math.random() * 15).toFixed(2);
+                const putLtp = (100 + Math.random() * 15).toFixed(2);
+                const isAtm = s === atm;
+
+                if(isAtm) {
+                    // Rule: Strike + LTP - 50
+                    document.getElementById('res-val').innerText = (s + parseFloat(callLtp) - 50).toFixed(2);
+                    document.getElementById('sup-val').innerText = (s - parseFloat(putLtp) + 50).toFixed(2);
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-800 ${isAtm ? 'bg-blue-600/10' : ''}">
+                        <td class="p-3 text-red-400…
