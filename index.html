@@ -2,162 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Nifty Sniper - Pressure Range Edition</title>
+    <title>Nifty Sniper - Safe/Risky Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #010409; color: #e6edf3; font-family: sans-serif; }
         .max-vol { background: #7c3aed !important; color: white !important; font-weight: bold; box-shadow: 0 0 10px #7c3aed; }
         .max-oi { background: #2563eb !important; color: white !important; font-weight: bold; box-shadow: 0 0 10px #2563eb; }
-        .max-oic { background: #ea580c !important; color: black !important; font-weight: bold; box-shadow: 0 0 10px #ea580c; }
+        .max-oic { background: #ea580c !important; color: white !important; font-weight: bold; box-shadow: 0 0 10px #ea580c; }
         .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; }
         .red-line { border-bottom: 5px solid #ff0000 !important; }
-        .signal-card { border-left: 4px solid #58a6ff; background: rgba(13, 17, 23, 0.8); }
-        .highlight-trade { color: #facc15; font-weight: 900; text-decoration: underline; }
+        .status-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body onload="initSniper()">
 
     <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50">
-        <div class="flex justify-between items-center mb-3">
-            <h1 class="text-xl font-black text-[#58a6ff] italic uppercase">Sniper Master Terminal 🎯</h1>
-            <div class="text-right">
-                <p id="spot" class="text-2xl font-mono font-bold text-white">25218.45</p>
-                <p id="pressure-status" class="text-[10px] font-bold uppercase text-yellow-500 italic">Detecting Pressure...</p>
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-xl font-black text-[#58a6ff] italic">SNIPER TERMINAL 🎯</h1>
+            <div id="risk-meter" class="px-4 py-1 rounded-full text-[12px] font-black uppercase status-pulse bg-green-900/30 text-green-400 border border-green-500">
+                SAFE TO TRADE
             </div>
         </div>
         
-        <div id="signal-box" class="signal-card p-3 rounded border border-[#30363d] grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-blue-900/10 border border-blue-500/30 p-2 rounded grid grid-cols-2 gap-4">
             <div>
-                <p class="text-[10px] text-gray-400 uppercase font-bold">Current Market Range</p>
-                <p id="market-range" class="text-sm font-bold text-white">Calculating...</p>
+                <p class="text-[9px] text-gray-400 uppercase font-bold">Pressure & Strength</p>
+                <p id="press-text" class="text-sm font-black italic">---</p>
             </div>
-            <div>
-                <p class="text-[10px] text-blue-400 uppercase font-bold">High Probability Entry</p>
-                <p id="entry-signal" class="text-sm font-bold text-yellow-400 italic">Waiting for setup...</p>
+            <div class="text-right">
+                <p class="text-[9px] text-gray-400 uppercase font-bold">WTT/WTB Strength</p>
+                <p id="strength-perc" class="text-sm font-black text-yellow-500">0%</p>
             </div>
         </div>
     </div>
 
-    <div class="p-2 overflow-x-auto mb-40">
+    <div class="p-2 mb-48">
         <table class="w-full text-center border-collapse">
             <thead>
-                <tr class="bg-[#161b22] text-gray-500 text-[10px] uppercase">
+                <tr class="bg-[#161b22] text-gray-400 text-[10px] uppercase">
                     <th class="p-3">IV</th><th class="p-3">OI Chg</th><th class="p-3">OI</th><th class="p-3">Vol</th>
-                    <th class="p-3 bg-green-900/10 text-green-400">LTP (C)</th>
-                    <th class="p-3 bg-[#0d1117] text-blue-400">STRIKE</th>
-                    <th class="p-3 bg-red-900/10 text-red-400">LTP (P)</th>
+                    <th class="p-3 text-green-400">LTP (C)</th>
+                    <th class="p-3 text-blue-400">STRIKE</th>
+                    <th class="p-3 text-red-400">LTP (P)</th>
                     <th class="p-3">Vol</th><th class="p-3">OI</th><th class="p-3">OI Chg</th><th class="p-3">IV</th>
                 </tr>
             </thead>
-            <tbody id="table-body" class="font-mono text-[13px] text-white"></tbody>
+            <tbody id="table-body" class="text-white font-mono text-[13px]"></tbody>
         </table>
     </div>
 
-    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-[#30363d] grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="bg-black/40 p-3 rounded border border-blue-500/30">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">R - Extension</p>
-            <p id="r-ext" class="text-xl font-black text-white">---</p>
-        </div>
-        <div class="bg-black/40 p-3 rounded border border-red-500/30">
-            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion</p>
-            <p id="r-div" class="text-xl font-black text-white">---</p>
-        </div>
-        <div class="bg-black/40 p-3 rounded border border-blue-500/30">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">S - Extension</p>
-            <p id="s-ext" class="text-xl font-black text-white">---</p>
-        </div>
-        <div class="bg-black/40 p-3 rounded border border-green-500/30">
-            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion</p>
-            <p id="s-div" class="text-xl font-black text-white">---</p>
-        </div>
-    </div>
-
-    <script>
-        function initSniper() {
-            const spot = 25218.45;
-            const strikes = [25100, 25150, 25200, 25250, 25300, 25350, 25400];
-            
-            function update() {
-                let data = strikes.map(s => ({
-                    strike: s,
-                    cIv: (11.5 + Math.random() * 2).toFixed(2),
-                    cOic: Math.floor(Math.random() * 20000),
-                    cOi: Math.floor(Math.random() * 40000) + (s === 25300 ? 10000 : 0),
-                    cVol: Math.floor(Math.random() * 90000) + (s === 25350 ? 15000 : 0),
-                    cLtp: (100 + Math.random() * 20).toFixed(2),
-                    pLtp: (90 + Math.random() * 20).toFixed(2),
-                    pVol: Math.floor(Math.random() * 90000),
-                    pOi: Math.floor(Math.random() * 40000),
-                    pOic: Math.floor(Math.random() * 20000),
-                    pIv: (11.5 + Math.random() * 2).toFixed(2)
-                }));
-
-                const max = {
-                    cVol: Math.max(...data.map(d => d.cVol)),
-                    cOi: Math.max(...data.map(d => d.cOi)),
-                    pVol: Math.max(...data.map(d => d.pVol)),
-                    pOi: Math.max(...data.map(d => d.pOi))
-                };
-
-                // Identify Support & Resistance
-                let resObj = data.find(d => d.cVol === max.cVol || d.cOi === max.cOi);
-                let supObj = data.find(d => d.pVol === max.pVol || d.pOi === max.pOi);
-
-                // --- NEW PRESSURE LOGIC ---
-                let pressure = "NONE";
-                if (max.cVol < max.pVol && max.cOi < max.pOi) pressure = "BULLISH";
-                if (max.cVol > max.pVol && max.cOi > max.pOi) pressure = "BEARISH";
-
-                let rangeText = "";
-                let entryText = "";
-                let statusColor = "text-yellow-500";
-
-                if (pressure === "BULLISH") {
-                    rangeText = ${supObj.strike} TO ${resObj.strike + 50} (WTT-1);
-                    entryText = Best Chance: BUY at ${supObj.strike} (S) or S+1;
-                    statusColor = "text-green-500";
-                } else if (pressure === "BEARISH") {
-                    rangeText = ${supObj.strike - 50} (WTB+1) TO ${resObj.strike};
-                    entryText = Best Chance: SELL at ${resObj.strike} (R) or R-1;
-                    statusColor = "text-red-500";
-                } else {
-                    rangeText = ${supObj.strike - 50} (S-1) TO ${resObj.strike + 50} (R+1);
-                    entryText = "Sideways: Trade from Extremes (S-1 or R+1)";
-                    statusColor = "text-yellow-500";
-                }
-
-                document.getElementById('pressure-status').innerText = pressure + " PRESSURE";
-                document.getElementById('pressure-status').className = text-[10px] font-bold uppercase italic ${statusColor};
-                document.getElementById('market-range').innerText = rangeText;
-                document.getElementById('entry-signal').innerText = entryText;
-
-                // Update Extensions
-                document.getElementById('r-ext').innerText = (resObj.strike + parseFloat(resObj.cLtp)).toFixed(2);
-                document.getElementById('s-ext').innerText = (supObj.strike - parseFloat(supObj.pLtp)).toFixed(2);
-
-                let html = "";
-                data.forEach((d, i) => {
-                    let isCrossover = (spot > d.strike && spot < (strikes[i+1] || 999999));
-                    html += `
-                        <tr class="${isCrossover ? 'red-line' : 'border-b border-[#30363d]'}">
-                            <td class="p-4 text-gray-500 italic">${d.cIv}</td>
-                            <td class="p-4 ${d.cOic === Math.max(...data.map(x=>x.cOic)) ? 'max-oic' : 'text-green-500'}">${d.cOic}</td>
-                            <td class="p-4 ${d.cOi === max.cOi ? 'max-oi' : ''}">${d.cOi}</td>
-                            <td class="p-4 ${d.cVol === max.cVol ? 'max-vol' : ''}">${d.cVol}</td>
-                            <td class="p-4 font-bold text-white">${d.cLtp}</td>
-                            <td class="p-4 strike-col text-[15px]">${d.strike}</td>
-                            <td class="p-4 font-bold text-white">${d.pLtp}</td>
-                            <td class="p-4 ${d.pVol === max.pVol ? 'max-vol' : ''}">${d.pVol}</td>
-                            <td class="p-4 ${d.pOi === max.pOi ? 'max-oi' : ''}">${d.pOi}</td>
-                            <td class="p-4 ${d.pOic === Math.max(...data.map(x=>x.pOic)) ? 'max-oic' : 'text-red-500'}">${d.pOic}</td>
-                            <td class="p-4 text-gray-500 italic">${d.pIv}</td>
-                        </tr>`;
-                });
-                document.getElementById('table-body').innerHTML = html;
-            }
-            update();
-            setInterval(update, 2000);
-        }
-    </script>
-</body>
-</html>
+    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-[#30363d]">
+        <div class="grid grid-cols-4 gap-2 mb-3">
+            <div class
