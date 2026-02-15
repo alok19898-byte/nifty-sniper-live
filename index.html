@@ -3,44 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sniper Terminal - Pro Master</title>
+    <title>Sniper Terminal - Pro Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #010409; color: #e6edf3; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 160px; }
+        body { background: #010409; color: #e6edf3; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 180px; }
         .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; }
-        .red-line-highlight { border-top: 4px solid #ff0000; border-bottom: 4px solid #ff0000; background: rgba(255, 0, 0, 0.15); box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
-        .prob-card { background: #0d1117; border: 2px solid #30363d; border-radius: 12px; transition: 0.3s; }
-        .prob-card:hover { border-color: #58a6ff; }
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.2; } }
-        .max-vol-box { background: #7c3aed; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .max-oi-box { background: #2563eb; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .red-line-glow { border-top: 4px solid #ff0000; border-bottom: 4px solid #ff0000; background: rgba(255, 0, 0, 0.2); box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
+        .card-pro { background: #0d1117; border: 2px solid #30363d; border-radius: 10px; position: relative; overflow: hidden; }
+        .blink-fast { animation: blinker 0.8s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.1; } }
+        .max-vol { background: #7c3aed; color: white; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+        .max-oi { background: #2563eb; color: white; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50 shadow-2xl">
+    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-black text-[#58a6ff] italic tracking-tighter uppercase">Sniper Terminal 🎯</h1>
+            <h1 class="text-2xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal 🎯</h1>
             <div class="flex gap-2">
-                <span class="px-3 py-1 bg-green-900/50 text-green-400 border border-green-500 rounded text-[10px] font-black uppercase">Master Protocol Active</span>
-                <span class="px-3 py-1 bg-blue-600 text-white rounded text-[10px] font-black uppercase">Safe Zone</span>
+                <span class="px-3 py-1 bg-green-600 text-white rounded text-[10px] font-black uppercase shadow-lg shadow-green-900/50">Safe to Trade</span>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div class="prob-card p-4 border-l-8 border-red-600 shadow-lg">
-                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">R+1 Extension (80% Prob)</p>
+            <div class="card-pro p-4 border-l-8 border-red-600">
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Resistance Entry (80%)</p>
                 <div class="flex justify-between items-center">
-                    <span class="text-3xl font-black text-red-500">25370</span>
-                    <span class="text-[11px] font-black bg-red-600 text-white px-3 py-1 rounded-full blink">ENTRY ZONE</span>
+                    <span class="text-3xl font-black text-red-500">25320</span>
+                    <span class="text-[10px] font-black bg-red-600 text-white px-3 py-1 rounded-full blink-fast uppercase">Sell Zone</span>
                 </div>
             </div>
-            <div class="prob-card p-4 border-l-8 border-green-600 shadow-lg">
-                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">S-1 Diversion (20% Prob)</p>
+            <div class="card-pro p-4 border-l-8 border-green-600">
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Support Retest (20%)</p>
                 <div class="flex justify-between items-center">
                     <span class="text-3xl font-black text-green-500">25270</span>
-                    <span class="text-[11px] font-black bg-green-600 text-white px-3 py-1 rounded-full">RETEST ZONE</span>
+                    <span class="text-[10px] font-black bg-green-600 text-white px-3 py-1 rounded-full uppercase">Buy Zone</span>
                 </div>
             </div>
         </div>
@@ -48,46 +46,45 @@
 
     <div class="p-2 overflow-x-auto">
         <table class="w-full text-center border-separate border-spacing-y-1">
-            <thead class="bg-[#0d1117] text-[11px] text-gray-500 uppercase font-bold">
+            <thead class="text-[11px] text-gray-500 uppercase font-black">
                 <tr>
-                    <th class="p-3">IV</th><th class="p-3">OI CHG</th><th class="p-3">OI</th><th class="p-3 text-green-400 italic">LTP (C)</th>
-                    <th class="p-3 text-blue-400">STRIKE</th>
-                    <th class="p-3 text-red-400 italic">LTP (P)</th><th class="p-3">VOL</th><th class="p-3">OI</th><th class="p-3">IV</th>
+                    <th class="p-3">IV</th><th class="p-3">OI CHG</th><th class="p-3">OI</th><th class="p-3 text-green-400">LTP(C)</th>
+                    <th class="p-3 text-blue-400 font-black">STRIKE</th>
+                    <th class="p-3 text-red-400">LTP(P)</th><th class="p-3">VOL</th><th class="p-3">OI</th>
                 </tr>
             </thead>
             <tbody class="font-mono text-[14px] text-white">
-                <tr class="bg-[#0d1117] border border-gray-800"><td>10.2</td><td class="text-green-500">+5k</td><td>18k</td><td class="font-black text-green-400">265.40</td><td class="strike-col">25100</td><td>25.10</td><td>45k</td><td>8k</td><td>11.2</td></tr>
-                <tr class="bg-[#0d1117] border border-gray-800"><td>10.8</td><td class="text-green-500">+12k</td><td><span class="max-oi-box">42k</span></td><td class="font-black text-green-400">210.20</td><td class="strike-col">25150</td><td>38.45</td><td><span class="max-vol-box">98k</span></td><td>15k</td><td>11.5</td></tr>
+                <tr class="bg-[#0d1117]"><td>10.2</td><td class="text-green-400">+4k</td><td>15k</td><td class="font-black text-green-400">210.45</td><td class="strike-col">25200</td><td>42.10</td><td>65k</td><td>18k</td></tr>
                 
-                <tr class="red-line-highlight"><td>11.4</td><td class="text-green-500">+18k</td><td>35k</td><td class="font-black text-green-400 underline italic">165.80</td><td class="strike-col">25200</td><td class="font-black text-red-400 underline italic">52.30</td><td>85k</td><td>28k</td><td>11.9</td></tr>
+                <tr class="red-line-glow"><td>11.5</td><td class="text-green-400">+12k</td><td><span class="max-oi">45k</span></td><td class="font-black text-green-400 italic">165.20</td><td class="strike-col">25250</td><td class="font-black text-red-400 italic">65.80</td><td><span class="max-vol">95k</span></td><td>22k</td></tr>
                 
-                <tr class="bg-[#0d1117] border border-gray-800"><td>12.1</td><td class="text-red-500">-2k</td><td>22k</td><td class="font-black text-green-400">120.00</td><td class="strike-col">25250</td><td>82.15</td><td>72k</td><td>35k</td><td>12.4</td></tr>
-                <tr class="bg-[#0d1117] border border-gray-800"><td>12.5</td><td class="text-red-500">-8k</td><td>15k</td><td class="font-black text-green-400">85.30</td><td class="strike-col">25300</td><td>115.40</td><td>55k</td><td><span class="max-oi-box">48k</span></td><td>12.8</td></tr>
+                <tr class="bg-[#0d1117]"><td>12.1</td><td class="text-red-400">-2k</td><td>32k</td><td class="font-black text-green-400">120.00</td><td class="strike-col">25300</td><td>85.45</td><td>78k</td><td><span class="max-oi">38k</span></td></tr>
+                <tr class="bg-[#0d1117]"><td>12.8</td><td class="text-red-400">-5k</td><td>18k</td><td class="font-black text-green-400">82.15</td><td class="strike-col">25350</td><td>112.30</td><td>52k</td><td>45k</td></tr>
             </tbody>
         </table>
     </div>
 
-    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-[#30363d] shadow-2xl">
+    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-[#30363d] shadow-2xl z-50">
         <div class="grid grid-cols-4 gap-2 text-center mb-3">
-            <div class="bg-black/60 p-2 rounded border border-gray-800">
-                <p class="text-[9px] text-gray-500 uppercase">Resistance</p>
+            <div class="bg-black/60 p-2 rounded border border-gray-800 shadow-inner">
+                <p class="text-[9px] text-gray-500 uppercase font-black">Resistance (R)</p>
                 <p class="text-lg font-black text-white">25320</p>
             </div>
-            <div class="bg-black/60 p-2 rounded border border-gray-800">
-                <p class="text-[9px] text-gray-500 uppercase">Diversion 1</p>
-                <p class="text-lg font-black text-yellow-400">25270</p>
+            <div class="bg-black/60 p-2 rounded border border-gray-800 shadow-inner">
+                <p class="text-[9px] text-gray-500 uppercase font-black">Support (S)</p>
+                <p class="text-lg font-black text-green-400">25270</p>
             </div>
-            <div class="bg-black/60 p-2 rounded border border-gray-800">
-                <p class="text-[9px] text-gray-500 uppercase">Diversion 2</p>
-                <p class="text-lg font-black text-yellow-600">25220</p>
+            <div class="bg-black/60 p-2 rounded border border-gray-800 shadow-inner">
+                <p class="text-[9px] text-gray-500 uppercase font-black">Diversion 2</p>
+                <p class="text-lg font-black text-yellow-500">25220</p>
             </div>
-            <div class="bg-black/60 p-2 rounded border border-gray-800">
-                <p class="text-[9px] text-gray-500 uppercase">Strength %</p>
+            <div class="bg-black/60 p-2 rounded border border-gray-800 shadow-inner">
+                <p class="text-[9px] text-gray-500 uppercase font-black">Strength %</p>
                 <p class="text-lg font-black text-blue-400">75%</p>
             </div>
         </div>
         <div class="p-2 bg-blue-900/30 border border-blue-500/50 rounded text-[11px] text-center uppercase font-black text-blue-100 italic">
-            Monitoring: Strike (25300) + LTP (20) = 25320 Calculation Active
+            Monitoring: Resistance (S+1) Entry Logic Active | 50 Point Frequency
         </div>
     </div>
 
