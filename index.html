@@ -3,39 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nifty Sniper - Pro Scanner</title>
+    <title>Nifty Sniper - Real Logic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #020617; color: #f8fafc; font-family: sans-serif; }
-        .max-val { background: #3b82f6; color: white; border-radius: 4px; padding: 2px 4px; font-weight: 900; } /* Blue highlight for max */
-        .strike-col { background: #1e293b; font-weight: 900; color: #60a5fa; border: 1px solid #334155; }
-        .il-line { border-bottom: 3px dashed #facc15; } /* Imaginary Line */
-        .data-cell { font-family: 'Courier New', monospace; font-size: 12px; }
+        body { background-color: #010409; color: #c9d1d9; font-family: 'Inter', sans-serif; }
+        /* Highest Value Highlight */
+        .highest-box { background: #1d4ed8 !important; color: #ffffff !important; font-weight: 900; border-radius: 2px; }
+        .strike-col { background: #161b22; color: #58a6ff; font-weight: bold; border: 1px solid #30363d; }
+        .il-line { border-bottom: 3px dashed #e3b341; } /* Yellow Imaginary Line */
+        .data-row:hover { background: #161b22; }
     </style>
 </head>
 <body>
 
-    <div class="p-4 bg-slate-900 border-b-2 border-blue-600 sticky top-0 z-50 flex justify-between items-center">
+    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center sticky top-0 z-50">
         <div>
-            <h1 class="text-2xl font-black text-blue-500 italic">SNIPER TERMINAL 🎯</h1>
-            <p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">Scanning: Highest Volume | OI | OI Change</p>
+            <h1 class="text-xl font-black text-[#58a6ff]">SNIPER TERMINAL 🎯</h1>
+            <p class="text-[10px] text-yellow-500 font-bold uppercase">Scanner: Vol | OI | OI Chg</p>
         </div>
         <div class="text-right">
-            <p id="spot-price" class="text-2xl font-mono font-bold text-white">25212.50</p>
-            <p class="text-[10px] text-gray-400">SPOT PRICE</p>
+            <p id="spot" class="text-xl font-mono font-bold text-white">25212.50</p>
         </div>
     </div>
 
-    <div class="p-2 overflow-x-auto mb-32">
-        <table class="w-full text-center border-collapse">
+    <div class="p-2 overflow-x-auto mb-40">
+        <table class="w-full text-[12px] text-center border-collapse">
             <thead>
-                <tr class="bg-slate-800 text-gray-400 text-[10px] uppercase">
-                    <th class="p-2">OI Change</th>
+                <tr class="text-gray-500 uppercase text-[10px] bg-[#161b22]">
+                    <th class="p-2">OI Chg</th>
                     <th class="p-2">OI</th>
                     <th class="p-2">Volume</th>
-                    <th class="p-2 bg-red-900/30 text-white">LTP (P)</th>
-                    <th class="p-2 bg-slate-900 text-blue-400">STRIKE</th>
-                    <th class="p-2 bg-green-900/30 text-white">LTP (C)</th>
+                    <th class="p-2 bg-red-900/10 text-red-400">LTP (P)</th>
+                    <th class="p-2">STRIKE</th>
+                    <th class="p-2 bg-green-900/10 text-green-400">LTP (C)</th>
                     <th class="p-2">Volume</th>
                     <th class="p-2">OI</th>
-                    <th class="p-
+                    <th class="p-2">OI Chg</th>
+                </tr>
+            </thead>
+            <tbody id="chain-body">
+                </tbody>
+        </table>
+    </div>
+
+    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t border-[#30363d] grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-black/40 p-3 rounded border border-blue-500/50">
+            <p class="text-[9px] text-blue-400 font-bold uppercase">Resistance Extension</p>
+            <p id="r-ext" class="text-lg font-black text-white">---</p>
+        </div>
+        <div class="bg-black/40 p-3 rounded border border-red-500/50">
+            <p class="text-[9px] text-red-400 font-bold uppercase">Resistance Diversion</p>
+            <p id="r-div" class="text-lg font-black text-white">---</p>
+        </div>
+        <div class="bg-black/40 p-3 rounded border border-blue-500/50">
+            <p class="text-[9px] text-blue-400 font-bold uppercase">Support Extension</p>
+            <p id="s-ext" class="text-lg font-black text-white">---</p>
+        </div>
+        <div class="bg-black/40 p-3 rounded border border-green-500/50">
+            <p class="text-[9px] text-green-400 font-bold uppercase">Support Diversion</p>
+            <p id="s-div" class="text-lg font-black text-white">---</p>
+        </div>
+    </div>
+
+    <script>
+        function runScanner() {
+            const spot = 25212.50;
+            const strikes = [25050, 25100, 25150, 25200, 25250, 25300, 25350];
+            
+            // Dummy Live Data (Will be replaced by Dhan API)
+            let rawData = strikes.map(s => ({
+                strike: s,
+                cVol: Math.floor(Math.random() * 90000),
+                cOi: Math.floor(Math.random() * 40000),
+                cOic: Math.floor(Math.random() * 15000),
+                cLtp: (90 + Math.random() * 50).toFixed(2),
+                pVol: Math.floor(Math.random() * 90000),
+                pOi: Math.floor(Math.random() * 40000),
+                pOic: Math.floor(Math.random() * 15000),
+                pLtp: (90 + Math.random() * 50).toFixed(2)
+            }));
+
+            // FIND HIGHEST ACROSS COLUMNS
+            const max = {
+                cVol: Math.max(...rawData.map(d => d.cVol)),
+                cOi: Math.max(...rawData.map(d => d.cOi)),
+                cOic: Math.max(...rawData.map(d => d.cOic)),
+                pVol: Math.max(...rawData.map(d => d.pVol)),
+                pOi: Math.max(...rawData.map(d => d.pOi)),
+                pOic: Math.max(...rawData.map(d => d.pOic))
+            };
+
+            // SCANNER FOR R & S STRIKES (Based on Highest Volume/OI)
+            let resObj = rawData.reduce((prev, curr) => (curr.cVol > prev.cVol) ? curr : prev);
+            let supObj = rawData.reduce((prev, curr) => (curr.pVol > prev.pVol) ? curr : prev);
+
+            // CALCULATION LOGIC
+            let rExt = resObj.strike + parseFloat(resObj.cLtp);
+            let sExt = supObj.strike - parseFloat(supObj.pLtp);
+
+            document.getElementById('r-ext').innerText = rExt.toFixed(2);
+            document.getElementById('r-div').innerText = (rExt - 50).toFixed(2);
+            document.getElementById('s-ext').innerText = sExt.toFixed(2);
+            document.getElementById('s-div').innerText = (sExt + 50).toFixed(2);
+
+            // RENDER TABLE
+            const tbody = document.getElementById('chain-body');
+            tbody.innerHTML = '';
+            rawData.forEach((d, i) => {
+                let isIl = (spot > d.strike && spot < (strikes[i+1] || 999999));
+                
+                tbody.innerHTML += `
+                    <tr class="data-row border-b border-[#30363d] ${isIl ? 'il-line' : ''}">
+                        <td class="p-3 ${d.pOic === max.pOic ? 'highest-box' : ''}">${d.pOic}</td>
+                        <td class="p-3 ${d.pOi === max.pOi ? 'highest-box' : ''}">${d.pOi}</td>
+                        <td class="p-3 ${d.pVol === max.pVol ? 'highest-box' : ''}">${d.pVol}</td>
+                        <td class="p-3 font-bold text-white">${d.pLtp}</td>
+                        <td class="p-3 strike-col">${d.strike}</td>
+                        <td class="p-3 font-bold text-white">${d.cLtp}</td>
+                        <td class="p-3 ${d.cVol === max.cVol ? 'highest-box' : ''}">${d.cVol}</td>
+                        <td class="p-3 ${d.cOi === max.cOi ? 'highest-box' : ''}">${d.cOi}</td>
+                        <td class="p-3 ${d.cOic === max.cOic ? 'highest-box' : ''}">${d.cOic}</td>
+                    </tr>
+                `;
+            });
+        }
+        setInterval(runScanner, 1500);
+        runScanner();
+    </script>
+</body>
+</html>
