@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nifty Sniper - Real Logic</title>
+    <title>Nifty Sniper - Professional Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #010409; color: #c9d1d9; font-family: 'Inter', sans-serif; }
-        /* Highest Value Highlight */
-        .highest-box { background: #1d4ed8 !important; color: #ffffff !important; font-weight: 900; border-radius: 2px; }
+        body { background-color: #010409; color: #c9d1d9; font-family: sans-serif; }
+        .highest-val { background: #1d4ed8 !important; color: white !important; font-weight: 900; border-radius: 4px; padding: 2px; }
         .strike-col { background: #161b22; color: #58a6ff; font-weight: bold; border: 1px solid #30363d; }
-        .il-line { border-bottom: 3px dashed #e3b341; } /* Yellow Imaginary Line */
+        .il-line { border-bottom: 3px dashed #e3b341; }
         .data-row:hover { background: #161b22; }
     </style>
 </head>
@@ -19,26 +18,27 @@
     <div class="p-4 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center sticky top-0 z-50">
         <div>
             <h1 class="text-xl font-black text-[#58a6ff]">SNIPER TERMINAL 🎯</h1>
-            <p class="text-[10px] text-yellow-500 font-bold uppercase">Scanner: Vol | OI | OI Chg</p>
+            <p class="text-[10px] text-yellow-500 font-bold uppercase tracking-widest">Logic: Highest Vol/OI/OIC Scanner</p>
         </div>
         <div class="text-right">
-            <p id="spot" class="text-xl font-mono font-bold text-white">25212.50</p>
+            <p id="spot" class="text-2xl font-mono font-bold text-white tracking-tighter">25212.45</p>
+            <p class="text-[10px] text-gray-500 uppercase">Nifty Spot Live</p>
         </div>
     </div>
 
     <div class="p-2 overflow-x-auto mb-40">
         <table class="w-full text-[12px] text-center border-collapse">
             <thead>
-                <tr class="text-gray-500 uppercase text-[10px] bg-[#161b22]">
-                    <th class="p-2">OI Chg</th>
-                    <th class="p-2">OI</th>
-                    <th class="p-2">Volume</th>
-                    <th class="p-2 bg-red-900/10 text-red-400">LTP (P)</th>
-                    <th class="p-2">STRIKE</th>
-                    <th class="p-2 bg-green-900/10 text-green-400">LTP (C)</th>
-                    <th class="p-2">Volume</th>
-                    <th class="p-2">OI</th>
-                    <th class="p-2">OI Chg</th>
+                <tr class="text-gray-500 uppercase text-[10px] bg-[#161b22] border-b border-[#30363d]">
+                    <th class="p-3">OI Chg</th>
+                    <th class="p-3">OI</th>
+                    <th class="p-3">Volume</th>
+                    <th class="p-3 bg-red-900/10 text-red-400">LTP (P)</th>
+                    <th class="p-3">STRIKE</th>
+                    <th class="p-3 bg-green-900/10 text-green-400">LTP (C)</th>
+                    <th class="p-3">Volume</th>
+                    <th class="p-3">OI</th>
+                    <th class="p-3">OI Chg</th>
                 </tr>
             </thead>
             <tbody id="chain-body">
@@ -46,89 +46,87 @@
         </table>
     </div>
 
-    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t border-[#30363d] grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-blue-900 grid grid-cols-2 md:grid-cols-4 gap-3 shadow-2xl">
         <div class="bg-black/40 p-3 rounded border border-blue-500/50">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">Resistance Extension</p>
-            <p id="r-ext" class="text-lg font-black text-white">---</p>
+            <p class="text-[9px] text-blue-400 font-bold uppercase">R - Extension (Strike+LTP)</p>
+            <p id="r-ext" class="text-xl font-black text-white">---</p>
         </div>
         <div class="bg-black/40 p-3 rounded border border-red-500/50">
-            <p class="text-[9px] text-red-400 font-bold uppercase">Resistance Diversion</p>
-            <p id="r-div" class="text-lg font-black text-white">---</p>
+            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion (-50)</p>
+            <p id="r-div" class="text-xl font-black text-white">---</p>
         </div>
         <div class="bg-black/40 p-3 rounded border border-blue-500/50">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">Support Extension</p>
-            <p id="s-ext" class="text-lg font-black text-white">---</p>
+            <p class="text-[9px] text-blue-400 font-bold uppercase">S - Extension (Strike-LTP)</p>
+            <p id="s-ext" class="text-xl font-black text-white">---</p>
         </div>
         <div class="bg-black/40 p-3 rounded border border-green-500/50">
-            <p class="text-[9px] text-green-400 font-bold uppercase">Support Diversion</p>
-            <p id="s-div" class="text-lg font-black text-white">---</p>
+            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion (+50)</p>
+            <p id="s-div" class="text-xl font-black text-white">---</p>
         </div>
     </div>
 
     <script>
-        function runScanner() {
-            const spot = 25212.50;
+        function runSniperScanner() {
+            const spot = 25212.45;
             const strikes = [25050, 25100, 25150, 25200, 25250, 25300, 25350];
             
-            // Dummy Live Data (Will be replaced by Dhan API)
-            let rawData = strikes.map(s => ({
+            // Simulating Real Market Data for Demo
+            let data = strikes.map(s => ({
                 strike: s,
-                cVol: Math.floor(Math.random() * 90000),
+                cVol: Math.floor(Math.random() * 90000) + (s === 25300 ? 50000 : 0),
                 cOi: Math.floor(Math.random() * 40000),
                 cOic: Math.floor(Math.random() * 15000),
-                cLtp: (90 + Math.random() * 50).toFixed(2),
-                pVol: Math.floor(Math.random() * 90000),
+                cLtp: (95 + Math.random() * 40).toFixed(2),
+                pVol: Math.floor(Math.random() * 90000) + (s === 25100 ? 50000 : 0),
                 pOi: Math.floor(Math.random() * 40000),
                 pOic: Math.floor(Math.random() * 15000),
-                pLtp: (90 + Math.random() * 50).toFixed(2)
+                pLtp: (90 + Math.random() * 40).toFixed(2)
             }));
 
-            // FIND HIGHEST ACROSS COLUMNS
+            // Identify Highest Values for Highlighting
             const max = {
-                cVol: Math.max(...rawData.map(d => d.cVol)),
-                cOi: Math.max(...rawData.map(d => d.cOi)),
-                cOic: Math.max(...rawData.map(d => d.cOic)),
-                pVol: Math.max(...rawData.map(d => d.pVol)),
-                pOi: Math.max(...rawData.map(d => d.pOi)),
-                pOic: Math.max(...rawData.map(d => d.pOic))
+                cVol: Math.max(...data.map(d => d.cVol)),
+                cOi: Math.max(...data.map(d => d.cOi)),
+                cOic: Math.max(...data.map(d => d.cOic)),
+                pVol: Math.max(...data.map(d => d.pVol)),
+                pOi: Math.max(...data.map(d => d.pOi)),
+                pOic: Math.max(...data.map(d => d.pOic))
             };
 
-            // SCANNER FOR R & S STRIKES (Based on Highest Volume/OI)
-            let resObj = rawData.reduce((prev, curr) => (curr.cVol > prev.cVol) ? curr : prev);
-            let supObj = rawData.reduce((prev, curr) => (curr.pVol > prev.pVol) ? curr : prev);
+            // SCANNER LOGIC: Find strike with max Volume/OI
+            let rStrikeObj = data.reduce((prev, curr) => (curr.cVol > prev.cVol) ? curr : prev);
+            let sStrikeObj = data.reduce((prev, curr) => (curr.pVol > prev.pVol) ? curr : prev);
 
-            // CALCULATION LOGIC
-            let rExt = resObj.strike + parseFloat(resObj.cLtp);
-            let sExt = supObj.strike - parseFloat(supObj.pLtp);
+            // EXTENSION CALCULATION (As per your Rule)
+            let rExt = rStrikeObj.strike + parseFloat(rStrikeObj.cLtp);
+            let sExt = sStrikeObj.strike - parseFloat(sStrikeObj.pLtp);
 
             document.getElementById('r-ext').innerText = rExt.toFixed(2);
             document.getElementById('r-div').innerText = (rExt - 50).toFixed(2);
             document.getElementById('s-ext').innerText = sExt.toFixed(2);
             document.getElementById('s-div').innerText = (sExt + 50).toFixed(2);
 
-            // RENDER TABLE
+            // Populate Table
             const tbody = document.getElementById('chain-body');
             tbody.innerHTML = '';
-            rawData.forEach((d, i) => {
+            data.forEach((d, i) => {
                 let isIl = (spot > d.strike && spot < (strikes[i+1] || 999999));
-                
                 tbody.innerHTML += `
                     <tr class="data-row border-b border-[#30363d] ${isIl ? 'il-line' : ''}">
-                        <td class="p-3 ${d.pOic === max.pOic ? 'highest-box' : ''}">${d.pOic}</td>
-                        <td class="p-3 ${d.pOi === max.pOi ? 'highest-box' : ''}">${d.pOi}</td>
-                        <td class="p-3 ${d.pVol === max.pVol ? 'highest-box' : ''}">${d.pVol}</td>
-                        <td class="p-3 font-bold text-white">${d.pLtp}</td>
-                        <td class="p-3 strike-col">${d.strike}</td>
-                        <td class="p-3 font-bold text-white">${d.cLtp}</td>
-                        <td class="p-3 ${d.cVol === max.cVol ? 'highest-box' : ''}">${d.cVol}</td>
-                        <td class="p-3 ${d.cOi === max.cOi ? 'highest-box' : ''}">${d.cOi}</td>
-                        <td class="p-3 ${d.cOic === max.cOic ? 'highest-box' : ''}">${d.cOic}</td>
-                    </tr>
-                `;
+                        <td class="p-4 ${d.pOic === max.pOic ? 'highest-val' : 'text-red-400'}">${d.pOic}</td>
+                        <td class="p-4 ${d.pOi === max.pOi ? 'highest-val' : ''}">${d.pOi}</td>
+                        <td class="p-4 ${d.pVol === max.pVol ? 'highest-val' : ''}">${d.pVol}</td>
+                        <td class="p-4 font-bold text-white tracking-tighter">${d.pLtp}</td>
+                        <td class="p-4 strike-col">${d.strike}</td>
+                        <td class="p-4 font-bold text-white tracking-tighter">${d.cLtp}</td>
+                        <td class="p-4 ${d.cVol === max.cVol ? 'highest-val' : ''}">${d.cVol}</td>
+                        <td class="p-4 ${d.cOi === max.cOi ? 'highest-val' : ''}">${d.cOi}</td>
+                        <td class="p-4 ${d.cOic === max.cOic ? 'highest-val' : 'text-green-400'}">${d.cOic}</td>
+                    </tr>`;
             });
         }
-        setInterval(runScanner, 1500);
-        runScanner();
+        setInterval(runSniperScanner, 1500);
+        runSniperScanner();
     </script>
 </body>
 </html>
