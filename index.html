@@ -2,86 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Nifty Sniper Pro - Multi-Color Scanner</title>
+    <title>Nifty Sniper - Color Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #020617; color: white; font-family: sans-serif; }
-        /* Different Colors for different Highests */
-        .max-vol { background-color: #7c3aed !important; color: white !important; font-weight: bold; border-radius: 4px; } /* Purple for Volume */
-        .max-oi { background-color: #2563eb !important; color: white !important; font-weight: bold; border-radius: 4px; }  /* Blue for OI */
-        .max-oic { background-color: #ea580c !important; color: white !important; font-weight: bold; border-radius: 4px; } /* Orange for OI Chg */
+        body { background-color: #010409; color: #e6edf3; font-family: sans-serif; }
+        /* HAR EK KE LIYE ALAG COLOR */
+        .max-vol { background-color: #d122e3 !important; color: white !important; font-weight: bold; border-radius: 4px; box-shadow: 0 0 10px #d122e3; }
+        .max-oi { background-color: #0070f3 !important; color: white !important; font-weight: bold; border-radius: 4px; box-shadow: 0 0 10px #0070f3; }
+        .max-oic { background-color: #f5a623 !important; color: black !important; font-weight: bold; border-radius: 4px; box-shadow: 0 0 10px #f5a623; }
         
-        .strike-col { background-color: #1e293b; color: #60a5fa; font-weight: 900; border: 1px solid #334155; }
-        .il-line { border-bottom: 3px dashed #facc15; }
-        .data-row:hover { background-color: #1e293b; }
+        .strike-col { background-color: #161b22; color: #58a6ff; font-weight: 900; border-left: 1px solid #30363d; border-right: 1px solid #30363d; }
+        .il-line { border-bottom: 3px dashed #f1c40f; }
+        .data-cell { font-family: 'Courier New', monospace; font-size: 13px; }
     </style>
 </head>
-<body onload="updateDashboard()">
+<body onload="runSniper()">
 
-    <div class="p-4 bg-slate-900 border-b border-blue-600 flex justify-between items-center sticky top-0 z-50">
+    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center sticky top-0 z-50">
         <div>
-            <h1 class="text-xl font-bold text-blue-500 italic">SNIPER TERMINAL 🎯</h1>
-            <p class="text-[9px] text-gray-400">VOL: PURPLE | OI: BLUE | OIC: ORANGE</p>
+            <h1 class="text-xl font-black text-[#58a6ff] italic">SNIPER TERMINAL 🎯</h1>
+            <p class="text-[10px] font-bold text-gray-500 uppercase">VOL: PURPLE | OI: BLUE | OIC: ORANGE</p>
         </div>
         <div class="text-right">
-            <p id="spot" class="text-2xl font-mono font-bold text-white">25215.50</p>
+            <p id="spot" class="text-2xl font-mono font-bold text-white tracking-tighter">25215.50</p>
+            <span class="text-[9px] bg-green-900 text-green-300 px-2 py-0.5 rounded">LIVE SCANNER</span>
         </div>
     </div>
 
     <div class="p-2 overflow-x-auto mb-40">
-        <table class="w-full text-center text-[11px] border-collapse">
+        <table class="w-full text-center border-collapse">
             <thead>
-                <tr class="bg-slate-800 text-gray-400 uppercase">
-                    <th class="p-2">OI Chg</th>
-                    <th class="p-2">OI</th>
-                    <th class="p-2">Vol</th>
-                    <th class="p-2 bg-green-900/20 text-green-400">LTP (C)</th>
-                    <th class="p-2 bg-slate-900 text-blue-400">STRIKE</th>
-                    <th class="p-2 bg-red-900/20 text-red-400">LTP (P)</th>
-                    <th class="p-2">Vol</th>
-                    <th class="p-2">OI</th>
-                    <th class="p-2">OI Chg</th>
+                <tr class="bg-[#161b22] text-gray-500 text-[10px] uppercase">
+                    <th class="p-3">OI Chg</th>
+                    <th class="p-3">OI</th>
+                    <th class="p-3">Vol</th>
+                    <th class="p-3 bg-green-900/10 text-green-400">LTP (C)</th>
+                    <th class="p-3 bg-[#0d1117] text-blue-400">STRIKE</th>
+                    <th class="p-3 bg-red-900/10 text-red-400">LTP (P)</th>
+                    <th class="p-3">Vol</th>
+                    <th class="p-3">OI</th>
+                    <th class="p-3">OI Chg</th>
                 </tr>
             </thead>
-            <tbody id="table-body" class="font-mono">
-                </tbody>
+            <tbody id="table-body" class="data-cell"></tbody>
         </table>
     </div>
 
-    <div class="fixed bottom-0 w-full p-4 bg-slate-950 border-t-2 border-blue-900 grid grid-cols-2 md:grid-cols-4 gap-2">
-        <div class="bg-slate-900 p-2 rounded border border-blue-500/50">
+    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-[#30363d] grid grid-cols-2 md:grid-cols-4 gap-3 shadow-2xl">
+        <div class="bg-black/40 p-3 rounded border border-blue-500/30">
             <p class="text-[9px] text-blue-400 font-bold uppercase">R - Extension</p>
-            <p id="r-ext" class="text-lg font-black text-white">---</p>
+            <p id="r-ext" class="text-xl font-black text-white">---</p>
         </div>
-        <div class="bg-slate-900 p-2 rounded border border-red-500/50">
-            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion</p>
-            <p id="r-div" class="text-lg font-black text-white">---</p>
+        <div class="bg-black/40 p-3 rounded border border-red-500/30">
+            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion (-50)</p>
+            <p id="r-div" class="text-xl font-black text-white">---</p>
         </div>
-        <div class="bg-slate-900 p-2 rounded border border-blue-500/50">
+        <div class="bg-black/40 p-3 rounded border border-blue-500/30">
             <p class="text-[9px] text-blue-400 font-bold uppercase">S - Extension</p>
-            <p id="s-ext" class="text-lg font-black text-white">---</p>
+            <p id="s-ext" class="text-xl font-black text-white">---</p>
         </div>
-        <div class="bg-slate-900 p-2 rounded border border-green-500/50">
-            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion</p>
-            <p id="s-div" class="text-lg font-black text-white">---</p>
+        <div class="bg-black/40 p-3 rounded border border-green-500/30">
+            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion (+50)</p>
+            <p id="s-div" class="text-xl font-black text-white">---</p>
         </div>
     </div>
 
     <script>
-        function updateDashboard() {
+        function runSniper() {
             const spotPrice = 25215.50;
             const strikes = [25100, 25150, 25200, 25250, 25300, 25350, 25400];
             
             let data = strikes.map(s => ({
                 strike: s,
-                cVol: Math.floor(Math.random() * 80000) + (s === 25300 ? 50000 : 10000),
-                cOi: Math.floor(Math.random() * 40000) + (s === 25350 ? 30000 : 5000),
+                cVol: Math.floor(Math.random() * 80000) + (s === 25300 ? 40000 : 0),
+                cOi: Math.floor(Math.random() * 40000) + (s === 25350 ? 20000 : 0),
                 cOic: Math.floor(Math.random() * 20000),
-                cLtp: (100 + Math.random() * 30).toFixed(2),
-                pVol: Math.floor(Math.random() * 80000) + (s === 25150 ? 50000 : 10000),
-                pOi: Math.floor(Math.random() * 40000) + (s === 25100 ? 30000 : 5000),
+                cLtp: (105 + Math.random() * 25).toFixed(2),
+                pVol: Math.floor(Math.random() * 80000) + (s === 25150 ? 40000 : 0),
+                pOi: Math.floor(Math.random() * 40000) + (s === 25100 ? 20000 : 0),
                 pOic: Math.floor(Math.random() * 20000),
-                pLtp: (90 + Math.random() * 30).toFixed(2)
+                pLtp: (95 + Math.random() * 25).toFixed(2)
             }));
 
             const max = {
@@ -93,8 +93,37 @@
                 pOic: Math.max(...data.map(d => d.pOic))
             };
 
-            // Logic for R and S based on highest values
-            let resObj = data.reduce((prev, curr) => (curr.cVol >= max.cVol || curr.cOi >= max.cOi) ? curr : prev);
-            let supObj = data.reduce((prev, curr) => (curr.pVol >= max.pVol || curr.pOi >= max.pOi) ? curr : prev);
+            // SCANNER LOGIC FOR R & S
+            let resObj = data.reduce((p, c) => (c.cVol >= max.cVol || c.cOi >= max.cOi) ? c : p);
+            let supObj = data.reduce((p, c) => (c.pVol >= max.pVol || c.pOi >= max.pOi) ? c : p);
 
-            let rE = res
+            let rE = resObj.strike + parseFloat(resObj.cLtp);
+            let sE = supObj.strike - parseFloat(supObj.pLtp);
+
+            document.getElementById('r-ext').innerText = rE.toFixed(2);
+            document.getElementById('r-div').innerText = (rE - 50).toFixed(2);
+            document.getElementById('s-ext').innerText = sE.toFixed(2);
+            document.getElementById('s-div').innerText = (sE + 50).toFixed(2);
+
+            let html = "";
+            data.forEach((d, i) => {
+                let isIl = (spotPrice > d.strike && spotPrice < (strikes[i+1] || 99999));
+                html += `
+                    <tr class="border-b border-[#30363d] ${isIl ? 'il-line' : ''}">
+                        <td class="p-3 ${d.cOic === max.cOic ? 'max-oic' : 'text-green-500'}">${d.cOic}</td>
+                        <td class="p-3 ${d.cOi === max.cOi ? 'max-oi' : ''}">${d.cOi}</td>
+                        <td class="p-3 ${d.cVol === max.cVol ? 'max-vol' : ''}">${d.cVol}</td>
+                        <td class="p-3 font-bold text-white">${d.cLtp}</td>
+                        <td class="p-3 strike-col">${d.strike}</td>
+                        <td class="p-3 font-bold text-white">${d.pLtp}</td>
+                        <td class="p-3 ${d.pVol === max.pVol ? 'max-vol' : ''}">${d.pVol}</td>
+                        <td class="p-3 ${d.pOi === max.pOi ? 'max-oi' : ''}">${d.pOi}</td>
+                        <td class="p-3 ${d.pOic === max.pOic ? 'max-oic' : 'text-red-500'}">${d.pOic}</td>
+                    </tr>`;
+            });
+            document.getElementById('table-body').innerHTML = html;
+        }
+        setInterval(runSniper, 1500);
+    </script>
+</body>
+</html>
