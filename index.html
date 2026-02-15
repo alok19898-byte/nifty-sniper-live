@@ -2,66 +2,144 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Nifty Sniper - Probability Master</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sniper Terminal - Ultimate Protocol</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #010409; color: #e6edf3; font-family: 'Segoe UI', sans-serif; }
-        .max-vol { background: #7c3aed !important; box-shadow: 0 0 15px #7c3aed; color: white !important; font-weight: bold; border-radius: 4px; }
-        .max-oi { background: #2563eb !important; box-shadow: 0 0 15px #2563eb; color: white !important; font-weight: bold; border-radius: 4px; }
+        body { background: #010409; color: #e6edf3; font-family: sans-serif; }
+        .max-vol { background: #7c3aed !important; box-shadow: 0 0 10px #7c3aed; color: white !important; font-weight: bold; }
         .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; }
-        .red-line { border-bottom: 6px solid #ff0000 !important; box-shadow: 0 4px 20px rgba(255, 0, 0, 0.6); }
-        .prob-card { background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; }
-        .status-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .red-line { border-bottom: 5px solid #ff0000 !important; box-shadow: 0 4px 15px rgba(255,0,0,0.5); }
+        .prob-card { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .soc-blink { background: #7f1d1d !important; animation: pulse 1s infinite; }
     </style>
 </head>
-<body onload="startSniper()">
+<body onload="initTerminal()">
 
     <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50">
-        <div class="flex justify-between items-end mb-4">
-            <div>
-                <h1 class="text-2xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal</h1>
-                <p id="protocol-label" class="text-[10px] font-bold text-yellow-500 uppercase">Master Protocol Active</p>
-            </div>
-            <div class="text-right">
-                <p class="text-[10px] text-gray-500 font-bold">LTP REF (M/V)</p>
-                <p id="ltp-ref" class="text-lg font-mono font-bold text-white">312 / 262</p>
-            </div>
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl font-black text-[#58a6ff] italic uppercase">Sniper Master 🎯</h1>
+            <div id="risk-status" class="px-3 py-1 rounded text-[10px] font-black uppercase">SCANNING...</div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-2">
-            <div class="prob-card p-3 rounded-xl border-l-4 border-green-500 shadow-lg">
-                <p class="text-[9px] text-gray-400 font-bold uppercase">S+1 Entry (High Prob)</p>
-                <div class="flex justify-between items-baseline">
-                    <span id="s1-val" class="text-xl font-black text-green-400">325.00</span>
-                    <span class="text-xs font-black text-white bg-green-600 px-2 rounded-full status-pulse">80% CHANCE</span>
+        <div class="grid grid-cols-2 gap-3">
+            <div class="prob-card border-l-4 border-red-500">
+                <p class="text-[8px] text-gray-500 font-bold uppercase">R+1 Extension (Entry)</p>
+                <div class="flex justify-between items-center">
+                    <span id="r-plus" class="text-lg font-black text-red-400">0.00</span>
+                    <span class="text-[9px] font-black bg-red-600 text-white px-2 rounded-full">80% CHANCE</span>
                 </div>
             </div>
-            <div class="prob-card p-3 rounded-xl border-l-4 border-blue-500 shadow-lg">
-                <p class="text-[9px] text-gray-400 font-bold uppercase">S Entry (Deep Value)</p>
-                <div class="flex justify-between items-baseline">
-                    <span id="s-val" class="text-xl font-black text-blue-400">275.00</span>
-                    <span class="text-xs font-black text-white bg-blue-600 px-2 rounded-full">20% CHANCE</span>
+            <div class="prob-card border-l-4 border-green-500">
+                <p class="text-[8px] text-gray-500 font-bold uppercase">S-1 Diversion (Retest)</p>
+                <div class="flex justify-between items-center">
+                    <span id="s-minus" class="text-lg font-black text-green-400">0.00</span>
+                    <span class="text-[9px] font-black bg-green-600 text-white px-2 rounded-full">20% CHANCE</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="p-2 mb-48">
+    <div class="p-2 mb-48 overflow-x-auto">
         <table class="w-full text-center border-collapse">
-            <thead>
-                <tr class="text-gray-500 text-[10px] uppercase border-b border-[#30363d]">
+            <thead class="bg-[#0d1117] text-[10px] text-gray-500 uppercase">
+                <tr>
                     <th class="p-3">IV</th><th class="p-3">OI CHG</th><th class="p-3">OI</th><th class="p-3">VOL</th>
                     <th class="p-3 text-green-400">LTP(C)</th><th class="p-3 text-blue-400">STRIKE</th>
                     <th class="p-3 text-red-400">LTP(P)</th><th class="p-3">VOL</th><th class="p-3">OI</th><th class="p-3">OI CHG</th><th class="p-3">IV</th>
                 </tr>
             </thead>
-            <tbody id="chain-body" class="font-mono text-[13px] text-white"></tbody>
+            <tbody id="chain-body" class="font-mono text-[12px]"></tbody>
         </table>
     </div>
 
     <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-[#30363d] shadow-2xl">
-        <div class="grid grid-cols-4 gap-2 mb-3 text-center">
-            <div class="bg-black/40 p-2 rounded border border-gray-800">
-                <p class="text-[8px] text-gray-500 uppercase font-bold">STRENGTH</p>
-                <p id="strength-val" class="text-sm font-black
+        <div class="grid grid-cols-3 gap-2 text-center mb-3">
+            <div class="bg-black/50 p-2 rounded border border-gray-800">
+                <p class="text-[8px] text-gray-500">RESISTANCE</p>
+                <p id="r-base" class="text-sm font-black text-white">0</p>
+            </div>
+            <div id="soc-container" class="bg-black/50 p-2 rounded border border-gray-800">
+                <p class="text-[8px] text-gray-500 uppercase">SOC Timer (3H)</p>
+                <p id="soc-timer" class="text-sm font-black text-yellow-500">00:00:00</p>
+            </div>
+            <div class="bg-black/50 p-2 rounded border border-gray-800">
+                <p class="text-[8px] text-gray-500">STRENGTH %</p>
+                <p id="strength-val" class="text-sm font-black text-blue-400">0%</p>
+            </div>
+        </div>
+        <div id="advisory" class="p-2 bg-blue-900/20 border border-blue-500/50 rounded text-[10px] font-bold text-center uppercase text-blue-200 italic">
+            Protocol Initialized. Checking 5% Stuck Rule...
+        </div>
+    </div>
+
+    <script>
+        let seconds = 0;
+        function initTerminal() {
+            const strikes = [25100, 25150, 25200, 25250, 25300, 25350, 25400];
+            const spot = 25228.00;
+
+            function updateData() {
+                // Rule: Strike 25300 + LTP 20 = 25320 [cite: 2026-02-15]
+                const baseStrike = 25300;
+                const ltpVal = 20.45;
+                const resistance = baseStrike + ltpVal;
+                
+                // Frequency Logic (50 points) [cite: 2026-02-15]
+                document.getElementById('r-base').innerText = resistance.toFixed(0);
+                document.getElementById('r-plus').innerText = (resistance + 50).toFixed(2);
+                document.getElementById('s-minus').innerText = (resistance - 50).toFixed(2);
+
+                // Protocol Stats [cite: 2026-02-14, 2026-02-15]
+                let strength = Math.random() > 0.8 ? 5 : Math.floor(65 + Math.random() * 30);
+                seconds += 2;
+                
+                const adv = document.getElementById('advisory');
+                const risk = document.getElementById('risk-status');
+                
+                if (strength === 5) {
+                    adv.innerText = "RULE: 5% STUCK. TRADE WTT-1 / WTB+1 ONLY.";
+                    risk.innerText = "STUCK AT 5%";
+                    risk.className = "px-3 py-1 rounded text-[10px] font-black bg-yellow-600 text-white";
+                } else {
+                    adv.innerText = strength >= 90 ? "90% FREEZE: SCENARIO CHANGING. WAIT." : "SAFE ZONE: LOOK FOR 80% PROBABILITY ENTRY.";
+                    risk.innerText = strength >= 90 ? "90% FREEZE" : "SAFE SNIPER";
+                    risk.className = px-3 py-1 rounded text-[10px] font-black ${strength >= 90 ? 'bg-red-600' : 'bg-green-600'} text-white;
+                }
+
+                // 3H SOC Rule [cite: 2026-02-15]
+                if (seconds >= 10800 && strength === 5) {
+                    document.getElementById('soc-container').className = "soc-blink p-2 rounded border border-red-500";
+                    adv.innerText = "SOC ALERT: 3 HOURS STUCK. NO TRADE TODAY.";
+                }
+
+                document.getElementById('strength-val').innerText = strength + "%";
+                document.getElementById('soc-timer').innerText = new Date(seconds * 1000).toISOString().substr(11, 8);
+
+                // Generate Rows
+                let html = "";
+                strikes.forEach((s, i) => {
+                    let isCrossover = (spot > s && spot < (strikes[i+1] || 999999));
+                    html += `<tr class="${isCrossover ? 'red-line' : 'border-b border-gray-800'}">
+                        <td class="p-3 text-gray-500">12.1</td>
+                        <td class="p-3 text-green-500">10k</td>
+                        <td class="p-3 ${s === 25350 ? 'max-vol' : ''}">32k</td>
+                        <td class="p-3 ${s === 25300 ? 'max-vol' : ''}">85k</td>
+                        <td class="p-3 font-bold text-white">125.00</td>
+                        <td class="p-3 strike-col">${s}</td>
+                        <td class="p-3 font-bold text-white">45.00</td>
+                        <td class="p-3">78k</td>
+                        <td class="p-3">28k</td>
+                        <td class="p-3 text-red-500">5k</td>
+                        <td class="p-3 text-gray-500">11.9</td>
+                    </tr>`;
+                });
+                document.getElementById('chain-body').innerHTML = html;
+            }
+            setInterval(updateData, 2000);
+            updateData(); // Immediate first run
+        }
+    </script>
+</body>
+</html>
