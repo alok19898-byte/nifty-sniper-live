@@ -2,88 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nifty Sniper - Professional Terminal</title>
+    <title>Nifty Sniper Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #010409; color: #c9d1d9; font-family: sans-serif; }
-        .highest-val { background: #1d4ed8 !important; color: white !important; font-weight: 900; border-radius: 4px; padding: 2px; }
-        .strike-col { background: #161b22; color: #58a6ff; font-weight: bold; border: 1px solid #30363d; }
-        .il-line { border-bottom: 3px dashed #e3b341; }
-        .data-row:hover { background: #161b22; }
+        body { background-color: #020617; color: white; font-family: sans-serif; }
+        .max-highlight { background-color: #2563eb !important; color: white !important; font-weight: bold; }
+        .strike-col { background-color: #1e293b; color: #60a5fa; font-weight: 900; border: 1px solid #334155; }
+        .il-line { border-bottom: 3px dashed #facc15; }
     </style>
 </head>
-<body>
+<body onload="updateDashboard()">
 
-    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] flex justify-between items-center sticky top-0 z-50">
-        <div>
-            <h1 class="text-xl font-black text-[#58a6ff]">SNIPER TERMINAL 🎯</h1>
-            <p class="text-[10px] text-yellow-500 font-bold uppercase tracking-widest">Logic: Highest Vol/OI/OIC Scanner</p>
-        </div>
+    <div class="p-4 bg-slate-900 border-b border-blue-600 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-blue-500">NIFTY SNIPER PRO 🎯</h1>
         <div class="text-right">
-            <p id="spot" class="text-2xl font-mono font-bold text-white tracking-tighter">25212.45</p>
-            <p class="text-[10px] text-gray-500 uppercase">Nifty Spot Live</p>
+            <p id="spot" class="text-xl font-mono">25215.50</p>
+            <p class="text-[10px] text-yellow-500">LIVE SCANNER ACTIVE</p>
         </div>
     </div>
 
     <div class="p-2 overflow-x-auto mb-40">
-        <table class="w-full text-[12px] text-center border-collapse">
+        <table class="w-full text-center text-[12px] border-collapse">
             <thead>
-                <tr class="text-gray-500 uppercase text-[10px] bg-[#161b22] border-b border-[#30363d]">
-                    <th class="p-3">OI Chg</th>
-                    <th class="p-3">OI</th>
-                    <th class="p-3">Volume</th>
-                    <th class="p-3 bg-red-900/10 text-red-400">LTP (P)</th>
-                    <th class="p-3">STRIKE</th>
-                    <th class="p-3 bg-green-900/10 text-green-400">LTP (C)</th>
-                    <th class="p-3">Volume</th>
-                    <th class="p-3">OI</th>
-                    <th class="p-3">OI Chg</th>
+                <tr class="bg-slate-800 text-gray-400">
+                    <th class="p-2 text-[10px]">OI CHG</th>
+                    <th class="p-2 text-[10px]">OI</th>
+                    <th class="p-2 text-[10px]">VOLUME</th>
+                    <th class="p-2 bg-red-900/20">LTP (P)</th>
+                    <th class="p-2">STRIKE</th>
+                    <th class="p-2 bg-green-900/20">LTP (C)</th>
+                    <th class="p-2 text-[10px]">VOLUME</th>
+                    <th class="p-2 text-[10px]">OI</th>
+                    <th class="p-2 text-[10px]">OI CHG</th>
                 </tr>
             </thead>
-            <tbody id="chain-body">
+            <tbody id="table-body">
                 </tbody>
         </table>
     </div>
 
-    <div class="fixed bottom-0 w-full p-4 bg-[#0d1117] border-t-2 border-blue-900 grid grid-cols-2 md:grid-cols-4 gap-3 shadow-2xl">
-        <div class="bg-black/40 p-3 rounded border border-blue-500/50">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">R - Extension (Strike+LTP)</p>
-            <p id="r-ext" class="text-xl font-black text-white">---</p>
+    <div class="fixed bottom-0 w-full p-4 bg-slate-950 border-t-2 border-blue-600 grid grid-cols-2 md:grid-cols-4 gap-2 shadow-2xl">
+        <div class="bg-slate-900 p-2 rounded border border-blue-500">
+            <p class="text-[9px] text-blue-400 font-bold uppercase">R - EXTENSION</p>
+            <p id="r-ext" class="text-lg font-black text-white">---</p>
         </div>
-        <div class="bg-black/40 p-3 rounded border border-red-500/50">
-            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion (-50)</p>
-            <p id="r-div" class="text-xl font-black text-white">---</p>
+        <div class="bg-slate-900 p-2 rounded border border-red-500">
+            <p class="text-[9px] text-red-400 font-bold uppercase">R - DIVERSION (-50)</p>
+            <p id="r-div" class="text-lg font-black text-white">---</p>
         </div>
-        <div class="bg-black/40 p-3 rounded border border-blue-500/50">
-            <p class="text-[9px] text-blue-400 font-bold uppercase">S - Extension (Strike-LTP)</p>
-            <p id="s-ext" class="text-xl font-black text-white">---</p>
+        <div class="bg-slate-900 p-2 rounded border border-blue-500">
+            <p class="text-[9px] text-blue-400 font-bold uppercase">S - EXTENSION</p>
+            <p id="s-ext" class="text-lg font-black text-white">---</p>
         </div>
-        <div class="bg-black/40 p-3 rounded border border-green-500/50">
-            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion (+50)</p>
-            <p id="s-div" class="text-xl font-black text-white">---</p>
+        <div class="bg-slate-900 p-2 rounded border border-green-500">
+            <p class="text-[9px] text-green-400 font-bold uppercase">S - DIVERSION (+50)</p>
+            <p id="s-div" class="text-lg font-black text-white">---</p>
         </div>
     </div>
 
     <script>
-        function runSniperScanner() {
-            const spot = 25212.45;
-            const strikes = [25050, 25100, 25150, 25200, 25250, 25300, 25350];
+        function updateDashboard() {
+            const spotPrice = 25215.50;
+            const strikes = [25100, 25150, 25200, 25250, 25300, 25350, 25400];
             
-            // Simulating Real Market Data for Demo
+            // 1. Data Generator
             let data = strikes.map(s => ({
                 strike: s,
-                cVol: Math.floor(Math.random() * 90000) + (s === 25300 ? 50000 : 0),
+                cVol: Math.floor(Math.random() * 80000) + (s === 25350 ? 50000 : 0),
                 cOi: Math.floor(Math.random() * 40000),
-                cOic: Math.floor(Math.random() * 15000),
-                cLtp: (95 + Math.random() * 40).toFixed(2),
-                pVol: Math.floor(Math.random() * 90000) + (s === 25100 ? 50000 : 0),
+                cOic: Math.floor(Math.random() * 20000),
+                cLtp: (110 + Math.random() * 30).toFixed(2),
+                pVol: Math.floor(Math.random() * 80000) + (s === 25150 ? 60000 : 0),
                 pOi: Math.floor(Math.random() * 40000),
-                pOic: Math.floor(Math.random() * 15000),
-                pLtp: (90 + Math.random() * 40).toFixed(2)
+                pOic: Math.floor(Math.random() * 20000),
+                pLtp: (100 + Math.random() * 30).toFixed(2)
             }));
 
-            // Identify Highest Values for Highlighting
+            // 2. Finding Highest for All Columns
             const max = {
                 cVol: Math.max(...data.map(d => d.cVol)),
                 cOi: Math.max(...data.map(d => d.cOi)),
@@ -93,40 +88,39 @@
                 pOic: Math.max(...data.map(d => d.pOic))
             };
 
-            // SCANNER LOGIC: Find strike with max Volume/OI
-            let rStrikeObj = data.reduce((prev, curr) => (curr.cVol > prev.cVol) ? curr : prev);
-            let sStrikeObj = data.reduce((prev, curr) => (curr.pVol > prev.pVol) ? curr : prev);
+            // 3. YOUR LOGIC: Find Strike with Highest Vol/OI for R and S
+            let resObj = data.reduce((prev, curr) => (curr.cVol > prev.cVol) ? curr : prev);
+            let supObj = data.reduce((prev, curr) => (curr.pVol > prev.pVol) ? curr : prev);
 
-            // EXTENSION CALCULATION (As per your Rule)
-            let rExt = rStrikeObj.strike + parseFloat(rStrikeObj.cLtp);
-            let sExt = sStrikeObj.strike - parseFloat(sStrikeObj.pLtp);
+            // 4. CALCULATION: Extension = Strike + LTP | Strike - LTP
+            let rE = resObj.strike + parseFloat(resObj.cLtp);
+            let sE = supObj.strike - parseFloat(supObj.pLtp);
 
-            document.getElementById('r-ext').innerText = rExt.toFixed(2);
-            document.getElementById('r-div').innerText = (rExt - 50).toFixed(2);
-            document.getElementById('s-ext').innerText = sExt.toFixed(2);
-            document.getElementById('s-div').innerText = (sExt + 50).toFixed(2);
+            document.getElementById('r-ext').innerText = rE.toFixed(2);
+            document.getElementById('r-div').innerText = (rE - 50).toFixed(2);
+            document.getElementById('s-ext').innerText = sE.toFixed(2);
+            document.getElementById('s-div').innerText = (sE + 50).toFixed(2);
 
-            // Populate Table
-            const tbody = document.getElementById('chain-body');
-            tbody.innerHTML = '';
+            // 5. Render Table Body
+            let html = "";
             data.forEach((d, i) => {
-                let isIl = (spot > d.strike && spot < (strikes[i+1] || 999999));
-                tbody.innerHTML += `
-                    <tr class="data-row border-b border-[#30363d] ${isIl ? 'il-line' : ''}">
-                        <td class="p-4 ${d.pOic === max.pOic ? 'highest-val' : 'text-red-400'}">${d.pOic}</td>
-                        <td class="p-4 ${d.pOi === max.pOi ? 'highest-val' : ''}">${d.pOi}</td>
-                        <td class="p-4 ${d.pVol === max.pVol ? 'highest-val' : ''}">${d.pVol}</td>
-                        <td class="p-4 font-bold text-white tracking-tighter">${d.pLtp}</td>
-                        <td class="p-4 strike-col">${d.strike}</td>
-                        <td class="p-4 font-bold text-white tracking-tighter">${d.cLtp}</td>
-                        <td class="p-4 ${d.cVol === max.cVol ? 'highest-val' : ''}">${d.cVol}</td>
-                        <td class="p-4 ${d.cOi === max.cOi ? 'highest-val' : ''}">${d.cOi}</td>
-                        <td class="p-4 ${d.cOic === max.cOic ? 'highest-val' : 'text-green-400'}">${d.cOic}</td>
+                let isIl = (spotPrice > d.strike && spotPrice < (strikes[i+1] || 99999));
+                html += `
+                    <tr class="border-b border-slate-800 ${isIl ? 'il-line' : ''}">
+                        <td class="p-3 ${d.pOic === max.pOic ? 'max-highlight' : ''}">${d.pOic}</td>
+                        <td class="p-3 ${d.pOi === max.pOi ? 'max-highlight' : ''}">${d.pOi}</td>
+                        <td class="p-3 ${d.pVol === max.pVol ? 'max-highlight' : ''}">${d.pVol}</td>
+                        <td class="p-3 font-bold">${d.pLtp}</td>
+                        <td class="p-3 strike-col">${d.strike}</td>
+                        <td class="p-3 font-bold">${d.cLtp}</td>
+                        <td class="p-3 ${d.cVol === max.cVol ? 'max-highlight' : ''}">${d.cVol}</td>
+                        <td class="p-3 ${d.cOi === max.cOi ? 'max-highlight' : ''}">${d.cOi}</td>
+                        <td class="p-3 ${d.cOic === max.cOic ? 'max-highlight' : ''}">${d.cOic}</td>
                     </tr>`;
             });
+            document.getElementById('table-body').innerHTML = html;
         }
-        setInterval(runSniperScanner, 1500);
-        runSniperScanner();
+        setInterval(updateDashboard, 2000);
     </script>
 </body>
 </html>
