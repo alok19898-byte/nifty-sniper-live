@@ -1,26 +1,19 @@
-<!DOCTYPE html>
+                                <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sniper Master v7 - Imaginary Line Visualizer</title>
+    <title>Sniper v7 - Pressure Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #000000; color: #e6edf3; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 240px; }
         .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; font-size: 13px; }
-        
-        /* IMAGINARY LINE & ITM TINTS (v7 Style) */
-        .bg-itm-c { background-color: rgba(59, 130, 246, 0.08) !important; /* Call ITM: Blue Tint */ }
-        .bg-itm-p { background-color: rgba(239, 68, 68, 0.08) !important; /* Put ITM: Red Tint */ }
-        
-        /* SPOT GLOW (The Imaginary Line Row) */
+        .bg-itm-c { background-color: rgba(59, 130, 246, 0.08) !important; }
+        .bg-itm-p { background-color: rgba(239, 68, 68, 0.08) !important; }
         .spot-glow { border-top: 4px solid #ff0000; border-bottom: 4px solid #ff0000; background: rgba(255, 0, 0, 0.25) !important; z-index: 10; position: relative; }
-        
-        /* INDICATORS */
         .max-vol { background: #7c3aed !important; color: white !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; box-shadow: 0 0 5px #7c3aed; }
         .max-oi { background: #2563eb !important; color: white !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; box-shadow: 0 0 5px #2563eb; }
         .second-highest { background: #fbbf24 !important; color: #000 !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; box-shadow: 0 0 5px #fbbf24; }
-
         .pct-label { font-size: 8px; opacity: 0.7; margin-left: 3px; font-weight: bold; }
         .ltp-green { color: #22c55e !important; font-weight: 900; }
         .ltp-red { color: #ef4444 !important; font-weight: 900; }
@@ -32,17 +25,17 @@
 
     <div class="p-3 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50">
         <div class="flex justify-between items-center mb-2">
-            <h1 class="text-xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal v7 🎯</h1>
-            <div id="p-status" class="px-3 py-0.5 rounded bg-blue-600 text-[10px] font-black uppercase">LIVE MONITORING</div>
+            <h1 class="text-xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal v7+ 🎯</h1>
+            <div id="pressure-badge" class="px-3 py-0.5 rounded bg-yellow-600 text-[10px] font-black uppercase">Pressure: Calculating...</div>
         </div>
-        <div class="bg-[#0d1117] border-2 border-[#30363d] rounded-xl p-3 border-l-8 border-blue-600 flex justify-between items-center">
+        <div class="bg-[#161b22] border-2 border-[#30363d] rounded-xl p-3 border-l-8 border-red-600 flex justify-between items-center">
             <div>
-                <p class="text-[9px] text-gray-500 font-bold uppercase italic">Master Protocol Instruction</p>
-                <h2 id="ins-text" class="text-xl font-black text-white italic">INITIALIZING...</h2>
+                <p class="text-[9px] text-gray-500 font-bold uppercase italic text-red-400" id="scenario-type">SCENARIO: NORMAL</p>
+                <h2 id="signal-text" class="text-xl font-black text-white italic">ANALYZING PRESSURE...</h2>
             </div>
             <div class="text-right">
-                <p class="text-[9px] text-gray-500 font-bold uppercase italic">Spot Reference</p>
-                <p id="spot-val" class="text-2xl font-black text-red-500">25215.00</p>
+                <p class="text-[9px] text-gray-500 font-bold uppercase italic">Recommended Entry</p>
+                <p id="entry-val" class="text-2xl font-black text-[#58a6ff]">---</p>
             </div>
         </div>
     </div>
@@ -51,33 +44,34 @@
         <table class="w-full text-center border-separate border-spacing-y-0.5">
             <thead class="text-[7px] text-gray-500 uppercase font-black bg-[#161b22]">
                 <tr>
-                    <th class="p-1">IV</th><th class="p-1">OI CHG %</th><th class="p-1 text-blue-400">OI %</th><th class="p-1 text-purple-400">VOL %</th><th class="p-1">LTP</th>
-                    <th class="p-1 text-white text-[9px] border-l border-r border-[#30363d]">STRIKE</th>
-                    <th class="p-1">LTP</th><th class="p-1 text-purple-400">VOL %</th><th class="p-1 text-blue-400">OI %</th><th class="p-1">OI CHG %</th><th class="p-1">IV</th>
+                    <th class="p-1">IV</th><th class="p-1">OI CHG</th><th class="p-1 text-blue-400">OI %</th><th class="p-1 text-purple-400">VOL %</th><th class="p-1">LTP</th>
+                    <th class="p-1 text-white text-[9px]">STRIKE</th>
+                    <th class="p-1">LTP</th><th class="p-1 text-purple-400">VOL %</th><th class="p-1 text-blue-400">OI %</th><th class="p-1">OI CHG</th><th class="p-1">IV</th>
                 </tr>
             </thead>
-            <tbody id="chain-body" class="font-mono text-[10px] text-white">
-                </tbody>
+            <tbody id="chain-body" class="font-mono text-[10px] text-white"></tbody>
         </table>
     </div>
 
     <div class="fixed bottom-0 w-full bg-[#0d1117] border-t-2 border-[#30363d] p-3 shadow-2xl z-50">
         <div class="grid grid-cols-4 gap-2 text-center mb-2">
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase font-bold">Res (R)</p><p id="r-display" class="text-md font-black italic text-white">---</p></div>
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase font-bold">Supp (S)</p><p id="s-display" class="text-md font-black text-green-500 italic">---</p></div>
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase font-bold">Speed</p><p id="speed-display" class="text-md font-black text-blue-400">0%</p></div>
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase font-bold">11K Rule</p><p id="oi-rule" class="text-md font-black text-gray-600">OFF</p></div>
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Res (R)</p><p id="r-val" class="text-md font-black italic">---</p></div>
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Supp (S)</p><p id="s-val" class="text-md font-black text-green-500 italic">---</p></div>
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Pressure %</p><p id="press-pct" class="text-md font-black text-blue-400">0%</p></div>
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase italic">11K Rule</p><p id="oi-alert" class="text-md font-black text-gray-600 italic">OFF</p></div>
+        </div>
+        <div class="w-full text-center text-[9px] font-black text-red-500 uppercase bg-red-900/10 border border-red-900/50 rounded py-1 blink-alert">
+            MASTER PROTOCOL ACTIVE: MOMENTUM & DEEP VALUE TRACKER
         </div>
     </div>
 
     <script>
         const strikes = [25000, 25050, 25100, 25150, 25200, 25250, 25300, 25350, 25400, 25450];
-        let currentSpot = 25215.50;
+        let mockSpot = 25215;
 
         function runEngine() {
             setInterval(() => {
-                currentSpot = 25200 + (Math.random() * 50);
-                document.getElementById('spot-val').innerText = currentSpot.toFixed(2);
+                mockSpot = 25200 + (Math.random() * 50);
                 renderTable();
             }, 2000);
         }
@@ -90,63 +84,75 @@
         function renderTable() {
             const body = document.getElementById('chain-body');
             body.innerHTML = '';
-            
             let data = strikes.map(s => ({
-                strike: s,
-                c_iv: (10 + Math.random() * 5).toFixed(1),
-                c_oi_chg: Math.floor(Math.random() * 20000),
-                c_oi: Math.floor(Math.random() * 60000),
-                c_vol: Math.floor(Math.random() * 120000),
-                c_ltp: (250 - (s - 25000)/2).toFixed(2),
-                p_ltp: (50 + (s - 25000)/2).toFixed(2),
-                p_vol: Math.floor(Math.random() * 120000),
-                p_oi: Math.floor(Math.random() * 60000),
-                p_oi_chg: Math.floor(Math.random() * 20000),
-                p_iv: (11 + Math.random() * 5).toFixed(1)
+                strike: s, c_iv: (10 + Math.random() * 5).toFixed(1), c_oi_chg: Math.floor(Math.random() * 15000),
+                c_oi: Math.floor(Math.random() * 60000), c_vol: Math.floor(Math.random() * 120000),
+                c_ltp: (250 - (s - 25000)/2).toFixed(2), p_ltp: (50 + (s - 25000)/2).toFixed(2),
+                p_vol: Math.floor(Math.random() * 120000), p_oi: Math.floor(Math.random() * 60000),
+                p_oi_chg: Math.floor(Math.random() * 15000), p_iv: (11 + Math.random() * 5).toFixed(1)
             }));
 
             const max = { cv: Math.max(...data.map(d => d.c_vol)), co: Math.max(...data.map(d => d.c_oi)), pv: Math.max(...data.map(d => d.p_vol)), po: Math.max(...data.map(d => d.p_oi)) };
-            const second = { cv: getSecondMax(data.map(d => d.c_vol)), co: getSecondMax(data.map(d => d.c_oi)), pv: getSecondMax(data.map(d => d.p_vol)), po: getSecondMax(data.map(d => d.p_oi)) };
+            const second = { cv: getSecondMax(data.map(d => d.c_vol)), pv: getSecondMax(data.map(d => d.p_vol)) };
 
             data.forEach(d => {
-                // v7 Logic: Spot strike gets glow, others get ITM/OTM tint
-                const isSpotStrike = (d.strike === 25200); 
-                let rowCls = isSpotStrike ? 'spot-glow' : (d.strike < currentSpot ? 'bg-itm-c' : 'bg-itm-p');
-                
+                const isSpot = d.strike === 25200;
+                let rowCls = isSpot ? 'spot-glow' : (d.strike < mockSpot ? 'bg-itm-c' : 'bg-itm-p');
                 const getInd = (val, m, s, base) => val === m ? base : (val === s ? 'second-highest' : '');
 
-                const row = `
+                body.innerHTML += `
                     <tr class="${rowCls}">
-                        <td>${d.c_iv}</td>
-                        <td>${d.c_oi_chg}</td>
-                        <td class="${getInd(d.c_oi, max.co, second.co, 'max-oi')}">${d.c_oi}<span class="pct-label">${((d.c_oi/max.co)*100).toFixed(0)}%</span></td>
+                        <td>${d.c_iv}</td><td>${d.c_oi_chg}</td>
+                        <td class="${getInd(d.c_oi, max.co, 0, 'max-oi')}">${d.c_oi}</td>
                         <td class="${getInd(d.c_vol, max.cv, second.cv, 'max-vol')}">${d.c_vol}<span class="pct-label">${((d.c_vol/max.cv)*100).toFixed(0)}%</span></td>
                         <td class="ltp-green font-bold">${d.c_ltp}</td>
                         <td class="strike-col">${d.strike}</td>
                         <td class="ltp-red font-bold">${d.p_ltp}</td>
                         <td class="${getInd(d.p_vol, max.pv, second.pv, 'max-vol')}">${d.p_vol}<span class="pct-label">${((d.p_vol/max.pv)*100).toFixed(0)}%</span></td>
-                        <td class="${getInd(d.p_oi, max.po, second.po, 'max-oi')}">${d.p_oi}<span class="pct-label">${((d.p_oi/max.po)*100).toFixed(0)}%</span></td>
-                        <td>${d.p_oi_chg}</td>
-                        <td>${d.p_iv}</td>
-                    </tr>
-                `;
-                body.innerHTML += row;
+                        <td class="${getInd(d.p_oi, max.po, 0, 'max-oi')}">${d.p_oi}</td>
+                        <td>${d.p_oi_chg}</td><td>${d.p_iv}</td>
+                    </tr>`;
 
                 if(d.c_vol === max.cv) {
-                    updateFooter(Math.floor(d.strike + 20), d.c_oi_chg);
+                    const r = Math.floor(d.strike + 20);
+                    const press = ((second.cv / max.cv) * 100).toFixed(1);
+                    updateProtocol(r, r-50, press, d.c_oi_chg);
                 }
             });
         }
 
-        function updateFooter(r, oic) {
-            document.getElementById('r-display').innerText = r;
-            document.getElementById('s-display').innerText = r - 50;
-            document.getElementById('speed-display').innerText = Math.floor(Math.random() * 100) + "%";
-            const rule = document.getElementById('oi-rule');
-            rule.innerText = oic > 11000 ? "11K ALERT" : "OFF";
-            rule.className = oic > 11000 ? "text-md font-black text-red-500 blink-alert" : "text-md font-black text-gray-600";
+        function updateProtocol(r, s, press, oic) {
+            document.getElementById('r-val').innerText = r;
+            document.getElementById('s-val').innerText = s;
+            document.getElementById('press-pct').innerText = press + "%";
+            document.getElementById('oi-alert').innerText = oic > 11000 ? "11K CROSS" : "OFF";
+            
+            const sig = document.getElementById('signal-text');
+            const ent = document.getElementById('entry-val');
+            const type = document.getElementById('scenario-type');
+            const badge = document.getElementById('pressure-badge');
+
+            if(press >= 75) {
+                badge.className = "px-3 py-0.5 rounded bg-red-600 text-[10px] font-black uppercase blink-alert";
+                badge.innerText = "HIGH PRESSURE: WTT";
+                sig.innerText = "TEZ SPEED: ENTRY @ S+1";
+                ent.innerText = s + 50;
+                type.innerText = "SCENARIO: BULLISH MOMENTUM";
+            } else if (press <= 5) {
+                badge.className = "px-3 py-0.5 rounded bg-blue-600 text-[10px] font-black uppercase";
+                badge.innerText = "STUCK: 5% LIMIT";
+                sig.innerText = "SAFE: TRADE WTT-1 ONLY";
+                ent.innerText = s - 50;
+                type.innerText = "SCENARIO: CONSOLIDATION";
+            } else {
+                badge.className = "px-3 py-0.5 rounded bg-green-600 text-[10px] font-black uppercase";
+                badge.innerText = "NORMAL PRESSURE";
+                sig.innerText = "ENTRY @ SUPPORT (S)";
+                ent.innerText = s;
+                type.innerText = "SCENARIO: NORMAL S/R";
+            }
         }
     </script>
 </body>
-        </html>
-                                                                                                                                                         
+    </html>
+    
