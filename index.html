@@ -1,163 +1,169 @@
-<!DOCTYPE html>
+
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sniper Master - Bull/Bear Dynamic</title>
+    <title>Sniper Master v5 - Percentage Logic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #010409; color: #e6edf3; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 220px; }
-        .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; }
-        .spot-glow { border-top: 4px solid #ff0000; border-bottom: 4px solid #ff0000; background: rgba(255, 0, 0, 0.15) !important; box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+        body { background: #010409; color: #e6edf3; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 240px; }
+        .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; font-size: 14px; }
+        .spot-glow { border-top: 3px solid #ff0000; border-bottom: 3px solid #ff0000; background: rgba(255, 0, 0, 0.1) !important; }
         .card-pro { background: #0d1117; border: 2px solid #30363d; border-radius: 12px; }
-        /* REAL COLOR CODES */
-        .max-vol { background: #7c3aed !important; color: white !important; padding: 2px 6px; border-radius: 4px; font-weight: 900; box-shadow: 0 0 10px #7c3aed; }
-        .max-oi { background: #2563eb !important; color: white !important; padding: 2px 6px; border-radius: 4px; font-weight: 900; box-shadow: 0 0 10px #2563eb; }
+        
+        /* PERCENTAGE COLORS */
+        .max-vol { background: #7c3aed !important; color: white !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; }
+        .max-oi { background: #2563eb !important; color: white !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; }
+        .pct-label { font-size: 9px; opacity: 0.8; margin-left: 4px; font-weight: bold; color: #8b949e; }
         .ltp-green { color: #22c55e !important; font-weight: 900; }
         .ltp-red { color: #ef4444 !important; font-weight: 900; }
         .blink-alert { animation: blinker 0.6s linear infinite; }
         @keyframes blinker { 50% { opacity: 0.2; } }
     </style>
 </head>
-<body onload="runSniper()">
+<body onload="runEngine()">
 
-    <div class="p-4 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50 shadow-2xl">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal v4 🎯</h1>
-            <div id="trend-badge" class="px-4 py-1 rounded bg-blue-600 text-white text-[11px] font-black uppercase">Neutral</div>
+    <div class="p-3 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50">
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal v5 🎯</h1>
+            <div id="p-status" class="px-3 py-0.5 rounded bg-blue-600 text-[10px] font-black uppercase">Neutral</div>
         </div>
-
-        <div id="signal-card" class="card-pro p-4 border-l-8 border-blue-600 flex justify-between items-center">
+        <div class="card-pro p-3 border-l-8 border-blue-600 flex justify-between items-center">
             <div>
-                <p id="logic-label" class="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic">Current Trade Logic</p>
-                <h2 id="entry-text" class="text-2xl font-black text-white italic">SCANNING MARKET...</h2>
+                <p class="text-[9px] text-gray-500 font-bold uppercase italic">Logic Instruction</p>
+                <h2 id="ins-text" class="text-xl font-black text-white italic">CALIBRATING DATA...</h2>
             </div>
             <div class="text-right">
-                <p class="text-[10px] text-gray-400 font-bold uppercase">Target Price</p>
-                <p id="target-strike" class="text-3xl font-black text-[#58a6ff]">---</p>
+                <p class="text-[9px] text-gray-500 font-bold uppercase">Target</p>
+                <p id="target-text" class="text-2xl font-black text-[#58a6ff]">---</p>
             </div>
         </div>
     </div>
 
     <div class="p-2 overflow-x-auto">
-        <table class="w-full text-center border-separate border-spacing-y-2">
-            <thead class="text-[9px] text-gray-500 uppercase font-black bg-[#161b22]">
+        <table class="w-full text-center border-separate border-spacing-y-1">
+            <thead class="text-[8px] text-gray-500 uppercase font-black bg-[#161b22]">
                 <tr>
-                    <th class="p-2">IV</th><th class="p-2">OI CHG</th><th class="p-2">OI</th><th class="p-2 text-purple-400">VOL</th><th class="p-2 text-green-400">LTP</th>
-                    <th class="p-2 text-white text-[11px]">STRIKE</th>
-                    <th class="p-2 text-red-400">LTP</th><th class="p-2 text-purple-400">VOL</th><th class="p-2">OI</th><th class="p-2">OI CHG</th><th class="p-2">IV</th>
+                    <th class="p-2">OI CHG %</th><th class="p-2 text-blue-400">OI %</th><th class="p-2 text-purple-400">VOL %</th><th class="p-2">LTP</th>
+                    <th class="p-2 text-white text-[10px]">STRIKE</th>
+                    <th class="p-2">LTP</th><th class="p-2 text-purple-400">VOL %</th><th class="p-2 text-blue-400">OI %</th><th class="p-2">OI CHG %</th>
                 </tr>
             </thead>
-            <tbody class="font-mono text-[12px] text-white">
-                <tr class="bg-[#0d1117]">
-                    <td>10.2</td><td class="text-green-400">+5k</td><td>12k</td><td><span class="max-vol">85k</span></td><td class="ltp-green">265.40</td>
-                    <td class="strike-col">25150</td>
-                    <td class="ltp-red">35.20</td><td>45k</td><td><span class="max-oi">18k</span></td><td class="text-red-400">-2k</td><td>11.4</td>
-                </tr>
-                <tr class="spot-glow">
-                    <td>11.5</td><td class="text-green-400 text-lg">+12,500</td><td><span class="max-oi">45k</span></td><td>98k</td><td class="ltp-green text-xl underline">165.80</td>
-                    <td class="strike-col text-xl">25200</td>
-                    <td class="ltp-red text-xl underline">55.10</td><td><span class="max-vol">112k</span></td><td>25k</td><td class="text-green-400">+8k</td><td>12.8</td>
-                </tr>
-                <tr class="bg-[#0d1117]">
-                    <td>12.1</td><td class="text-red-400">-1k</td><td>28k</td><td>52k</td><td class="ltp-green">120.00</td>
-                    <td class="strike-col">25250</td>
-                    <td class="ltp-red">82.15</td><td>65k</td><td>38k</td><td class="text-green-400">+5k</td><td>13.2</td>
-                </tr>
-            </tbody>
+            <tbody id="chain-body" class="font-mono text-[11px] text-white">
+                </tbody>
         </table>
     </div>
 
-    <div class="fixed bottom-0 w-full bg-[#0d1117] border-t-2 border-[#30363d] p-4 shadow-2xl z-50">
-        <div class="grid grid-cols-4 gap-2 text-center mb-3">
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">Res (R)</p><p id="f-res" class="text-lg font-black">25320</p></div>
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">Supp (S)</p><p id="f-supp" class="text-lg font-black text-green-400">25270</p></div>
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">Speed %</p><p id="f-speed" class="text-lg font-black text-blue-400">0%</p></div>
-            <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[8px] text-gray-500 uppercase font-black">11K ALERT</p><p id="f-oi-alert" class="text-lg font-black text-gray-600">OFF</p></div>
+    <div class="fixed bottom-0 w-full bg-[#0d1117] border-t-2 border-[#30363d] p-3 shadow-2xl z-50">
+        <div class="grid grid-cols-4 gap-2 text-center mb-2">
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Res (R)</p><p id="r-val" class="text-md font-black">25320</p></div>
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Supp (S)</p><p id="s-val" class="text-md font-black text-green-500">25270</p></div>
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Speed</p><p id="speed-val" class="text-md font-black text-blue-400">0%</p></div>
+            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">11K Rule</p><p id="oi-alert" class="text-md font-black text-gray-600">OFF</p></div>
         </div>
-        <div id="footer-logic" class="w-full text-center text-[10px] font-black text-blue-100 uppercase bg-blue-900/40 border border-blue-500/50 rounded py-1 italic">
-            DYNAMIC PRESSURE MONITORING...
+        <div id="footer-msg" class="w-full text-center text-[9px] font-black text-blue-100 uppercase bg-blue-900/40 border border-blue-500/50 rounded py-1">
+            PERCENTAGE STRENGTH ENGINE ACTIVE
         </div>
     </div>
 
     <script>
-        let seconds = 0;
-        const RES = 25320; 
-        const SUPP = 25270;
-
-        function runSniper() {
+        let timer = 0;
+        const strikes = [25000, 25050, 25100, 25150, 25200, 25250, 25300, 25350, 25400, 25450];
+        
+        function runEngine() {
             setInterval(() => {
-                seconds += 2;
-                let pct = Math.floor(Math.random() * 101); // Simulated Speed
-                let trend = Math.random() > 0.5 ? 'Bullish' : 'Bearish'; // Randomly testing both sides
-                let oiChg = 12500;
-
-                const badge = document.getElementById('trend-badge');
-                const entry = document.getElementById('entry-text');
-                const target = document.getElementById('target-strike');
-                const footer = document.getElementById('footer-logic');
-                const oiLabel = document.getElementById('f-oi-alert');
-                
-                document.getElementById('f-speed').innerText = pct + "%";
-
-                // --- 1. SITUATION CHANGE (11K OI RULE) ---
-                if (oiChg >= 11000) {
-                    oiLabel.innerText = "11K CROSS";
-                    oiLabel.className = "text-lg font-black text-red-500 blink-alert";
-                    footer.innerText = "SITUATION CHANGE: OI CROSSED 11,000!";
-                }
-
-                // --- 2. THE MASTER DYNAMIC LOGIC ---
-
-                // A. 90% FREEZE RULE
-                if (pct >= 90) {
-                    badge.innerText = "SCENARIO CHANGING";
-                    badge.className = "px-4 py-1 rounded bg-red-600 text-white text-[11px] font-black uppercase blink-alert";
-                    entry.innerText = "90% FREEZE: WAIT FOR STABILITY";
-                    target.innerText = "FREEZE";
-                }
-                // B. BULLISH PRESSURE LOGIC
-                else if (trend === 'Bullish') {
-                    badge.innerText = "BULLISH PRESSURE 🐂";
-                    badge.className = "px-4 py-1 rounded bg-green-600 text-white text-[11px] font-black uppercase";
-                    
-                    if (pct >= 75) {
-                        entry.innerText = "TEZ SPEED: ENTRY @ S+1 (CALL)";
-                        target.innerText = RES; 
-                    } else {
-                        entry.innerText = "NORMAL SPEED: ENTRY @ SUPPORT";
-                        target.innerText = SUPP;
-                    }
-                }
-                // C. BEARISH PRESSURE LOGIC (NEW FIXED)
-                else if (trend === 'Bearish') {
-                    badge.innerText = "BEARISH PRESSURE 🐻";
-                    badge.className = "px-4 py-1 rounded bg-red-600 text-white text-[11px] font-black uppercase";
-                    
-                    if (pct >= 75) {
-                        entry.innerText = "TEZ SPEED: ENTRY @ R-1 (PUT)";
-                        target.innerText = SUPP; 
-                    } else {
-                        entry.innerText = "NORMAL SPEED: ENTRY @ RESISTANCE";
-                        target.innerText = RES;
-                    }
-                }
-
-                // D. 3H SOC REVERSAL RULE
-                if (seconds >= 10800) {
-                    badge.innerText = "SOC ACTIVE (3H)";
-                    if (pct >= 75) {
-                        entry.innerText = "SOC FAVOR: REVERSAL FROM S/R";
-                        target.innerText = trend === 'Bullish' ? SUPP : RES;
-                    } else {
-                        entry.innerText = "SOC NO-FAVOR: REVERSAL FROM S-1/R+1";
-                        target.innerText = trend === 'Bullish' ? SUPP - 50 : RES + 50;
-                    }
-                }
-
+                timer += 2;
+                renderTable();
             }, 2000);
+        }
+
+        function renderTable() {
+            const body = document.getElementById('chain-body');
+            body.innerHTML = '';
+            
+            // Generate Random but logical data for demo
+            let data = strikes.map(s => ({
+                strike: s,
+                c_oi_chg: Math.floor(Math.random() * 15000),
+                c_oi: Math.floor(Math.random() * 50000),
+                c_vol: Math.floor(Math.random() * 100000),
+                c_ltp: (250 - (s - 25000)/2).toFixed(2),
+                p_ltp: (50 + (s - 25000)/2).toFixed(2),
+                p_vol: Math.floor(Math.random() * 100000),
+                p_oi: Math.floor(Math.random() * 50000),
+                p_oi_chg: Math.floor(Math.random() * 15000)
+            }));
+
+            // Find Max for Percentage calculation
+            const max = {
+                c_vol: Math.max(...data.map(d => d.c_vol)),
+                c_oi: Math.max(...data.map(d => d.c_oi)),
+                c_oi_chg: Math.max(...data.map(d => d.c_oi_chg)),
+                p_vol: Math.max(...data.map(d => d.p_vol)),
+                p_oi: Math.max(...data.map(d => d.p_oi)),
+                p_oi_chg: Math.max(...data.map(d => d.p_oi_chg))
+            };
+
+            data.forEach(d => {
+                const isSpot = d.strike === 25200;
+                const c_vol_pct = ((d.c_vol/max.c_vol)*100).toFixed(0);
+                const p_vol_pct = ((d.p_vol/max.p_vol)*100).toFixed(0);
+                const c_oi_pct = ((d.c_oi/max.c_oi)*100).toFixed(0);
+                const p_oi_pct = ((d.p_oi/max.p_oi)*100).toFixed(0);
+                const c_oic_pct = ((d.c_oi_chg/max.c_oi_chg)*100).toFixed(0);
+
+                const row = `
+                    <tr class="${isSpot ? 'spot-glow' : 'bg-[#0d1117]'}">
+                        <td>${d.c_oi_chg}<span class="pct-label">${c_oic_pct}%</span></td>
+                        <td class="${c_oi_pct == 100 ? 'max-oi' : ''}">${d.c_oi}<span class="pct-label">${c_oi_pct}%</span></td>
+                        <td class="${c_vol_pct == 100 ? 'max-vol' : ''}">${d.c_vol}<span class="pct-label">${c_vol_pct}%</span></td>
+                        <td class="ltp-green">${d.c_ltp}</td>
+                        <td class="strike-col">${d.strike}</td>
+                        <td class="ltp-red">${d.p_ltp}</td>
+                        <td class="${p_vol_pct == 100 ? 'max-vol' : ''}">${d.p_vol}<span class="pct-label">${p_vol_pct}%</span></td>
+                        <td class="${p_oi_pct == 100 ? 'max-oi' : ''}">${d.p_oi}<span class="pct-label">${p_oi_pct}%</span></td>
+                        <td>${d.p_oi_chg}<span class="pct-label">${((d.p_oi_chg/max.p_oi_chg)*100).toFixed(0)}%</span></td>
+                    </tr>
+                `;
+                body.innerHTML += row;
+
+                // Update Logic Alerts based on Max Vol Strike (Support/Resistance Paribhasha)
+                if(c_vol_pct == 100) {
+                   const res = d.strike + 20; // Strike + LTP demo
+                   const supp = res - 50;
+                   const speed = Math.floor(Math.random() * 100);
+                   updateMonitor(res, supp, speed, d.c_oi_chg);
+                }
+            });
+        }
+
+        function updateMonitor(r, s, speed, oic) {
+            document.getElementById('r-val').innerText = r;
+            document.getElementById('s-val').innerText = s;
+            document.getElementById('speed-val').innerText = speed + "%";
+            
+            const ins = document.getElementById('ins-text');
+            const tgt = document.getElementById('target-text');
+            const alert = document.getElementById('oi-alert');
+
+            // 11K Rule
+            if(oic > 11000) { alert.innerText = "11K CROSS"; alert.className = "text-md font-black text-red-500 blink-alert"; }
+            else { alert.innerText = "OFF"; alert.className = "text-md font-black text-gray-600"; }
+
+            // Speed Logic
+            if(speed >= 75) {
+                ins.innerText = "TEZ SPEED: ENTRY @ S+1";
+                tgt.innerText = r;
+            } else if (speed <= 5) {
+                ins.innerText = "5% STUCK: WTT-1 ONLY";
+                tgt.innerText = "WAIT";
+            } else {
+                ins.innerText = "NORMAL: ENTRY @ SUPPORT";
+                tgt.innerText = s;
+            }
         }
     </script>
 </body>
-                                     </html>
-                                                                                         
+    </html>
+    
