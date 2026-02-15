@@ -3,114 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nifty Sniper Pro</title>
+    <title>Nifty Sniper - Advanced Scanner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #030712; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
-        .strike-col { background-color: #1e293b; color: #60a5fa; font-weight: 900; border-left: 2px solid #3b82f6; border-right: 2px solid #3b82f6; }
-        .blue-glow { border: 1px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
-        th { text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; color: #94a3b8; }
-        .data-cell { font-family: 'Courier New', monospace; font-weight: bold; }
+        body { background-color: #020617; color: #f8fafc; font-family: sans-serif; }
+        .highlight-res { background: rgba(220, 38, 38, 0.2); border: 1px solid #ef4444; }
+        .highlight-sup { background: rgba(22, 163, 74, 0.2); border: 1px solid #22c55e; }
+        .strike-col { background: #1e293b; font-weight: 900; color: #60a5fa; }
+        .il-line { border-bottom: 2px dashed #facc15; }
     </style>
 </head>
 <body>
 
-    <div class="p-4 bg-slate-900 border-b border-blue-900 sticky top-0 z-50">
-        <div class="flex justify-between items-center max-w-7xl mx-auto">
-            <div>
-                <h1 class="text-2xl font-black text-blue-500 italic tracking-tighter">NIFTY SNIPER PRO 🎯</h1>
-                <p class="text-[10px] text-blue-300 font-bold uppercase tracking-widest">50-PT Frequency | Master Protocol</p>
-            </div>
-            <div class="text-right">
-                <p id="spot" class="text-2xl font-mono font-bold text-white">25210.45</p>
-                <span class="text-[10px] bg-green-900 text-green-300 px-2 py-0.5 rounded">LIVE MARKET</span>
-            </div>
+    <div class="p-4 bg-slate-900 border-b border-blue-900 flex justify-between items-center sticky top-0 z-50">
+        <div>
+            <h1 class="text-xl font-black text-blue-500 italic">NIFTY SNIPER PRO 🎯</h1>
+            <p class="text-[10px] text-yellow-400 font-bold uppercase">Imaginary Line & Scanner Active</p>
+        </div>
+        <div class="text-right">
+            <p id="spot-price" class="text-xl font-mono font-bold text-white">25212.50</p>
         </div>
     </div>
 
-    <div class="p-2 w-full mx-auto overflow-x-auto">
+    <div class="p-2 overflow-x-auto">
         <table class="w-full text-[11px] text-center border-collapse">
             <thead>
-                <tr class="bg-slate-800/50 border-b border-slate-700">
-                    <th class="p-3">IV</th>
-                    <th class="p-3">OI Chg</th>
-                    <th class="p-3">OI</th>
-                    <th class="p-3">Vol</th>
-                    <th class="p-3 text-white bg-red-900/20">LTP (P)</th>
-                    <th class="p-3 bg-slate-900 text-blue-400">STRIKE</th>
-                    <th class="p-3 text-white bg-green-900/20">LTP (C)</th>
-                    <th class="p-3">Vol</th>
-                    <th class="p-3">OI</th>
-                    <th class="p-3">OI Chg</th>
-                    <th class="p-3">IV</th>
+                <tr class="bg-slate-800 text-gray-400 uppercase">
+                    <th class="p-2">OI</th>
+                    <th class="p-2">Vol</th>
+                    <th class="p-2">LTP (P)</th>
+                    <th class="p-2 bg-slate-900">Strike</th>
+                    <th class="p-2">LTP (C)</th>
+                    <th class="p-2">Vol</th>
+                    <th class="p-2">OI</th>
                 </tr>
             </thead>
-            <tbody id="sniper-table">
+            <tbody id="chain-body">
                 </tbody>
         </table>
     </div>
 
-    <div class="p-4 max-w-7xl mx-auto mb-20">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="blue-glow bg-slate-900 p-3 rounded-lg">
-                <p class="text-[9px] text-blue-400 font-bold">R - SAFE</p>
-                <p id="r-safe" class="text-xl font-black text-white">---</p>
-            </div>
-            <div class="blue-glow bg-slate-900 p-3 rounded-lg border-l-4 border-l-red-500">
-                <p class="text-[9px] text-red-400 font-bold">R - RISKY</p>
-                <p id="r-risky" class="text-xl font-black text-white">---</p>
-            </div>
-            <div class="blue-glow bg-slate-900 p-3 rounded-lg">
-                <p class="text-[9px] text-blue-400 font-bold">S - SAFE</p>
-                <p id="s-safe" class="text-xl font-black text-white">---</p>
-            </div>
-            <div class="blue-glow bg-slate-900 p-3 rounded-lg border-l-4 border-l-green-500">
-                <p class="text-[9px] text-green-400 font-bold">S - RISKY</p>
-                <p id="s-risky" class="text-xl font-black text-white">---</p>
-            </div>
+    <div class="fixed bottom-0 w-full p-4 bg-slate-950 border-t border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div class="bg-slate-900 p-2 rounded border border-blue-500">
+            <p class="text-[9px] text-blue-400 font-bold uppercase">R - Extension</p>
+            <p id="r-ext" class="text-lg font-black text-white">---</p>
+        </div>
+        <div class="bg-slate-900 p-2 rounded border border-red-500">
+            <p class="text-[9px] text-red-400 font-bold uppercase">R - Diversion</p>
+            <p id="r-div" class="text-lg font-black text-white">---</p>
+        </div>
+        <div class="bg-slate-900 p-2 rounded border border-blue-500">
+            <p class="text-[9px] text-blue-400 font-bold uppercase">S - Extension</p>
+            <p id="s-ext" class="text-lg font-black text-white">---</p>
+        </div>
+        <div class="bg-slate-900 p-2 rounded border border-green-500">
+            <p class="text-[9px] text-green-400 font-bold uppercase">S - Diversion</p>
+            <p id="s-div" class="text-lg font-black text-white">---</p>
         </div>
     </div>
 
     <script>
-        function updateData() {
+        function updateScanner() {
+            const spot = 25212.50;
             const strikes = [25050, 25100, 25150, 25200, 25250, 25300, 25350];
-            const tbody = document.getElementById('sniper-table');
+            const tbody = document.getElementById('chain-body');
             tbody.innerHTML = '';
 
-            strikes.forEach(s => {
-                let cLtp = (110 + Math.random() * 20).toFixed(2);
-                let pLtp = (100 + Math.random() * 20).toFixed(2);
-                let isAtm = s === 25200;
+            let maxCallVol = 0, maxPutVol = 0;
+            let rStrike = 0, sStrike = 0;
+            let rLtp = 0, sLtp = 0;
 
-                if(isAtm) {
-                    // Sniper Logic: Strike + LTP - 50
-                    let res = (s + parseFloat(cLtp) - 50).toFixed(2);
-                    let sup = (s - parseFloat(pLtp) + 50).toFixed(2);
-                    
-                    document.getElementById('r-safe').innerText = res;
-                    document.getElementById('r-risky').innerText = (parseFloat(res) + 15).toFixed(2);
-                    document.getElementById('s-safe').innerText = sup;
-                    document.getElementById('s-risky').innerText = (parseFloat(sup) - 15).toFixed(2);
+            // Generate Random Data for Demo (Later replaced by Dhan)
+            let data = strikes.map(s => {
+                return {
+                    strike: s,
+                    cVol: Math.floor(Math.random() * 50000) + (s === 25300 ? 80000 : 10000), // Simulate High Vol at 25300
+                    pVol: Math.floor(Math.random() * 50000) + (s === 25150 ? 90000 : 10000), // Simulate High Vol at 25150
+                    cLtp: (100 + Math.random() * 50).toFixed(2),
+                    pLtp: (100 + Math.random() * 50).toFixed(2),
+                    cOi: (Math.random() * 20).toFixed(1) + 'L',
+                    pOi: (Math.random() * 20).toFixed(1) + 'L'
                 }
+            });
+
+            // Scan for Resistance (Highest Call Vol) and Support (Highest Put Vol)
+            data.forEach(d => {
+                if(parseInt(d.cVol) > maxCallVol) { maxCallVol = d.cVol; rStrike = d.strike; rLtp = d.cLtp; }
+                if(parseInt(d.pVol) > maxPutVol) { maxPutVol = d.pVol; sStrike = d.strike; sLtp = d.pLtp; }
+            });
+
+            // Extension Logic: Strike + LTP (for R) | Strike - LTP (for S)
+            let resExt = rStrike + parseFloat(rLtp);
+            let supExt = sStrike - parseFloat(sLtp);
+
+            document.getElementById('r-ext').innerText = resExt.toFixed(2);
+            document.getElementById('r-div').innerText = (resExt - 50).toFixed(2);
+            document.getElementById('s-ext').innerText = supExt.toFixed(2);
+            document.getElementById('s-div').innerText = (supExt + 50).toFixed(2);
+
+            // Render Table
+            data.forEach((d, index) => {
+                let isIl = (spot > d.strike && spot < strikes[index+1]);
+                let isR = d.strike === rStrike;
+                let isS = d.strike === sStrike;
 
                 tbody.innerHTML += `
-                    <tr class="border-b border-slate-800 ${isAtm ? 'bg-blue-600/10' : ''}">
-                        <td class="p-3 text-gray-500">12.5</td>
-                        <td class="p-3 text-red-400">-5K</td>
-                        <td class="p-3">1.2M</td>
-                        <td class="p-3 text-gray-400">45K</td>
-                        <td class="p-3 data-cell text-white italic">${pLtp}</td>
-                        <td class="p-3 strike-col">${s}</td>
-                        <td class="p-3 data-cell text-blue-400 italic">${cLtp}</td>
-                        <td class="p-3 text-gray-400">88K</td>
-                        <td class="p-3">2.5M</td>
-                        <td class="p-3 text-green-400">+12K</td>
-                        <td class="p-3 text-gray-500">14.2</td>
-                    </tr>`;
+                    <tr class="${isIl ? 'il-line' : ''} ${isR ? 'highlight-res' : ''} ${isS ? 'highlight-sup' : ''}">
+                        <td class="p-3">${d.pOi}</td>
+                        <td class="p-3">${d.pVol}</td>
+                        <td class="p-3 font-bold">${d.pLtp}</td>
+                        <td class="p-3 strike-col">${d.strike}</td>
+                        <td class="p-3 font-bold">${d.cLtp}</td>
+                        <td class="p-3">${d.cVol}</td>
+                        <td class="p-3">${d.cOi}</td>
+                    </tr>
+                `;
             });
         }
-        setInterval(updateData, 2000);
-        updateData();
+        setInterval(updateScanner, 2000);
+        updateScanner();
     </script>
 </body>
 </html>
