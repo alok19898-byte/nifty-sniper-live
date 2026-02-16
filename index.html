@@ -1,198 +1,166 @@
-import time
-import random
-from datetime import datetime, timedelta
-from rich.live import Live
-from rich.table import Table
-from rich.console import Console
-from rich.panel import Panel
-from rich.layout import Layout
-from rich import box
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIFTY SNIPER V9 - ULTRA GOLDEN</title>
+    <style>
+        :root { --bg: #050505; --gold: #ffd700; --red: #ff3333; --green: #00ff88; --gray: #1a1a1a; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; text-align: center; }
 
-# --- CONFIGURATION ---
-STRIKE_GAP = 50
-OI_CHANGE_LIMIT_LOW = 80000
-OI_CHANGE_LIMIT_HIGH = 100000
-SAFETY_OI_LIMIT = 11000  # Cost-to-cost exit rule
-
-console = Console()
-
-class NiftySniperV7:
-    def __init__(self):
-        self.spot_price = 25310  # Initial Dummy Spot
-        self.market_start_time = datetime.now().replace(hour=9, minute=15, second=0)
-        self.last_pressure_change_time = datetime.now()
-        self.highest_percentage_start_time = None
-        self.stuck_start_time = None
-        self.current_pressure = "NEUTRAL"
-        self.wtt_wtb_percentage = 70.0
-        self.s_r_status = {"S_hit": False, "R_hit": False}
-        self.golden_rules_triggered = []
-
-    def fetch_data_simulation(self):
-        """
-        Yahan apni API ka code daalna (Angel One / Zerodha).
-        Abhi ye dummy data generate kar raha hai tere rules test karne ke liye.
-        """
-        # Simulating Spot movement
-        self.spot_price += random.choice([-5, -2, 0, 2, 5])
+        /* DASHBOARD HEADER */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: #111; padding: 15px; border-bottom: 3px solid var(--gold); margin-bottom: 20px; }
+        .metric-box { background: #222; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .metric-title { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .metric-value { font-size: 24px; font-weight: 900; color: #fff; }
         
-        # Simulating Call/Put Data for strikes around ATM
-        atm = round(self.spot_price / 50) * 50
-        strikes = [atm - 100, atm - 50, atm, atm + 50, atm + 100]
-        
-        data = {}
-        for sk in strikes:
-            data[sk] = {
-                "ce_oi": random.randint(50000, 150000),
-                "ce_vol": random.randint(100000, 500000),
-                "ce_ltp": random.uniform(10, 150),
-                "pe_oi": random.randint(50000, 150000),
-                "pe_vol": random.randint(100000, 500000),
-                "pe_ltp": random.uniform(10, 150),
-                "ce_oi_chg": random.randint(-5000, 15000),
-                "pe_oi_chg": random.randint(-5000, 15000)
-            }
-        return data, strikes
+        /* PRESSURE BAR (Rule 1) */
+        .pressure-container { grid-column: span 2; background: #222; padding: 10px; border-radius: 8px; }
+        .progress-bar { height: 10px; background: #444; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease; }
+        .bull-fill { background: var(--green); }
+        .bear-fill { background: var(--red); }
 
-    def find_support_resistance_ultra(self, data, strikes):
-        """
-        Ultra Golden Rule 5: Paribhasha (ITM -> OTM Highest Data)
-        """
-        # Logic: Find highest OI/Vol
-        # Simplified for demo: Just picking max from list
-        # Real code mein ITM se OTM loop lagana padega
-        
-        # Finding R (Call Side Highest)
-        r_strike = max(strikes, key=lambda x: data[x]['ce_oi'])
-        r_ltp = data[r_strike]['ce_ltp']
-        
-        # Finding S (Put Side Highest)
-        s_strike = max(strikes, key=lambda x: data[x]['pe_oi'])
-        
-        # Calculation Rule 6: Everything based on Resistance
-        # R = Strike + LTP
-        resistance_value = r_strike + r_ltp
-        
-        # Levels Calculation
-        r_minus_1 = resistance_value - 50  # Bearish Entry
-        s_plus_1 = r_minus_1 + 50          # Bullish Entry (Equivalent to R level)
-        # Agar S same strike par nahi hai to R-1 hi S banega logic
-        
-        return r_strike, s_strike, resistance_value, r_minus_1, s_plus_1
+        /* MAIN TABLE */
+        .table-container { overflow-x: auto; margin-bottom: 100px; }
+        table { width: 100%; max-width: 1200px; margin: 0 auto; border-collapse: collapse; font-family: monospace; }
+        th { background: #222; color: var(--gold); padding: 12px; font-size: 12px; border: 1px solid #333; }
+        td { padding: 10px; border: 1px solid #1a1a1a; font-weight: bold; font-size: 14px; }
 
-    def check_ultra_golden_rules(self, data, strikes, s_strike, r_strike):
-        self.golden_rules_triggered = []
-        alerts = []
+        /* THE DYNAMIC THICK RED LINE (Rule 2 Imaginary Line) */
+        .imaginary-row { animation: pulse 1.5s infinite; }
+        .imaginary-line { 
+            background: var(--red); 
+            color: white; 
+            font-weight: 900; 
+            font-size: 16px; 
+            padding: 8px;
+            border-top: 4px solid #fff; 
+            border-bottom: 4px solid #fff; 
+            text-align: center;
+        }
+        @keyframes pulse { 0% { opacity: 0.85; } 50% { opacity: 1; box-shadow: 0 0 15px var(--red); } 100% { opacity: 0.85; } }
+
+        /* SIGNALS */
+        .sig-box { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; display: inline-block; }
+        .buy-sig { background: rgba(0,255,136,0.2); color: var(--green); border: 1px solid var(--green); }
+        .sell-sig { background: rgba(255,51,51,0.2); color: var(--red); border: 1px solid var(--red); }
+        .soc-sig { background: rgba(255,215,0,0.2); color: var(--gold); border: 1px solid var(--gold); }
+
+        /* ALERTS (11k Rule) */
+        .alert-overlay { position: fixed; top: 0; left: 0; width: 100%; background: #900; color: white; padding: 15px; font-weight: bold; z-index: 999; display: none; border-bottom: 4px solid white; animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* FOOTER ENGINE */
+        .engine-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: #111; border-top: 4px solid var(--gold); padding: 10px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; box-shadow: 0 -5px 20px rgba(0,0,0,0.8); }
+        .calc-val { font-size: 14px; color: #fff; margin: 0 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="alertBox" class="alert-overlay">🚨 11K RULE TRIGGERED: SCENARIO CHANGE DETECTED! EXIT NOW! 🚨</div>
+
+    <div class="dashboard">
+        <div class="metric-box">
+            <div class="metric-title">LIVE SPOT</div>
+            <div id="spotPrice" class="metric-value" style="color:var(--gold);">25300.00</div>
+        </div>
+        <div class="metric-box">
+            <div class="metric-title">MARKET STATE</div>
+            <div id="marketState" class="metric-value" style="font-size:18px;">NORMAL</div>
+        </div>
+        <div class="metric-box">
+            <div class="metric-title">SOC TIMER</div>
+            <div id="socTimer" class="metric-value" style="font-size:18px; color:cyan;">00m</div>
+        </div>
         
-        now = datetime.now()
+        <div class="pressure-container">
+            <div class="metric-title" style="display:flex; justify-content:space-between;">
+                <span>BEARISH PRESSURE</span>
+                <span id="pressureText">BULLISH (85%)</span>
+            </div>
+            <div class="progress-bar">
+                <div id="pressureBar" class="progress-fill bull-fill" style="width: 85%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>CE OI CHG</th>
+                    <th>CE VOL</th>
+                    <th>CE LTP</th>
+                    <th>STRIKE</th>
+                    <th>PE LTP</th>
+                    <th>PE VOL</th>
+                    <th>PE OI CHG</th>
+                    <th>SNIPER SIGNAL</th>
+                </tr>
+            </thead>
+            <tbody id="sniperTable"></tbody>
+        </table>
+    </div>
+
+    <div class="engine-panel">
+        <div class="calc-val"><b>R (Strike+LTP):</b> <span id="rVal" style="color:var(--red)">0</span></div>
+        <div class="calc-val"><b>S (R-50):</b> <span id="sVal" style="color:var(--green)">0</span></div>
+        <div class="calc-val buy-sig"><b>BULL (S+1):</b> <span id="bullVal">0</span></div>
+        <div class="calc-val sell-sig"><b>BEAR (R-1):</b> <span id="bearVal">0</span></div>
+    </div>
+
+<script>
+    // --- ULTRA GOLDEN ENGINE STATE ---
+    let state = {
+        spot: 25312.50,
+        startTime: Date.now(),
+        pressure: 75, // Starts at 75%
+        direction: 1, // 1 for Bullish, -1 for Bearish
+        stuckCounter: 0
+    };
+
+    function runSniperEngine() {
+        // 1. Simulate Spot Movement (Random Fluctuation)
+        let move = (Math.random() * 8) - 4; 
+        state.spot += move;
+        document.getElementById('spotPrice').innerText = state.spot.toFixed(2);
+
+        // 2. Rule 6 Calculation (Resistance Based)
+        let r_strike = Math.round(state.spot / 50) * 50;
+        let ce_ltp = 24.50 + (Math.random() * 2);
         
-        # --- Rule 1: Speed (15-25 mins) ---
-        if self.wtt_wtb_percentage >= 75:
-            if self.highest_percentage_start_time is None:
-                self.highest_percentage_start_time = now
-            else:
-                elapsed = (now - self.highest_percentage_start_time).seconds / 60
-                if 15 <= elapsed <= 25 and self.wtt_wtb_percentage >= 99:
-                    alerts.append("[bold green]🚀 SPEED ALERT: 75-100% in 15-25 mins! High Prob (80%) Trade![/]")
+        let R = r_strike + ce_ltp; 
+        let R_1 = R - 50;  // Bearish Entry
+        let S = R_1;       // Support
+        let S_1 = S + 50;  // Bullish Entry (S+1)
 
-        # --- Rule 2: Stuck & 2% Reversal ---
-        if s_strike == r_strike:
-            if self.stuck_start_time is None:
-                self.stuck_start_time = now
-            elif (now - self.stuck_start_time).seconds >= 3600: # 1 Hour stuck
-                alerts.append("[bold yellow]⚠️ MARKET STUCK (1hr+): Trade Against Scenario (70% Prob)[/]")
-        else:
-            self.stuck_start_time = None
-            
-        # 2% Reversal Logic (Simulated)
-        # (Yahan pichle tick ka percentage store karke compare karna hoga)
+        // Footer Update
+        document.getElementById('rVal').innerText = R.toFixed(2);
+        document.getElementById('sVal').innerText = S.toFixed(2);
+        document.getElementById('bullVal').innerText = S_1.toFixed(2);
+        document.getElementById('bearVal').innerText = R_1.toFixed(2);
+
+        // 3. Pressure & Timer Logic (Rule 1 & 4)
+        let elapsedMins = Math.floor((Date.now() - state.startTime) / 60000); // Minutes running
+        document.getElementById('socTimer').innerText = elapsedMins + "m";
+
+        // Logic: Pressure fluctuation between 75% and 100%
+        state.pressure += (Math.random() * 4 - 2);
+        if(state.pressure > 100) state.pressure = 100;
+        if(state.pressure < 70) state.pressure = 70;
         
-        # --- Rule 3: Low OI Change (After 9:40) ---
-        if now.hour >= 9 and now.minute >= 40:
-            avg_oi_chg = sum([d['ce_oi_chg'] for d in data.values()]) / len(data)
-            if avg_oi_chg < 80000:
-                 alerts.append("[cyan]ℹ️ LOW OI DATA: Trade only from S (Bull) or R (Bear)[/]")
-                 
-        # --- Rule 4: SOC (3 Hours) ---
-        if self.stuck_start_time and (now - self.stuck_start_time).seconds >= 10800: # 3 hours
-            alerts.append("[bold red]⛔ SOC ALERT: Market Confused (3 Hrs). Wait![/]")
+        let pText = state.pressure > 80 ? "BULLISH" : "NEUTRAL/BEARISH";
+        let pColor = state.pressure > 80 ? "var(--green)" : "var(--red)";
+        document.getElementById('pressureBar').style.width = state.pressure + "%";
+        document.getElementById('pressureBar').style.background = pColor;
+        document.getElementById('pressureText').innerText = `${pText} (${state.pressure.toFixed(1)}%)`;
 
-        # --- Rule 6 (Safety): 11k Rule ---
-        # Check specific strike OI change
-        atm_strike = round(self.spot_price / 50) * 50
-        if atm_strike in data:
-            if abs(data[atm_strike]['ce_oi_chg']) > SAFETY_OI_LIMIT and self.current_pressure == "BULLISH":
-                 alerts.append("[bold red on white]🚨 11K RULE VIOLATION: COST-TO-COST EXIT NOW! 🚨[/]")
-
-        return alerts
-
-    def generate_table(self):
-        data, strikes = self.fetch_data_simulation()
-        r_strike, s_strike, r_val, r_minus_1, s_plus_1 = self.find_support_resistance_ultra(data, strikes)
-        alerts = self.check_ultra_golden_rules(data, strikes, s_strike, r_strike)
-        
-        table = Table(title=f"NIFTY SNIPER V7 (ULTRA GOLDEN) | SPOT: {self.spot_price:.2f}", box=box.ROUNDED)
-        
-        table.add_column("Strike", justify="center", style="cyan")
-        table.add_column("CE OI", justify="right")
-        table.add_column("Call LTP", justify="right", style="green")
-        table.add_column("Put LTP", justify="right", style="red")
-        table.add_column("PE OI", justify="right")
-        table.add_column("Signal/Remark", justify="center")
-
-        # Find where imaginary line goes
-        # Line should be between strikes where spot is
-        lower_bound = (int(self.spot_price) // 50) * 50
-        
-        sorted_strikes = sorted(strikes)
-        
-        for i, sk in enumerate(sorted_strikes):
-            # IMAGINARY LINE LOGIC
-            if sk == lower_bound + 50:
-                 table.add_row(
-                     "─────", "─────", 
-                     "[bold red]🔴 IMAGINARY[/]", "[bold red]LINE 🔴[/]", 
-                     "─────", f"[bold yellow]Spot: {self.spot_price}[/]"
-                 )
-
-            ce_oi = f"{data[sk]['ce_oi']:,}"
-            pe_oi = f"{data[sk]['pe_oi']:,}"
-            ce_ltp = f"{data[sk]['ce_ltp']:.2f}"
-            pe_ltp = f"{data[sk]['pe_ltp']:.2f}"
-            
-            remark = ""
-            if sk == r_strike: remark += "[bold red]RESISTANCE (R)[/] "
-            if sk == s_strike: remark += "[bold green]SUPPORT (S)[/] "
-            
-            # Entry Levels Display
-            # Approximation for display matching user rules
-            if abs(sk - r_minus_1) < 25: remark += "⬅️ [red]ENTRY R-1[/]"
-            if abs(sk - s_plus_1) < 25: remark += "⬅️ [green]ENTRY S+1[/]"
-
-            table.add_row(str(sk), ce_oi, ce_ltp, pe_ltp, pe_oi, remark)
-
-        return table, alerts, r_val, r_minus_1, s_plus_1
-
-# --- MAIN LOOP ---
-sniper = NiftySniperV7()
-
-with Live(console=console, refresh_per_second=1) as live:
-    while True:
-        table, alerts, r_val, bear_lvl, bull_lvl = sniper.generate_table()
-        
-        # Footer Panel with Calculations
-        footer_text = f"""[bold underline]CALCULATION (Rule 6):[/]
-Resistance (R) = {r_val:.2f}
-[bold green]Bullish Entry (S+1): {bull_lvl:.2f}[/]
-[bold red]Bearish Entry (R-1): {bear_lvl:.2f}[/]
-
-[bold underline]ALERTS:[/]{' '.join(alerts) if alerts else ' [dim]No Active Alerts[/]'}
-"""
-        layout = Layout()
-        layout.split_column(
-            Layout(table),
-            Layout(Panel(footer_text, title="ULTRA GOLDEN RULES ENGINE", border_style="gold1"))
-        )
-        
-        live.update(layout)
-        time.sleep(1)
+        // Rule 2 & 4: Stuck / SOC
+        if (elapsedMins > 180) {
+            document.getElementById('marketState').innerText = "SOC (Rule 4)";
+            document.getElementById('marketState').style.color = "gold";
+        } else if (elapsedMins > 60) {
+            document.getElementById('marketState').innerText = "STUCK (WTT/WTB)";
+            document.getElementById('marketState').style.color = "orange";
+        } else {
