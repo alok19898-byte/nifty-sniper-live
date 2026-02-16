@@ -3,164 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIFTY SNIPER V9 - ULTRA GOLDEN</title>
+    <title>NIFTY SNIPER V10 - FINAL</title>
     <style>
-        :root { --bg: #050505; --gold: #ffd700; --red: #ff3333; --green: #00ff88; --gray: #1a1a1a; }
-        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 5px; text-align: center; }
+        :root { --bg: #000; --gold: #ffd700; --red: #ff4444; --green: #00ff88; --gray: #333; --dim: #666; }
+        body { background-color: var(--bg); color: #fff; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
 
-        /* DASHBOARD HEADER */
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: #111; padding: 15px; border-bottom: 3px solid var(--gold); margin-bottom: 20px; }
-        .metric-box { background: #222; padding: 10px; border-radius: 8px; border: 1px solid #333; }
-        .metric-title { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-        .metric-value { font-size: 24px; font-weight: 900; color: #fff; }
-        
-        /* PRESSURE BAR (Rule 1) */
-        .pressure-container { grid-column: span 2; background: #222; padding: 10px; border-radius: 8px; }
-        .progress-bar { height: 10px; background: #444; border-radius: 5px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease; }
-        .bull-fill { background: var(--green); }
-        .bear-fill { background: var(--red); }
+        /* HEADER & DASHBOARD */
+        .dashboard-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
+            padding: 10px; background: #111; border-bottom: 2px solid var(--gold); 
+        }
+        .stat-card { background: #222; padding: 10px; border-radius: 5px; border: 1px solid #444; }
+        .label { font-size: 10px; color: #aaa; letter-spacing: 1px; }
+        .value { font-size: 22px; font-weight: 900; color: #fff; }
+        .highlight { color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+
+        /* PRESSURE BAR (TEZ SPEED) */
+        .pressure-box { grid-column: span 2; background: #1a1a1a; padding: 10px; border-radius: 5px; }
+        .p-bar-bg { height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-top: 5px; }
+        .p-bar-fill { height: 100%; width: 50%; transition: width 0.3s ease-in-out; } 
+        /* Transition 0.3s kiya hai taaki tez speed dikhe */
 
         /* MAIN TABLE */
-        .table-container { overflow-x: auto; margin-bottom: 100px; }
-        table { width: 100%; max-width: 1200px; margin: 0 auto; border-collapse: collapse; font-family: monospace; }
-        th { background: #222; color: var(--gold); padding: 12px; font-size: 12px; border: 1px solid #333; }
-        td { padding: 10px; border: 1px solid #1a1a1a; font-weight: bold; font-size: 14px; }
+        .table-wrap { overflow-x: auto; margin-bottom: 80px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #222; color: var(--gold); padding: 10px; font-size: 12px; position: sticky; top: 0; }
+        td { padding: 12px 5px; border-bottom: 1px solid #222; font-weight: bold; font-size: 14px; }
 
-        /* THE DYNAMIC THICK RED LINE (Rule 2 Imaginary Line) */
-        .imaginary-row { animation: pulse 1.5s infinite; }
+        /* IMAGINARY LINE (MOTI RED LINE) */
+        .imaginary-row td { padding: 0 !important; border: none !important; }
         .imaginary-line { 
-            background: var(--red); 
-            color: white; 
-            font-weight: 900; 
-            font-size: 16px; 
-            padding: 8px;
-            border-top: 4px solid #fff; 
-            border-bottom: 4px solid #fff; 
-            text-align: center;
+            background: var(--red); color: white; font-weight: 900; font-size: 14px; 
+            padding: 6px; border-top: 3px solid #fff; border-bottom: 3px solid #fff;
+            animation: pulse 1s infinite;
         }
-        @keyframes pulse { 0% { opacity: 0.85; } 50% { opacity: 1; box-shadow: 0 0 15px var(--red); } 100% { opacity: 0.85; } }
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; box-shadow: 0 0 15px red; } 100% { opacity: 0.8; } }
 
-        /* SIGNALS */
-        .sig-box { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; display: inline-block; }
-        .buy-sig { background: rgba(0,255,136,0.2); color: var(--green); border: 1px solid var(--green); }
-        .sell-sig { background: rgba(255,51,51,0.2); color: var(--red); border: 1px solid var(--red); }
-        .soc-sig { background: rgba(255,215,0,0.2); color: var(--gold); border: 1px solid var(--gold); }
-
-        /* ALERTS (11k Rule) */
-        .alert-overlay { position: fixed; top: 0; left: 0; width: 100%; background: #900; color: white; padding: 15px; font-weight: bold; z-index: 999; display: none; border-bottom: 4px solid white; animation: blink 0.5s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        /* SIGNALS & LOW OI */
+        .sig-btn { padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 900; }
+        .bull { background: rgba(0,255,136,0.2); color: var(--green); border: 1px solid var(--green); }
+        .bear { background: rgba(255,68,68,0.2); color: var(--red); border: 1px solid var(--red); }
+        .soc { background: rgba(255,215,0,0.2); color: var(--gold); border: 1px solid var(--gold); }
+        
+        .low-oi { color: var(--dim) !important; font-weight: normal !important; } /* Rule 3 Style */
 
         /* FOOTER ENGINE */
-        .engine-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: #111; border-top: 4px solid var(--gold); padding: 10px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; box-shadow: 0 -5px 20px rgba(0,0,0,0.8); }
-        .calc-val { font-size: 14px; color: #fff; margin: 0 10px; }
+        .footer { 
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #111; 
+            border-top: 3px solid var(--gold); padding: 10px 0; 
+            display: flex; justify-content: space-around; align-items: center; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.8); z-index: 100;
+        }
+        .footer div { font-size: 13px; font-weight: bold; }
+        
+        /* ALERTS */
+        .alert-modal { position: fixed; top: 20%; left: 5%; width: 90%; background: #900; color: white; padding: 20px; border: 4px solid white; z-index: 999; display: none; font-weight: 900; font-size: 18px; animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } }
+
     </style>
 </head>
 <body>
 
-    <div id="alertBox" class="alert-overlay">🚨 11K RULE TRIGGERED: SCENARIO CHANGE DETECTED! EXIT NOW! 🚨</div>
+    <div id="alertBox" class="alert-modal">🚨 11K RULE: OI CHANGE AGAINST - EXIT NOW! 🚨</div>
 
-    <div class="dashboard">
-        <div class="metric-box">
-            <div class="metric-title">LIVE SPOT</div>
-            <div id="spotPrice" class="metric-value" style="color:var(--gold);">25300.00</div>
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="label">LIVE SPOT</div>
+            <div id="liveSpot" class="value highlight">25300.00</div>
         </div>
-        <div class="metric-box">
-            <div class="metric-title">MARKET STATE</div>
-            <div id="marketState" class="metric-value" style="font-size:18px;">NORMAL</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-title">SOC TIMER</div>
-            <div id="socTimer" class="metric-value" style="font-size:18px; color:cyan;">00m</div>
+        <div class="stat-card">
+            <div class="label">SOC TIMER</div>
+            <div id="timerDisplay" class="value" style="color:cyan;">00m</div>
         </div>
         
-        <div class="pressure-container">
-            <div class="metric-title" style="display:flex; justify-content:space-between;">
-                <span>BEARISH PRESSURE</span>
-                <span id="pressureText">BULLISH (85%)</span>
+        <div class="pressure-box">
+            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-bottom:5px;">
+                <span id="pLabelLeft">BEARISH</span>
+                <span id="pLabelRight" style="color:var(--green)">BULLISH (85%)</span>
             </div>
-            <div class="progress-bar">
-                <div id="pressureBar" class="progress-fill bull-fill" style="width: 85%;"></div>
+            <div class="p-bar-bg">
+                <div id="pressureFill" class="p-bar-fill" style="background:var(--green); width:85%"></div>
             </div>
+            <div style="font-size:10px; color:#666; margin-top:3px; text-align:right;">Rule 1: >75% Momentum</div>
         </div>
     </div>
 
-    <div class="table-container">
+    <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>CE OI CHG</th>
-                    <th>CE VOL</th>
+                    <th>CE OI</th>
                     <th>CE LTP</th>
                     <th>STRIKE</th>
                     <th>PE LTP</th>
-                    <th>PE VOL</th>
-                    <th>PE OI CHG</th>
-                    <th>SNIPER SIGNAL</th>
+                    <th>PE OI</th>
+                    <th>SIGNAL</th>
                 </tr>
             </thead>
-            <tbody id="sniperTable"></tbody>
+            <tbody id="sniperBody">
+                </tbody>
         </table>
     </div>
 
-    <div class="engine-panel">
-        <div class="calc-val"><b>R (Strike+LTP):</b> <span id="rVal" style="color:var(--red)">0</span></div>
-        <div class="calc-val"><b>S (R-50):</b> <span id="sVal" style="color:var(--green)">0</span></div>
-        <div class="calc-val buy-sig"><b>BULL (S+1):</b> <span id="bullVal">0</span></div>
-        <div class="calc-val sell-sig"><b>BEAR (R-1):</b> <span id="bearVal">0</span></div>
+    <div class="footer">
+        <div style="color:var(--red)">R: <span id="rVal">0</span></div>
+        <div class="sig-btn bear">SELL R-1: <span id="sellVal">0</span></div>
+        <div class="sig-btn bull">BUY S+1: <span id="buyVal">0</span></div>
+        <div style="color:var(--green)">S: <span id="sVal">0</span></div>
     </div>
 
 <script>
-    // --- ULTRA GOLDEN ENGINE STATE ---
-    let state = {
-        spot: 25312.50,
-        startTime: Date.now(),
-        pressure: 75, // Starts at 75%
-        direction: 1, // 1 for Bullish, -1 for Bearish
-        stuckCounter: 0
-    };
+    // --- GLOBAL VARIABLES ---
+    let spot = 25300.00;
+    let startTime = Date.now();
+    let pressure = 75; // Starting Pressure
+    let pressureDir = 1; // 1 = Increasing
+    
+    // --- MAIN ENGINE ---
+    function updateSniper() {
+        try {
+            // 1. Spot Movement (Simulation)
+            spot += (Math.random() * 6 - 3);
+            document.getElementById('liveSpot').innerText = spot.toFixed(2);
 
-    function runSniperEngine() {
-        // 1. Simulate Spot Movement (Random Fluctuation)
-        let move = (Math.random() * 8) - 4; 
-        state.spot += move;
-        document.getElementById('spotPrice').innerText = state.spot.toFixed(2);
+            // 2. Rule 6 Calculation (Resistance Base)
+            let rStrike = Math.round(spot / 50) * 50;
+            let ceLtp = 24.50 + Math.random();
+            
+            let R = rStrike + ceLtp;
+            let R_1 = R - 50;      // Bearish Level
+            let S = R_1;           // Support
+            let S_1 = S + 50;      // Bullish Level
 
-        // 2. Rule 6 Calculation (Resistance Based)
-        let r_strike = Math.round(state.spot / 50) * 50;
-        let ce_ltp = 24.50 + (Math.random() * 2);
-        
-        let R = r_strike + ce_ltp; 
-        let R_1 = R - 50;  // Bearish Entry
-        let S = R_1;       // Support
-        let S_1 = S + 50;  // Bullish Entry (S+1)
+            // Footer Update
+            document.getElementById('rVal').innerText = R.toFixed(2);
+            document.getElementById('sVal').innerText = S.toFixed(2);
+            document.getElementById('sellVal').innerText = R_1.toFixed(2);
+            document.getElementById('buyVal').innerText = S_1.toFixed(2);
 
-        // Footer Update
-        document.getElementById('rVal').innerText = R.toFixed(2);
-        document.getElementById('sVal').innerText = S.toFixed(2);
-        document.getElementById('bullVal').innerText = S_1.toFixed(2);
-        document.getElementById('bearVal').innerText = R_1.toFixed(2);
+            // 3. Pressure Logic (Rule 1: Tez Speed)
+            // Hum isko jaldi-jaldi move karayenge 75 se 100 ke beech
+            pressure += (Math.random() * 5 - 2); 
+            if(pressure > 100) pressure = 99;
+            if(pressure < 70) pressure = 71;
+            
+            let isBull = pressure > 80;
+            let color = isBull ? "var(--green)" : "var(--red)";
+            
+            document.getElementById('pressureFill').style.width = pressure + "%";
+            document.getElementById('pressureFill').style.background = color;
+            document.getElementById('pLabelRight').innerText = `${isBull ? "BULLISH" : "BEARISH"} (${pressure.toFixed(1)}%)`;
+            document.getElementById('pLabelRight').style.color = color;
 
-        // 3. Pressure & Timer Logic (Rule 1 & 4)
-        let elapsedMins = Math.floor((Date.now() - state.startTime) / 60000); // Minutes running
-        document.getElementById('socTimer').innerText = elapsedMins + "m";
+            // 4. Timer Logic
+            let mins = Math.floor((Date.now() - startTime) / 60000);
+            document.getElementById('timerDisplay').innerText = mins + "m";
 
-        // Logic: Pressure fluctuation between 75% and 100%
-        state.pressure += (Math.random() * 4 - 2);
-        if(state.pressure > 100) state.pressure = 100;
-        if(state.pressure < 70) state.pressure = 70;
-        
-        let pText = state.pressure > 80 ? "BULLISH" : "NEUTRAL/BEARISH";
-        let pColor = state.pressure > 80 ? "var(--green)" : "var(--red)";
-        document.getElementById('pressureBar').style.width = state.pressure + "%";
-        document.getElementById('pressureBar').style.background = pColor;
-        document.getElementById('pressureText').innerText = `${pText} (${state.pressure.toFixed(1)}%)`;
+            // 5. Table Generation (Imaginary Line + Low OI Rule)
+            let html = "";
+            let mid = Math.floor(spot / 50) * 50;
+            let start = mid - 200;
+            let end = mid + 200;
 
-        // Rule 2 & 4: Stuck / SOC
-        if (elapsedMins > 180) {
-            document.getElementById('marketState').innerText = "SOC (Rule 4)";
-            document.getElementById('marketState').style.color = "gold";
-        } else if (elapsedMins > 60) {
-            document.getElementById('marketState').innerText = "STUCK (WTT/WTB)";
-            document.getElementById('marketState').style.color = "orange";
-        } else {
+            for(let s = start; s <= end; s += 50) {
+                // IMAGINARY LINE LOGIC (Dynamic)
+                // Agar strike 'next' hai (spot ke just upar), toh line uske pehle lagao
+                if(s === mid + 50) {
+                    html += `<tr class="imaginary-row"><td colspan="6" class="imaginary-line">🔴 MARKET PRICE HERE (${spot.toFixed(2)}) 🔴</td></tr>`;
+                }
+
+                // Random Data
+                let ceOi = Math.floor(Math.random() * 150000);
+                let peOi = Math.floor(Math.random() * 150000);
+                
+                // RULE 3: Low OI Check (Kam OI Change)
+                let isLowData = (ceOi < 100000 && peOi < 100000); // Both side weak
+                let rowClass = isLowData ? "low-oi" : "";
+                
+                // Signals
+                let sig = "-";
+                if(!isLowData) { // Signal tabhi jab OI strong ho
+                    if(Math.abs(s - S_1) < 25) sig = "<span class='sig-btn bull'>BUY S+1</span>";
+                    else if(Math.abs(s - R_1) < 25) sig = "<span class='sig-btn bear'>SELL R-1</span>";
+                    
+                    // SOC Signal (Rule 4)
+                    if(mins > 180 && s === mid) sig = "<span class='sig-btn soc'>SOC TRADE</span>";
+                } else {
+                    sig = "<span style='font-size:10px; color:#555;'>LOW VOL</span>";
+                }
+
+                html += `
+                <tr class="${rowClass}">
+                    <td style="color:${ceOi > 120000 ? 'var(--red)' : '#666'}">${(ceOi/1000).toFixed(1)}k</td>
+                    <td style="color:var(--red)">${(Math.random()*50).toFixed(2)}</td>
+                    <td style="background:#222; color:var(--gold); border-left:1px solid #444; border-right:1px solid #444;">${s}</td>
+                    <td style="color:var(--green)">${(Math.random()*50).toFixed(2)}</td>
+                    <td style="color:${peOi > 120000 ? 'var(--green)' : '#666'}">${(peOi/1000).toFixed(1)}k</td>
+                    <td>${sig}</td>
+                </tr>`;
+
+                // 11K Alert Check (Simulated)
+                if(!isLowData && Math.random() > 0.995) {
+                    show11kAlert();
+                }
+            }
+    
