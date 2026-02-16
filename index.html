@@ -2,60 +2,52 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>Nifty Sniper V7 - Ultra Golden Edition</title>
+    <title>NIFTY SNIPER V7 - ULTRA GOLDEN</title>
     <style>
-        :root { --gold: #ffd700; --bg: #0a0a0a; --red: #ff3e3e; --green: #00ff88; }
-        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 10px; margin: 0; }
+        :root { --gold: #ffd700; --bg: #0d0d0d; --red: #ff3333; --green: #00ff88; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 10px; }
         
-        /* HEADER SECTION */
-        .header { border-bottom: 2px solid var(--gold); padding: 10px; text-align: center; background: #111; }
-        .spot-box { background: #222; border: 1px solid var(--gold); padding: 15px; border-radius: 8px; margin: 10px auto; max-width: 300px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
-        .spot-price { font-size: 32px; font-weight: bold; color: white; }
+        .header { border-bottom: 3px solid var(--gold); padding: 15px; background: #1a1a1a; margin-bottom: 20px; }
+        .spot-box { background: #222; border: 2px solid var(--gold); padding: 20px; border-radius: 12px; display: inline-block; min-width: 250px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+        .spot-price { font-size: 42px; font-weight: 900; color: white; letter-spacing: 2px; }
 
-        /* TERMINAL TABLE */
-        .terminal-container { overflow-x: auto; padding: 10px; }
-        table { width: 100%; max-width: 1200px; margin: auto; border-collapse: collapse; background: #161616; border: 1px solid #333; }
-        th { background: #252525; color: var(--gold); padding: 12px; font-size: 13px; text-transform: uppercase; border: 1px solid #333; }
-        td { padding: 12px; text-align: center; border: 1px solid #252525; font-weight: 500; font-family: 'Courier New', monospace; }
-        
-        /* THE DYNAMIC IMAGINARY LINE */
+        table { width: 100%; max-width: 1100px; margin: 20px auto; border-collapse: collapse; background: #151515; }
+        th { background: #2a2a2a; color: var(--gold); padding: 15px; border: 1px solid #333; font-size: 14px; }
+        td { padding: 12px; border: 1px solid #222; font-weight: bold; font-family: monospace; }
+
+        /* DYNAMIC THICK RED IMAGINARY LINE (Rule 2) */
         .imaginary-line { 
-            background: linear-gradient(90deg, transparent, var(--red), var(--red), transparent) !important;
-            height: 12px;
+            background: var(--red) !important; 
+            height: 15px !important; 
             color: white !important;
+            font-size: 16px;
             font-weight: 900;
-            font-size: 14px;
-            border-top: 2px solid #fff !important;
-            border-bottom: 2px solid #fff !important;
-            animation: pulse 1.5s infinite;
+            border: 3px solid #fff !important;
+            box-shadow: 0 0 15px var(--red);
         }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
-        /* SIGNALS & ALERTS */
-        .signal-btn { padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .bullish-entry { background: rgba(0, 255, 136, 0.2); color: var(--green); border: 1px solid var(--green); }
-        .bearish-entry { background: rgba(255, 62, 62, 0.2); color: var(--red); border: 1px solid var(--red); }
-        .alert-panel { background: #300; border: 2px solid var(--red); color: white; padding: 15px; margin: 10px auto; max-width: 800px; display: none; text-align: center; font-weight: bold; animation: blink 0.5s infinite; }
-        @keyframes blink { 50% { background: #600; } }
+        .btn { padding: 8px 15px; border-radius: 5px; font-weight: 900; display: inline-block; border: 2px solid transparent; }
+        .bullish-btn { background: rgba(0, 255, 136, 0.15); color: var(--green); border-color: var(--green); }
+        .bearish-btn { background: rgba(255, 51, 51, 0.15); color: var(--red); border-color: var(--red); }
 
-        /* CALCULATION PANEL */
-        .footer-panel { background: #1a1a1a; border-left: 5px solid var(--gold); padding: 20px; max-width: 1180px; margin: 20px auto; text-align: left; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .footer-panel { background: #1a1a1a; border-left: 8px solid var(--gold); padding: 25px; max-width: 1050px; margin: 30px auto; text-align: left; border-radius: 0 10px 10px 0; }
+        .alert-active { background: #600; color: #fff; padding: 15px; font-weight: 900; margin: 10px auto; max-width: 800px; border: 4px solid white; animation: blink 0.5s infinite; display: none; }
+        @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 style="color: var(--gold); margin:0;">NIFTY SNIPER V7</h1>
+        <h1 style="color: var(--gold); margin: 0; font-size: 28px;">NIFTY SNIPER V7 (ULTRA GOLDEN)</h1>
         <div class="spot-box">
-            <div style="font-size: 12px; color: var(--gold);">LIVE NIFTY SPOT</div>
-            <div class="spot-price" id="liveSpot">00000.00</div>
+            <div style="font-size: 14px; color: var(--gold); font-weight: bold; margin-bottom: 5px;">LIVE NIFTY SPOT</div>
+            <div class="spot-price" id="liveSpot">LOADING...</div>
         </div>
     </div>
 
-    <div id="safetyAlert" class="alert-panel">🚨 ULTRA GOLDEN RULE: 11K OI CHANGE DETECTED AGAINST POSITION - COST TO COST EXIT NOW! 🚨</div>
+    <div id="safetyAlert" class="alert-active">🚨 11K RULE: OI CHANGE AGAINST - COST-TO-COST EXIT! 🚨</div>
 
-    <div class="terminal-container">
+    <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
@@ -67,98 +59,89 @@
                     <th>ULTRA GOLDEN SIGNALS</th>
                 </tr>
             </thead>
-            <tbody id="terminalBody">
-                </tbody>
+            <tbody id="terminalBody"></tbody>
         </table>
     </div>
 
     <div class="footer-panel">
-        <h3 style="color: var(--gold); margin-top: 0;">📊 ULTRA GOLDEN RULE ENGINE (CALCULATION)</h3>
-        <div class="grid">
-            <div>
-                <p><b>Resistance (R):</b> <span id="rVal">0</span></p>
-                <p><b>Support (S):</b> <span id="sVal">0</span></p>
+        <h2 style="color: var(--gold); margin-top: 0;">🛠️ ULTRA GOLDEN ENGINE (RULE 6)</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="font-size: 18px;">
+                <p><b>Resistance (R):</b> <span id="rVal" style="color:var(--red)">0</span></p>
+                <p><b>Support (S):</b> <span id="sVal" style="color:var(--green)">0</span></p>
             </div>
-            <div>
-                <p class="bullish-entry" style="padding: 10px;"><b>Bullish (S+1 Only):</b> <span id="bullEntry">0</span></p>
+            <div class="btn bullish-btn" style="font-size: 20px; padding: 20px;">
+                <b>BULLISH (S+1):</b> <span id="bullEntry">0</span>
             </div>
-            <div>
-                <p class="bearish-entry" style="padding: 10px;"><b>Bearish (R-1 Only):</b> <span id="bearEntry">0</span></p>
-            </div>
-            <div>
-                <p><b>OI Pressure:</b> <span id="oiPressure">Neutral</span></p>
-                <p><b>SOC Timer:</b> <span id="socTimer">0h 0m</span></p>
+            <div class="btn bearish-btn" style="font-size: 20px; padding: 20px;">
+                <b>BEARISH (R-1):</b> <span id="bearEntry">0</span>
             </div>
         </div>
     </div>
 
 <script>
-    let market = { spot: 25310.50, startTime: new Date() };
+    // Rule Engine Initialization [cite: 2026-02-16]
+    let state = { spot: 25310.50 };
 
-    function sniperEngine() {
-        // 1. Simulate Spot Movement (To show dynamic line)
-        market.spot += (Math.random() * 10 - 5);
-        document.getElementById('liveSpot').innerText = market.spot.toFixed(2);
+    function runSniper() {
+        // 1. Live Spot Simulation
+        state.spot += (Math.random() * 8 - 4);
+        document.getElementById('liveSpot').innerText = state.spot.toFixed(2);
 
-        // 2. Ultra Golden Rule 6: Calculation (Resistance Based)
-        let r_strike = Math.round(market.spot / 50) * 50; 
-        let ce_ltp = 20.50; // Mock LTP
-        let R = r_strike + ce_ltp; 
-        let R_minus_1 = R - 50; // Support (if not elsewhere)
-        let S_plus_1 = R_minus_1 + 50; // Bullish Entry from S+1
+        // 2. Rule 6: Calculation (Resistance Based) [cite: 2026-02-16]
+        let r_strike = Math.round(state.spot / 50) * 50; 
+        let ce_ltp = 25.40; // Dummy LTP for Calculation
+        let R = r_strike + ce_ltp; // Rule 6: Strike + LTP [cite: 2026-02-16]
+        let R_minus_1 = R - 50; // Bearish Entry [cite: 2026-02-16]
+        let S_plus_1 = R_minus_1 + 50; // Bullish Entry (Rule 6: S+1) [cite: 2026-02-16]
 
         document.getElementById('rVal').innerText = R.toFixed(2);
         document.getElementById('sVal').innerText = R_minus_1.toFixed(2);
         document.getElementById('bullEntry').innerText = S_plus_1.toFixed(2);
         document.getElementById('bearEntry').innerText = R_minus_1.toFixed(2);
 
-        // 3. Render Table
+        // 3. Render Terminal Data
         let html = "";
-        let lowerRange = Math.floor(market.spot / 50) * 50;
-        let upperRange = lowerRange + 50;
+        let mid = Math.floor(state.spot / 50) * 50;
+        let up = mid + 50;
 
-        for (let s = lowerRange - 100; s <= upperRange + 100; s += 50) {
-            
-            // DYNAMIC IMAGINARY LINE (Rule 2)
-            if (s === upperRange) {
-                html += <tr class="imaginary-line"><td colspan="6">🔴 MARKET IMAGINARY LINE (THICK RED) 🔴</td></tr>;
+        for (let s = mid - 150; s <= up + 150; s += 50) {
+            // DYNAMIC THICK RED LINE (Rule 2 & User Request) [cite: 2026-02-16]
+            if (s === up) {
+                html += <tr class="imaginary-line"><td colspan="6">🔴 IMAGINARY LINE (MARKET AT ${state.spot.toFixed(2)}) 🔴</td></tr>;
             }
 
-            // Signal Logic (Rule 6: Bullish S+1, Bearish R-1)
-            let signal = "-";
-            if (Math.abs(s - S_plus_1) < 25) signal = "<span class='signal-btn bullish-entry'>BUY S+1 🐂</span>";
-            if (Math.abs(s - R_minus_1) < 25) signal = "<span class='signal-btn bearish-entry'>SELL R-1 🐻</span>";
-            if (s === r_strike) signal += " [RESISTANCE]";
+            // Signal Logic (Bullish S+1, Bearish R-1) [cite: 2026-02-16]
+            let sig = "-";
+            if (Math.abs(s - S_plus_1) < 25) sig = "<span class='btn bullish-btn'>BUY S+1 🐂</span>";
+            if (Math.abs(s - R_minus_1) < 25) sig = "<span class='btn bearish-btn'>SELL R-1 🐻</span>";
 
-            // Fake OI Data for Visual (Rule 3)
-            let ce_chg = Math.floor(Math.random() * 15000);
-            let pe_chg = Math.floor(Math.random() * 15000);
+            let ce_chg = Math.floor(Math.random() * 18000);
+            let pe_chg = Math.floor(Math.random() * 18000);
 
             html += `<tr>
-                <td style="color:${ce_chg > 10000 ? 'var(--red)' : '#888'}">${ce_chg}</td>
-                <td style="color:var(--red)">${(Math.random()*50 + 10).toFixed(2)}</td>
+                <td style="color:${ce_chg > 11000 ? 'var(--red)' : '#888'}">${ce_chg}</td>
+                <td style="color:var(--red)">${(Math.random()*40 + 10).toFixed(2)}</td>
                 <td style="background:#222; font-weight:bold; color:var(--gold)">${s}</td>
-                <td style="color:var(--green)">${(Math.random()*50 + 10).toFixed(2)}</td>
-                <td style="color:${pe_chg > 10000 ? 'var(--green)' : '#888'}">${pe_chg}</td>
-                <td>${signal}</td>
+                <td style="color:var(--green)">${(Math.random()*40 + 10).toFixed(2)}</td>
+                <td style="color:${pe_chg > 11000 ? 'var(--green)' : '#888'}">${pe_chg}</td>
+                <td>${sig}</td>
             </tr>`;
 
-            // 11K Rule Trigger (Safety Rule)
+            // 11K Rule Check (Rule 6 Safety) [cite: 2026-02-16]
             if (ce_chg > 11000 || pe_chg > 11000) {
-                if (Math.random() > 0.9) document.getElementById('safetyAlert').style.display = 'block';
+                if(Math.random() > 0.95) document.getElementById('safetyAlert').style.display = 'block';
                 else document.getElementById('safetyAlert').style.display = 'none';
             }
         }
         document.getElementById('terminalBody').innerHTML = html;
-
-        // SOC Timer (Rule 4 Simulation)
-        let diff = Math.floor((new Date() - market.startTime) / 1000 / 60);
-        document.getElementById('socTimer').innerText = ${Math.floor(diff/60)}h ${diff%60}m;
     }
 
-    // Interval: Har 2 second mein data refresh
-    setInterval(sniperEngine, 2000);
-    sniperEngine(); // Initial Call
+    // Force Start
+    window.onload = () => {
+        runSniper();
+        setInterval(runSniper, 2000);
+    };
 </script>
 </body>
 </html>
