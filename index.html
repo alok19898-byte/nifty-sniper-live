@@ -1,158 +1,164 @@
-                                <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sniper v7 - Pressure Engine</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Nifty Sniper V7 - Ultra Golden Edition</title>
     <style>
-        body { background: #000000; color: #e6edf3; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 240px; }
-        .strike-col { background: #161b22; color: #58a6ff; font-weight: 900; border-left: 2px solid #30363d; border-right: 2px solid #30363d; font-size: 13px; }
-        .bg-itm-c { background-color: rgba(59, 130, 246, 0.08) !important; }
-        .bg-itm-p { background-color: rgba(239, 68, 68, 0.08) !important; }
-        .spot-glow { border-top: 4px solid #ff0000; border-bottom: 4px solid #ff0000; background: rgba(255, 0, 0, 0.25) !important; z-index: 10; position: relative; }
-        .max-vol { background: #7c3aed !important; color: white !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; box-shadow: 0 0 5px #7c3aed; }
-        .max-oi { background: #2563eb !important; color: white !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; box-shadow: 0 0 5px #2563eb; }
-        .second-highest { background: #fbbf24 !important; color: #000 !important; padding: 1px 4px; border-radius: 3px; font-weight: 900; box-shadow: 0 0 5px #fbbf24; }
-        .pct-label { font-size: 8px; opacity: 0.7; margin-left: 3px; font-weight: bold; }
-        .ltp-green { color: #22c55e !important; font-weight: 900; }
-        .ltp-red { color: #ef4444 !important; font-weight: 900; }
-        .blink-alert { animation: blinker 0.6s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.2; } }
+        :root { --gold: #ffd700; --bg: #0a0a0a; --red: #ff3e3e; --green: #00ff88; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 10px; margin: 0; }
+        
+        /* HEADER SECTION */
+        .header { border-bottom: 2px solid var(--gold); padding: 10px; text-align: center; background: #111; }
+        .spot-box { background: #222; border: 1px solid var(--gold); padding: 15px; border-radius: 8px; margin: 10px auto; max-width: 300px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
+        .spot-price { font-size: 32px; font-weight: bold; color: white; }
+
+        /* TERMINAL TABLE */
+        .terminal-container { overflow-x: auto; padding: 10px; }
+        table { width: 100%; max-width: 1200px; margin: auto; border-collapse: collapse; background: #161616; border: 1px solid #333; }
+        th { background: #252525; color: var(--gold); padding: 12px; font-size: 13px; text-transform: uppercase; border: 1px solid #333; }
+        td { padding: 12px; text-align: center; border: 1px solid #252525; font-weight: 500; font-family: 'Courier New', monospace; }
+        
+        /* THE DYNAMIC IMAGINARY LINE */
+        .imaginary-line { 
+            background: linear-gradient(90deg, transparent, var(--red), var(--red), transparent) !important;
+            height: 12px;
+            color: white !important;
+            font-weight: 900;
+            font-size: 14px;
+            border-top: 2px solid #fff !important;
+            border-bottom: 2px solid #fff !important;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+        /* SIGNALS & ALERTS */
+        .signal-btn { padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .bullish-entry { background: rgba(0, 255, 136, 0.2); color: var(--green); border: 1px solid var(--green); }
+        .bearish-entry { background: rgba(255, 62, 62, 0.2); color: var(--red); border: 1px solid var(--red); }
+        .alert-panel { background: #300; border: 2px solid var(--red); color: white; padding: 15px; margin: 10px auto; max-width: 800px; display: none; text-align: center; font-weight: bold; animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { background: #600; } }
+
+        /* CALCULATION PANEL */
+        .footer-panel { background: #1a1a1a; border-left: 5px solid var(--gold); padding: 20px; max-width: 1180px; margin: 20px auto; text-align: left; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
     </style>
 </head>
-<body onload="runEngine()">
+<body>
 
-    <div class="p-3 bg-[#0d1117] border-b border-[#30363d] sticky top-0 z-50">
-        <div class="flex justify-between items-center mb-2">
-            <h1 class="text-xl font-black text-[#58a6ff] italic uppercase tracking-tighter">Sniper Terminal v7+ 🎯</h1>
-            <div id="pressure-badge" class="px-3 py-0.5 rounded bg-yellow-600 text-[10px] font-black uppercase">Pressure: Calculating...</div>
-        </div>
-        <div class="bg-[#161b22] border-2 border-[#30363d] rounded-xl p-3 border-l-8 border-red-600 flex justify-between items-center">
-            <div>
-                <p class="text-[9px] text-gray-500 font-bold uppercase italic text-red-400" id="scenario-type">SCENARIO: NORMAL</p>
-                <h2 id="signal-text" class="text-xl font-black text-white italic">ANALYZING PRESSURE...</h2>
-            </div>
-            <div class="text-right">
-                <p class="text-[9px] text-gray-500 font-bold uppercase italic">Recommended Entry</p>
-                <p id="entry-val" class="text-2xl font-black text-[#58a6ff]">---</p>
-            </div>
+    <div class="header">
+        <h1 style="color: var(--gold); margin:0;">NIFTY SNIPER V7</h1>
+        <div class="spot-box">
+            <div style="font-size: 12px; color: var(--gold);">LIVE NIFTY SPOT</div>
+            <div class="spot-price" id="liveSpot">00000.00</div>
         </div>
     </div>
 
-    <div class="p-1 overflow-x-auto">
-        <table class="w-full text-center border-separate border-spacing-y-0.5">
-            <thead class="text-[7px] text-gray-500 uppercase font-black bg-[#161b22]">
+    <div id="safetyAlert" class="alert-panel">🚨 ULTRA GOLDEN RULE: 11K OI CHANGE DETECTED AGAINST POSITION - COST TO COST EXIT NOW! 🚨</div>
+
+    <div class="terminal-container">
+        <table>
+            <thead>
                 <tr>
-                    <th class="p-1">IV</th><th class="p-1">OI CHG</th><th class="p-1 text-blue-400">OI %</th><th class="p-1 text-purple-400">VOL %</th><th class="p-1">LTP</th>
-                    <th class="p-1 text-white text-[9px]">STRIKE</th>
-                    <th class="p-1">LTP</th><th class="p-1 text-purple-400">VOL %</th><th class="p-1 text-blue-400">OI %</th><th class="p-1">OI CHG</th><th class="p-1">IV</th>
+                    <th>CE OI CHG</th>
+                    <th>CE LTP</th>
+                    <th>STRIKE PRICE</th>
+                    <th>PE LTP</th>
+                    <th>PE OI CHG</th>
+                    <th>ULTRA GOLDEN SIGNALS</th>
                 </tr>
             </thead>
-            <tbody id="chain-body" class="font-mono text-[10px] text-white"></tbody>
+            <tbody id="terminalBody">
+                </tbody>
         </table>
     </div>
 
-    <div class="fixed bottom-0 w-full bg-[#0d1117] border-t-2 border-[#30363d] p-3 shadow-2xl z-50">
-        <div class="grid grid-cols-4 gap-2 text-center mb-2">
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Res (R)</p><p id="r-val" class="text-md font-black italic">---</p></div>
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Supp (S)</p><p id="s-val" class="text-md font-black text-green-500 italic">---</p></div>
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase">Pressure %</p><p id="press-pct" class="text-md font-black text-blue-400">0%</p></div>
-            <div class="bg-black/40 p-1.5 rounded border border-gray-800"><p class="text-[7px] text-gray-500 uppercase italic">11K Rule</p><p id="oi-alert" class="text-md font-black text-gray-600 italic">OFF</p></div>
-        </div>
-        <div class="w-full text-center text-[9px] font-black text-red-500 uppercase bg-red-900/10 border border-red-900/50 rounded py-1 blink-alert">
-            MASTER PROTOCOL ACTIVE: MOMENTUM & DEEP VALUE TRACKER
+    <div class="footer-panel">
+        <h3 style="color: var(--gold); margin-top: 0;">📊 ULTRA GOLDEN RULE ENGINE (CALCULATION)</h3>
+        <div class="grid">
+            <div>
+                <p><b>Resistance (R):</b> <span id="rVal">0</span></p>
+                <p><b>Support (S):</b> <span id="sVal">0</span></p>
+            </div>
+            <div>
+                <p class="bullish-entry" style="padding: 10px;"><b>Bullish (S+1 Only):</b> <span id="bullEntry">0</span></p>
+            </div>
+            <div>
+                <p class="bearish-entry" style="padding: 10px;"><b>Bearish (R-1 Only):</b> <span id="bearEntry">0</span></p>
+            </div>
+            <div>
+                <p><b>OI Pressure:</b> <span id="oiPressure">Neutral</span></p>
+                <p><b>SOC Timer:</b> <span id="socTimer">0h 0m</span></p>
+            </div>
         </div>
     </div>
 
-    <script>
-        const strikes = [25000, 25050, 25100, 25150, 25200, 25250, 25300, 25350, 25400, 25450];
-        let mockSpot = 25215;
+<script>
+    let market = { spot: 25310.50, startTime: new Date() };
 
-        function runEngine() {
-            setInterval(() => {
-                mockSpot = 25200 + (Math.random() * 50);
-                renderTable();
-            }, 2000);
-        }
+    function sniperEngine() {
+        // 1. Simulate Spot Movement (To show dynamic line)
+        market.spot += (Math.random() * 10 - 5);
+        document.getElementById('liveSpot').innerText = market.spot.toFixed(2);
 
-        function getSecondMax(arr) {
-            let sorted = [...new Set(arr)].sort((a, b) => b - a);
-            return sorted.length > 1 ? sorted[1] : null;
-        }
+        // 2. Ultra Golden Rule 6: Calculation (Resistance Based)
+        let r_strike = Math.round(market.spot / 50) * 50; 
+        let ce_ltp = 20.50; // Mock LTP
+        let R = r_strike + ce_ltp; 
+        let R_minus_1 = R - 50; // Support (if not elsewhere)
+        let S_plus_1 = R_minus_1 + 50; // Bullish Entry from S+1
 
-        function renderTable() {
-            const body = document.getElementById('chain-body');
-            body.innerHTML = '';
-            let data = strikes.map(s => ({
-                strike: s, c_iv: (10 + Math.random() * 5).toFixed(1), c_oi_chg: Math.floor(Math.random() * 15000),
-                c_oi: Math.floor(Math.random() * 60000), c_vol: Math.floor(Math.random() * 120000),
-                c_ltp: (250 - (s - 25000)/2).toFixed(2), p_ltp: (50 + (s - 25000)/2).toFixed(2),
-                p_vol: Math.floor(Math.random() * 120000), p_oi: Math.floor(Math.random() * 60000),
-                p_oi_chg: Math.floor(Math.random() * 15000), p_iv: (11 + Math.random() * 5).toFixed(1)
-            }));
+        document.getElementById('rVal').innerText = R.toFixed(2);
+        document.getElementById('sVal').innerText = R_minus_1.toFixed(2);
+        document.getElementById('bullEntry').innerText = S_plus_1.toFixed(2);
+        document.getElementById('bearEntry').innerText = R_minus_1.toFixed(2);
 
-            const max = { cv: Math.max(...data.map(d => d.c_vol)), co: Math.max(...data.map(d => d.c_oi)), pv: Math.max(...data.map(d => d.p_vol)), po: Math.max(...data.map(d => d.p_oi)) };
-            const second = { cv: getSecondMax(data.map(d => d.c_vol)), pv: getSecondMax(data.map(d => d.p_vol)) };
+        // 3. Render Table
+        let html = "";
+        let lowerRange = Math.floor(market.spot / 50) * 50;
+        let upperRange = lowerRange + 50;
 
-            data.forEach(d => {
-                const isSpot = d.strike === 25200;
-                let rowCls = isSpot ? 'spot-glow' : (d.strike < mockSpot ? 'bg-itm-c' : 'bg-itm-p');
-                const getInd = (val, m, s, base) => val === m ? base : (val === s ? 'second-highest' : '');
-
-                body.innerHTML += `
-                    <tr class="${rowCls}">
-                        <td>${d.c_iv}</td><td>${d.c_oi_chg}</td>
-                        <td class="${getInd(d.c_oi, max.co, 0, 'max-oi')}">${d.c_oi}</td>
-                        <td class="${getInd(d.c_vol, max.cv, second.cv, 'max-vol')}">${d.c_vol}<span class="pct-label">${((d.c_vol/max.cv)*100).toFixed(0)}%</span></td>
-                        <td class="ltp-green font-bold">${d.c_ltp}</td>
-                        <td class="strike-col">${d.strike}</td>
-                        <td class="ltp-red font-bold">${d.p_ltp}</td>
-                        <td class="${getInd(d.p_vol, max.pv, second.pv, 'max-vol')}">${d.p_vol}<span class="pct-label">${((d.p_vol/max.pv)*100).toFixed(0)}%</span></td>
-                        <td class="${getInd(d.p_oi, max.po, 0, 'max-oi')}">${d.p_oi}</td>
-                        <td>${d.p_oi_chg}</td><td>${d.p_iv}</td>
-                    </tr>`;
-
-                if(d.c_vol === max.cv) {
-                    const r = Math.floor(d.strike + 20);
-                    const press = ((second.cv / max.cv) * 100).toFixed(1);
-                    updateProtocol(r, r-50, press, d.c_oi_chg);
-                }
-            });
-        }
-
-        function updateProtocol(r, s, press, oic) {
-            document.getElementById('r-val').innerText = r;
-            document.getElementById('s-val').innerText = s;
-            document.getElementById('press-pct').innerText = press + "%";
-            document.getElementById('oi-alert').innerText = oic > 11000 ? "11K CROSS" : "OFF";
+        for (let s = lowerRange - 100; s <= upperRange + 100; s += 50) {
             
-            const sig = document.getElementById('signal-text');
-            const ent = document.getElementById('entry-val');
-            const type = document.getElementById('scenario-type');
-            const badge = document.getElementById('pressure-badge');
+            // DYNAMIC IMAGINARY LINE (Rule 2)
+            if (s === upperRange) {
+                html += <tr class="imaginary-line"><td colspan="6">🔴 MARKET IMAGINARY LINE (THICK RED) 🔴</td></tr>;
+            }
 
-            if(press >= 75) {
-                badge.className = "px-3 py-0.5 rounded bg-red-600 text-[10px] font-black uppercase blink-alert";
-                badge.innerText = "HIGH PRESSURE: WTT";
-                sig.innerText = "TEZ SPEED: ENTRY @ S+1";
-                ent.innerText = s + 50;
-                type.innerText = "SCENARIO: BULLISH MOMENTUM";
-            } else if (press <= 5) {
-                badge.className = "px-3 py-0.5 rounded bg-blue-600 text-[10px] font-black uppercase";
-                badge.innerText = "STUCK: 5% LIMIT";
-                sig.innerText = "SAFE: TRADE WTT-1 ONLY";
-                ent.innerText = s - 50;
-                type.innerText = "SCENARIO: CONSOLIDATION";
-            } else {
-                badge.className = "px-3 py-0.5 rounded bg-green-600 text-[10px] font-black uppercase";
-                badge.innerText = "NORMAL PRESSURE";
-                sig.innerText = "ENTRY @ SUPPORT (S)";
-                ent.innerText = s;
-                type.innerText = "SCENARIO: NORMAL S/R";
+            // Signal Logic (Rule 6: Bullish S+1, Bearish R-1)
+            let signal = "-";
+            if (Math.abs(s - S_plus_1) < 25) signal = "<span class='signal-btn bullish-entry'>BUY S+1 🐂</span>";
+            if (Math.abs(s - R_minus_1) < 25) signal = "<span class='signal-btn bearish-entry'>SELL R-1 🐻</span>";
+            if (s === r_strike) signal += " [RESISTANCE]";
+
+            // Fake OI Data for Visual (Rule 3)
+            let ce_chg = Math.floor(Math.random() * 15000);
+            let pe_chg = Math.floor(Math.random() * 15000);
+
+            html += `<tr>
+                <td style="color:${ce_chg > 10000 ? 'var(--red)' : '#888'}">${ce_chg}</td>
+                <td style="color:var(--red)">${(Math.random()*50 + 10).toFixed(2)}</td>
+                <td style="background:#222; font-weight:bold; color:var(--gold)">${s}</td>
+                <td style="color:var(--green)">${(Math.random()*50 + 10).toFixed(2)}</td>
+                <td style="color:${pe_chg > 10000 ? 'var(--green)' : '#888'}">${pe_chg}</td>
+                <td>${signal}</td>
+            </tr>`;
+
+            // 11K Rule Trigger (Safety Rule)
+            if (ce_chg > 11000 || pe_chg > 11000) {
+                if (Math.random() > 0.9) document.getElementById('safetyAlert').style.display = 'block';
+                else document.getElementById('safetyAlert').style.display = 'none';
             }
         }
-    </script>
+        document.getElementById('terminalBody').innerHTML = html;
+
+        // SOC Timer (Rule 4 Simulation)
+        let diff = Math.floor((new Date() - market.startTime) / 1000 / 60);
+        document.getElementById('socTimer').innerText = ${Math.floor(diff/60)}h ${diff%60}m;
+    }
+
+    // Interval: Har 2 second mein data refresh
+    setInterval(sniperEngine, 2000);
+    sniperEngine(); // Initial Call
+</script>
 </body>
-    </html>
-    
+</html>
