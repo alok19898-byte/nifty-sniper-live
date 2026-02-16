@@ -2,143 +2,203 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>NIFTY SNIPER V7 - ULTRA GOLDEN</title>
+    <title>NIFTY SNIPER V8 - ULTRA GOLDEN COMPLETE</title>
     <style>
-        :root { --gold: #ffd700; --bg: #050505; --red: #ff0000; --green: #00ff00; }
+        :root { --gold: #ffd700; --bg: #050505; --red: #ff0000; --green: #00ff00; --blue: #007bff; }
         body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 10px; }
         
-        /* SPOT SECTION */
-        .spot-header { border-bottom: 2px solid var(--gold); padding: 20px; background: #111; margin-bottom: 20px; }
-        .spot-box { background: #1a1a1a; border: 2px solid var(--gold); padding: 20px; border-radius: 15px; display: inline-block; min-width: 300px; }
-        .spot-val { font-size: 45px; font-weight: 900; color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        /* HEADER & DASHBOARD */
+        .dashboard { border: 2px solid var(--gold); background: #111; padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-around; flex-wrap: wrap; align-items: center; }
+        .stat-box { text-align: center; padding: 10px; }
+        .stat-val { font-size: 28px; font-weight: 900; color: white; }
+        .pressure-tag { padding: 5px 15px; border-radius: 5px; font-weight: bold; text-transform: uppercase; animation: blink 1s infinite; }
 
-        /* TABLE STYLES */
-        table { width: 100%; max-width: 1150px; margin: auto; border-collapse: collapse; background: #0a0a0a; }
-        th { background: #222; color: var(--gold); padding: 15px; border: 1px solid #333; font-size: 14px; text-transform: uppercase; }
-        td { padding: 12px; border: 1px solid #1a1a1a; font-weight: bold; font-family: 'Courier New', monospace; font-size: 16px; }
+        /* TABLE */
+        table { width: 100%; max-width: 1200px; margin: auto; border-collapse: collapse; background: #0a0a0a; border: 1px solid #333; }
+        th { background: #222; color: var(--gold); padding: 12px; border: 1px solid #444; font-size: 12px; }
+        td { padding: 10px; border: 1px solid #1a1a1a; font-weight: bold; font-family: monospace; }
 
-        /* THE DYNAMIC RED LINE (Thick & Pulsing) */
+        /* IMAGINARY LINE (The Thick Red Line) */
         .imaginary-line { 
             background: var(--red) !important; 
-            height: 20px !important; 
+            height: 25px !important; 
             color: white !important;
             font-size: 18px;
             font-weight: 900;
-            border-top: 4px solid #fff !important;
-            border-bottom: 4px solid #fff !important;
-            animation: pulse 1s infinite;
+            border-top: 5px solid #fff !important;
+            border-bottom: 5px solid #fff !important;
         }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
-        /* RULE BUTTONS */
-        .signal-tag { padding: 8px 15px; border-radius: 6px; font-weight: 900; border: 2px solid transparent; text-transform: uppercase; }
-        .bullish-entry { background: rgba(0,255,0,0.1); color: var(--green); border-color: var(--green); }
-        .bearish-entry { background: rgba(255,0,0,0.1); color: var(--red); border-color: var(--red); }
+        /* SIGNALS */
+        .sig-btn { padding: 6px 12px; border-radius: 4px; font-weight: 900; border: 2px solid transparent; font-size: 12px; }
+        .bullish { color: var(--green); border-color: var(--green); background: rgba(0,255,0,0.1); }
+        .bearish { color: var(--red); border-color: var(--red); background: rgba(255,0,0,0.1); }
+        .soc-btn { color: var(--gold); border-color: var(--gold); background: rgba(255,215,0,0.1); }
 
-        /* SAFETY ALERT */
-        .alert-panel { background: #800; color: white; padding: 20px; font-weight: 900; border: 5px solid white; display: none; margin: 20px auto; max-width: 900px; font-size: 20px; }
-        
+        /* ALERTS */
+        .alert-active { background: #800; color: white; padding: 15px; font-weight: 900; border: 4px solid white; position: fixed; top: 0; width: 100%; z-index: 100; display: none; }
+        @keyframes blink { 50% { opacity: 0.5; } }
+
         /* CALCULATION FOOTER */
-        .rule-footer { background: #111; border-left: 10px solid var(--gold); padding: 25px; max-width: 1100px; margin: 30px auto; text-align: left; }
+        .footer-logic { background: #111; border-left: 10px solid var(--gold); padding: 20px; text-align: left; margin: 20px auto; max-width: 1160px; }
     </style>
 </head>
 <body>
 
-    <div class="spot-header">
-        <h1 style="color: var(--gold); margin: 0 0 10px 0;">🏹 NIFTY SNIPER V7 (ULTRA GOLDEN)</h1>
-        <div class="spot-box">
-            <div style="color: var(--gold); font-weight: bold; font-size: 14px; margin-bottom: 5px;">LIVE NIFTY SPOT</div>
-            <div id="liveSpot" class="spot-val">25312.50</div>
+    <div id="safetyAlert" class="alert-active">🚨 11K RULE: EXIT IMMEDIATELY - SCENARIO CHANGE! 🚨</div>
+
+    <div class="dashboard">
+        <div class="stat-box">
+            <div style="color:var(--gold); font-size:12px;">LIVE NIFTY SPOT</div>
+            <div id="liveSpot" class="stat-val">25300.00</div>
+        </div>
+        <div class="stat-box">
+            <div style="color:var(--gold); font-size:12px;">PRESSURE DIRECTION</div>
+            <div id="pressureDir" class="pressure-tag bullish">BULLISH (85%)</div>
+        </div>
+        <div class="stat-box">
+            <div style="color:var(--gold); font-size:12px;">MODE</div>
+            <div id="marketMode" style="color:white; font-weight:bold;">NORMAL</div>
+        </div>
+        <div class="stat-box">
+            <div style="color:var(--gold); font-size:12px;">SOC TIMER</div>
+            <div id="socTimer" style="color:var(--blue); font-weight:bold;">0h 0m</div>
         </div>
     </div>
-
-    <div id="safetyAlert" class="alert-panel">🚨 ULTRA GOLDEN RULE: 11K OI CHANGE DETECTED - EXIT IMMEDIATELY! 🚨</div>
 
     <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
                     <th>CE OI CHG</th>
+                    <th>CE VOLUME</th>
                     <th>CE LTP</th>
-                    <th>STRIKE PRICE</th>
+                    <th>STRIKE</th>
                     <th>PE LTP</th>
+                    <th>PE VOLUME</th>
                     <th>PE OI CHG</th>
-                    <th>ULTRA GOLDEN SIGNALS</th>
+                    <th>SNIPER SIGNALS</th>
                 </tr>
             </thead>
             <tbody id="terminalBody"></tbody>
         </table>
     </div>
 
-    <div class="rule-footer">
-        <h2 style="color: var(--gold); margin-top: 0;">🛠️ RULE 6 ENGINE (CALCULATION)</h2>
-        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-            <div style="font-size: 20px;">
-                <p><b>Resistance (R):</b> <span id="rVal" style="color:var(--red)">0</span></p>
-                <p><b>Support (S):</b> <span id="sVal" style="color:var(--green)">0</span></p>
+    <div class="footer-logic">
+        <h3 style="color:var(--gold); margin-top:0;">🏹 ULTRA GOLDEN ENGINE (RULES 1-6)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div>
+                <p><b>Resistance (R):</b> <span id="rCalc">0</span></p>
+                <p><b>Support (S):</b> <span id="sCalc">0</span></p>
             </div>
-            <div class="signal-tag bullish-entry" style="font-size: 22px; padding: 15px;">
-                <b>BUY (S+1):</b> <span id="bullCalc">0</span>
+            <div>
+                <p class="bullish" style="padding:10px; border:1px solid;"><b>BULLISH (S+1):</b> <span id="bullVal">0</span></p>
             </div>
-            <div class="signal-tag bearish-entry" style="font-size: 22px; padding: 15px;">
-                <b>SELL (R-1):</b> <span id="bearCalc">0</span>
+            <div>
+                <p class="bearish" style="padding:10px; border:1px solid;"><b>BEARISH (R-1):</b> <span id="bearVal">0</span></p>
+            </div>
+            <div>
+                <p><b>Calculation:</b> Rule 6 (R + LTP)</p>
+                <p id="stuckInfo" style="color:red; font-size:12px;"></p>
             </div>
         </div>
     </div>
 
 <script>
-    let state = { spot: 25312.50 };
+    let market = {
+        spot: 25310.50,
+        startTime: new Date(),
+        stuckStart: null,
+        pressurePct: 75
+    };
 
-    function sniperLogic() {
-        state.spot += (Math.random() * 10 - 5);
-        document.getElementById('liveSpot').innerText = state.spot.toFixed(2);
+    function updateSniper() {
+        // 1. Move Spot
+        market.spot += (Math.random() * 10 - 5);
+        document.getElementById('liveSpot').innerText = market.spot.toFixed(2);
 
-        let strike_for_R = Math.round(state.spot / 50) * 50; 
-        let ce_ltp = 24.60; 
-        let R = strike_for_R + ce_ltp; // Rule 6: Strike + LTP
-        let R_minus_1 = R - 50; 
-        let S_plus_1 = R_minus_1 + 50; 
+        // 2. Rule 6 Calculation (Everything from Resistance)
+        let r_strike = Math.round(market.spot / 50) * 50;
+        let ce_ltp = 22.40;
+        let R = r_strike + ce_ltp; 
+        let R_1 = R - 50; 
+        let S_1 = R_1 + 50;
 
-        document.getElementById('rVal').innerText = R.toFixed(2);
-        document.getElementById('sVal').innerText = R_minus_1.toFixed(2);
-        document.getElementById('bullCalc').innerText = S_plus_1.toFixed(2);
-        document.getElementById('bearCalc').innerText = R_minus_1.toFixed(2);
+        document.getElementById('rCalc').innerText = R.toFixed(2);
+        document.getElementById('sCalc').innerText = R_1.toFixed(2);
+        document.getElementById('bullVal').innerText = S_1.toFixed(2);
+        document.getElementById('bearVal').innerText = R_1.toFixed(2);
 
+        // 3. Pressure Logic (Rule 1)
+        if(market.pressurePct < 100) market.pressurePct += 0.5;
+        let pDir = market.pressurePct > 80 ? "BULLISH" : "NEUTRAL";
+        document.getElementById('pressureDir').innerText = `${pDir} (${market.pressurePct.toFixed(1)}%)`;
+        document.getElementById('pressureDir').className = `pressure-tag ${pDir === "BULLISH" ? 'bullish' : 'bearish'}`;
+
+        // 4. Stuck & SOC Logic (Rule 2 & 4)
+        let timeDiff = Math.floor((new Date() - market.startTime) / 1000 / 60);
+        document.getElementById('socTimer').innerText = `${Math.floor(timeDiff/60)}h ${timeDiff%60}m`;
+        
+        if (timeDiff >= 180) {
+            document.getElementById('marketMode').innerText = "SOC ALERT!";
+            document.getElementById('marketMode').style.color = "gold";
+        } else if (timeDiff >= 60) {
+            document.getElementById('marketMode').innerText = "STUCK (WTT-1 Range)";
+            document.getElementById('stuckInfo').innerText = "Rule 2: Against Scenario Enabled (70% Prob)";
+        }
+
+        // 5. Build Table
         let html = "";
-        let mid = Math.floor(state.spot / 50) * 50;
+        let mid = Math.floor(market.spot / 50) * 50;
         let up = mid + 50;
 
         for (let s = mid - 200; s <= up + 200; s += 50) {
+            // IMAGINARY LINE (Moti Red Line)
             if (s === up) {
-                html += `<tr class="imaginary-line"><td colspan="6">🔴 MARKET IS HERE (IMAGINARY LINE) 🔴</td></tr>`;
+                html += `<tr class="imaginary-line"><td colspan="8">🔴 MARKET IMAGINARY LINE (THICK) 🔴</td></tr>`;
             }
 
-            let signal = "-";
-            if (Math.abs(s - S_plus_1) < 25) signal = "<span class='signal-tag bullish-entry'>ENTRY S+1 🐂</span>";
-            if (Math.abs(s - R_minus_1) < 25) signal = "<span class='signal-tag bearish-entry'>ENTRY R-1 🐻</span>";
+            // Signals (Rule 3 & 6)
+            let sig = "-";
+            let oi_chg = Math.floor(Math.random() * 120000);
+            
+            // Rule 3: Low OI Change (<1L)
+            let isLowOI = oi_chg < 100000;
 
-            let ce_chg = Math.floor(Math.random() * 18000);
-            let pe_chg = Math.floor(Math.random() * 18000);
+            if (Math.abs(s - S_1) < 25) {
+                sig = `<span class='sig-btn bullish'>ENTRY S+1 🐂</span>`;
+            }
+            if (Math.abs(s - R_1) < 25) {
+                sig = `<span class='sig-btn bearish'>ENTRY R-1 🐻</span>`;
+            }
+
+            // SOC Signal (Rule 4)
+            if (timeDiff >= 180 && s === mid) sig = "<span class='sig-btn soc-btn'>SOC TRADE</span>";
 
             html += `<tr>
-                <td style="color:${ce_chg > 11000 ? 'red' : '#888'}">${ce_chg}</td>
-                <td style="color:var(--red)">${(Math.random()*40+10).toFixed(2)}</td>
-                <td style="background:#1a1a1a; color:var(--gold); font-size: 18px;">${s}</td>
-                <td style="color:var(--green)">${(Math.random()*40+10).toFixed(2)}</td>
-                <td style="color:${pe_chg > 11000 ? 'green' : '#888'}">${pe_chg}</td>
-                <td>${signal}</td>
+                <td style="color:${oi_chg > 110000 ? 'red' : 'white'}">${oi_chg}</td>
+                <td>${Math.floor(Math.random()*500000)}</td>
+                <td style="color:var(--red)">${(Math.random()*40).toFixed(2)}</td>
+                <td style="background:#222; color:var(--gold); font-size:18px;">${s}</td>
+                <td style="color:var(--green)">${(Math.random()*40).toFixed(2)}</td>
+                <td>${Math.floor(Math.random()*500000)}</td>
+                <td>${Math.floor(Math.random()*15000)}</td>
+                <td>${sig}</td>
             </tr>`;
 
-            if (ce_chg > 11000 || pe_chg > 11000) {
-                if(Math.random() > 0.96) document.getElementById('safetyAlert').style.display = 'block';
-                else document.getElementById('safetyAlert').style.display = 'none';
+            // 11K Safety Rule
+            if (oi_chg > 11000 && Math.random() > 0.98) {
+                document.getElementById('safetyAlert').style.display = 'block';
+            } else {
+                document.getElementById('safetyAlert').style.display = 'none';
             }
         }
         document.getElementById('terminalBody').innerHTML = html;
     }
 
-    setInterval(sniperLogic, 2000);
-    sniperLogic();
+    setInterval(updateSniper, 2000);
+    updateSniper();
 </script>
 </body>
-</html>
+                </html>
+                                           
