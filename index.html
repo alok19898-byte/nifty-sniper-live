@@ -3,111 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Option Chain Speed Monitor</title>
+    <title>Nifty Speed Monitor - 10 Strike Prices</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --text-color: #f8fafc;
-            --highlight-color: #facc15; /* Yellow for Highest */
-            --speed-up: #22c55e; /* Green for fast growth */
-            --border-color: #334155;
+            --bg: #0b0f19;
+            --card: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --highlight: #ffd33d; /* Highest Value Color */
+            --call-bg: #1b281b;
+            --put-bg: #2d1616;
+            --speed-color: #3fb950;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
             padding: 20px;
         }
 
-        h2 { text-align: center; color: #38bdf8; }
+        h2 { text-align: center; color: #58a6ff; margin-bottom: 20px; }
+
+        .container { overflow-x: auto; }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: #1e293b;
+            background: var(--card);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         th, td {
-            border: 1px solid var(--border-color);
-            padding: 12px;
+            border: 1px solid var(--border);
+            padding: 10px 5px;
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
+            width: 10%;
         }
 
-        th { background-color: #334155; color: #94a3b8; }
+        th { background: #21262d; color: #8b949e; text-transform: uppercase; }
 
-        /* Highlighting Classes */
+        /* Strike Price Styling */
+        .strike {
+            background: #000 !important;
+            color: #ffd33d;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        /* Highlighting for Top Values */
         .highest {
-            background-color: var(--highlight-color) !important;
+            background-color: var(--highlight) !important;
             color: #000 !important;
             font-weight: bold;
         }
 
-        .speed-indicator {
-            font-size: 11px;
+        /* Speed Monitor Tag */
+        .speed-tag {
             display: block;
-            color: var(--speed-up);
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--speed-color);
+            margin-top: 4px;
         }
 
-        .strike-price {
-            background-color: #000;
-            font-weight: bold;
-            color: #fbbf24;
-        }
+        .call-side { background-color: var(--call-bg); }
+        .put-side { background-color: var(--put-bg); }
     </style>
 </head>
 <body>
 
-    <h2>Live Volume Speed & OI Monitor</h2>
+    <h2>Live Volume Speed & OI Dashboard</h2>
 
-    <table id="optionTable">
-        <thead>
-            <tr>
-                <th>IV</th>
-                <th>OI Change</th>
-                <th>OI</th>
-                <th>Volume (Speed)</th>
-                <th class="strike-price">Strike</th>
-                <th>Volume (Speed)</th>
-                <th>OI</th>
-                <th>OI Change</th>
-                <th>IV</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            </tbody>
-    </table>
+    <div class="container">
+        <table id="optionChain">
+            <thead>
+                <tr>
+                    <th colspan="4" style="background:#1b281b; color:#3fb950;">CALLS</th>
+                    <th class="strike">STRIKE</th>
+                    <th colspan="4" style="background:#2d1616; color:#f85149;">PUTS</th>
+                </tr>
+                <tr>
+                    <th>IV</th>
+                    <th>OI Chg</th>
+                    <th>OI</th>
+                    <th>Vol (Speed)</th>
+                    <th class="strike">Price</th>
+                    <th>Vol (Speed)</th>
+                    <th>OI</th>
+                    <th>OI Chg</th>
+                    <th>IV</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
 
     <script>
-        // Dummy Data (Yahan tum apna live API data integrate kar sakte ho)
-        let data = [
-            { strike: 24000, cIV: 12.5, cOIC: 5000, cOI: 25000, cVol: 100000, pVol: 95000, pOI: 22000, pOIC: 4000, pIV: 13.1 },
-            { strike: 24100, cIV: 11.8, cOIC: 8500, cOI: 45000, cVol: 250000, pVol: 120000, pOI: 35000, pOIC: 7000, pIV: 12.5 },
-            { strike: 24200, cIV: 14.2, cOIC: 12000, cOI: 60000, cVol: 450000, pVol: 500000, pOI: 85000, pOIC: 15000, pIV: 14.8 },
-            { strike: 24300, cIV: 10.5, cOIC: 3000, cOI: 15000, cVol: 80000, pVol: 210000, pOI: 40000, pOIC: 2000, pIV: 11.2 }
-        ];
+        // 10 Strike Prices ka Demo Data
+        let strikes = [23800, 23850, 23900, 23950, 24000, 24050, 24100, 24150, 24200, 24250];
+        
+        let data = strikes.map(s => ({
+            strike: s,
+            cIV: (Math.random() * 5 + 10).toFixed(2),
+            cOIC: Math.floor(Math.random() * 10000),
+            cOI: Math.floor(Math.random() * 50000),
+            cVol: Math.floor(Math.random() * 500000),
+            pVol: Math.floor(Math.random() * 500000),
+            pOI: Math.floor(Math.random() * 50000),
+            pOIC: Math.floor(Math.random() * 10000),
+            pIV: (Math.random() * 5 + 10).toFixed(2)
+        }));
 
         let prevData = JSON.parse(JSON.stringify(data));
 
-        function updateDashboard() {
+        function updateTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            // 1. Pehle max values dhundte hain highlighting ke liye
-            let maxVol = Math.max(...data.map(d => Math.max(d.cVol, d.pVol)));
-            let maxOI = Math.max(...data.map(d => Math.max(d.cOI, d.pOI)));
-            let maxOIC = Math.max(...data.map(d => Math.max(d.cOIC, d.pOIC)));
-            let maxIV = Math.max(...data.map(d => Math.max(d.cIV, d.pIV)));
+            // Max values for highlighting
+            let maxCVol = Math.max(...data.map(d => d.cVol));
+            let maxPVol = Math.max(...data.map(d => d.pVol));
+            let maxCOI = Math.max(...data.map(d => d.cOI));
+            let maxPOI = Math.max(...data.map(d => d.pOI));
+            let maxCOIC = Math.max(...data.map(d => d.cOIC));
+            let maxPOIC = Math.max(...data.map(d => d.pOIC));
 
-            data.forEach((row, index) => {
-                // Speed calculation
-                let cVolSpeed = row.cVol - prevData[index].cVol;
-                let pVolSpeed = row.pVol - prevData[index].pVol;
+            data.forEach((row, i) => {
+                // Volume Speed Calculation (Current - Previous)
+                let cSpeed = row.cVol - prevData[i].cVol;
+                let pSpeed = row.pVol - prevData[i].pVol;
 
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="${row.cIV === maxIV ? 'highest' : ''}">${row.cIV}</td>
-                    <td class="${row.cOIC === maxOIC ? 'highest' : ''}">${row.cOIC}</td>
-                    <td class="${row.cOI === maxOI ? 'highest' : ''}">${
+                    <td class="call-side">${row.cIV}</td>
+                    <td class="call-side ${row.cOIC === maxCOIC ? 'highest' : ''}">${row.cOIC}</td>
+                    <td class="call-side ${row.cOI === maxCOI ? 'highest' : ''}">${row.cOI}</td>
+                    <td class="call-side ${row.cVol === maxCVol ? 'highest' : ''}">
+                        ${row.cVol} 
+                        <span class="speed-tag">🚀 +${cSpeed} v/s</span>
+                    </td>
+                    
+                    <td class="strike">${row.strike}</td>
+                    
+                    <td class="put-side ${row.pVol === maxPVol ? 'highest' : ''}">
+                        ${row.pVol}
+                        <span class="speed-tag">🚀 +${pSpeed} v/s</span>
+                    </td>
+                    <td class="put-side ${row.pOI === maxPOI ? 'highest' : ''}">${row.pOI}</td>
+                    <td class="put-side ${row.pOIC === maxPOIC ? 'highest' : ''}">${row.pOIC}</td>
+                    <td class="put-side">${row.pIV}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Save current to previous before next update
+            prevData = JSON.parse(JSON.stringify(data));
+
+            // Demo logic: Randomly increase data to simulate live market
+            data.forEach(d => {
+                d.cVol += Math.floor(Math.random() * 1000);
+                d.pVol += Math.floor(Math.random() * 1000);
+                d.cOIC += Math.floor(Math.random() * 100);
+                d.pOIC += Math.floor(Math.random() * 100);
+            });
+        }
+
+        // Har 2 second mein refresh taaki speed monitor ho sake
+        setInterval(updateTable, 2000);
+        updateTable();
+    </script>
+
+</body>
+</html>
