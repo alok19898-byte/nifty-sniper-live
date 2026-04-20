@@ -3,208 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIFTY SNIPER V10 - FINAL</title>
+    <title>Option Chain Speed Monitor</title>
     <style>
-        :root { --bg: #000; --gold: #ffd700; --red: #ff4444; --green: #00ff88; --gray: #333; --dim: #666; }
-        body { background-color: var(--bg); color: #fff; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
-
-        /* HEADER & DASHBOARD */
-        .dashboard-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
-            padding: 10px; background: #111; border-bottom: 2px solid var(--gold); 
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --highlight-color: #facc15; /* Yellow for Highest */
+            --speed-up: #22c55e; /* Green for fast growth */
+            --border-color: #334155;
         }
-        .stat-card { background: #222; padding: 10px; border-radius: 5px; border: 1px solid #444; }
-        .label { font-size: 10px; color: #aaa; letter-spacing: 1px; }
-        .value { font-size: 22px; font-weight: 900; color: #fff; }
-        .highlight { color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
 
-        /* PRESSURE BAR (TEZ SPEED) */
-        .pressure-box { grid-column: span 2; background: #1a1a1a; padding: 10px; border-radius: 5px; }
-        .p-bar-bg { height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-top: 5px; }
-        .p-bar-fill { height: 100%; width: 50%; transition: width 0.3s ease-in-out; } 
-        /* Transition 0.3s kiya hai taaki tez speed dikhe */
-
-        /* MAIN TABLE */
-        .table-wrap { overflow-x: auto; margin-bottom: 80px; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: #222; color: var(--gold); padding: 10px; font-size: 12px; position: sticky; top: 0; }
-        td { padding: 12px 5px; border-bottom: 1px solid #222; font-weight: bold; font-size: 14px; }
-
-        /* IMAGINARY LINE (MOTI RED LINE) */
-        .imaginary-row td { padding: 0 !important; border: none !important; }
-        .imaginary-line { 
-            background: var(--red); color: white; font-weight: 900; font-size: 14px; 
-            padding: 6px; border-top: 3px solid #fff; border-bottom: 3px solid #fff;
-            animation: pulse 1s infinite;
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
         }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; box-shadow: 0 0 15px red; } 100% { opacity: 0.8; } }
 
-        /* SIGNALS & LOW OI */
-        .sig-btn { padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 900; }
-        .bull { background: rgba(0,255,136,0.2); color: var(--green); border: 1px solid var(--green); }
-        .bear { background: rgba(255,68,68,0.2); color: var(--red); border: 1px solid var(--red); }
-        .soc { background: rgba(255,215,0,0.2); color: var(--gold); border: 1px solid var(--gold); }
-        
-        .low-oi { color: var(--dim) !important; font-weight: normal !important; } /* Rule 3 Style */
+        h2 { text-align: center; color: #38bdf8; }
 
-        /* FOOTER ENGINE */
-        .footer { 
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #111; 
-            border-top: 3px solid var(--gold); padding: 10px 0; 
-            display: flex; justify-content: space-around; align-items: center; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.8); z-index: 100;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #1e293b;
         }
-        .footer div { font-size: 13px; font-weight: bold; }
-        
-        /* ALERTS */
-        .alert-modal { position: fixed; top: 20%; left: 5%; width: 90%; background: #900; color: white; padding: 20px; border: 4px solid white; z-index: 999; display: none; font-weight: 900; font-size: 18px; animation: shake 0.5s; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } }
 
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        th { background-color: #334155; color: #94a3b8; }
+
+        /* Highlighting Classes */
+        .highest {
+            background-color: var(--highlight-color) !important;
+            color: #000 !important;
+            font-weight: bold;
+        }
+
+        .speed-indicator {
+            font-size: 11px;
+            display: block;
+            color: var(--speed-up);
+        }
+
+        .strike-price {
+            background-color: #000;
+            font-weight: bold;
+            color: #fbbf24;
+        }
     </style>
 </head>
 <body>
 
-    <div id="alertBox" class="alert-modal">🚨 11K RULE: OI CHANGE AGAINST - EXIT NOW! 🚨</div>
+    <h2>Live Volume Speed & OI Monitor</h2>
 
-    <div class="dashboard-grid">
-        <div class="stat-card">
-            <div class="label">LIVE SPOT</div>
-            <div id="liveSpot" class="value highlight">25300.00</div>
-        </div>
-        <div class="stat-card">
-            <div class="label">SOC TIMER</div>
-            <div id="timerDisplay" class="value" style="color:cyan;">00m</div>
-        </div>
-        
-        <div class="pressure-box">
-            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-bottom:5px;">
-                <span id="pLabelLeft">BEARISH</span>
-                <span id="pLabelRight" style="color:var(--green)">BULLISH (85%)</span>
-            </div>
-            <div class="p-bar-bg">
-                <div id="pressureFill" class="p-bar-fill" style="background:var(--green); width:85%"></div>
-            </div>
-            <div style="font-size:10px; color:#666; margin-top:3px; text-align:right;">Rule 1: >75% Momentum</div>
-        </div>
-    </div>
+    <table id="optionTable">
+        <thead>
+            <tr>
+                <th>IV</th>
+                <th>OI Change</th>
+                <th>OI</th>
+                <th>Volume (Speed)</th>
+                <th class="strike-price">Strike</th>
+                <th>Volume (Speed)</th>
+                <th>OI</th>
+                <th>OI Change</th>
+                <th>IV</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
 
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>CE OI</th>
-                    <th>CE LTP</th>
-                    <th>STRIKE</th>
-                    <th>PE LTP</th>
-                    <th>PE OI</th>
-                    <th>SIGNAL</th>
-                </tr>
-            </thead>
-            <tbody id="sniperBody">
-                </tbody>
-        </table>
-    </div>
+    <script>
+        // Dummy Data (Yahan tum apna live API data integrate kar sakte ho)
+        let data = [
+            { strike: 24000, cIV: 12.5, cOIC: 5000, cOI: 25000, cVol: 100000, pVol: 95000, pOI: 22000, pOIC: 4000, pIV: 13.1 },
+            { strike: 24100, cIV: 11.8, cOIC: 8500, cOI: 45000, cVol: 250000, pVol: 120000, pOI: 35000, pOIC: 7000, pIV: 12.5 },
+            { strike: 24200, cIV: 14.2, cOIC: 12000, cOI: 60000, cVol: 450000, pVol: 500000, pOI: 85000, pOIC: 15000, pIV: 14.8 },
+            { strike: 24300, cIV: 10.5, cOIC: 3000, cOI: 15000, cVol: 80000, pVol: 210000, pOI: 40000, pOIC: 2000, pIV: 11.2 }
+        ];
 
-    <div class="footer">
-        <div style="color:var(--red)">R: <span id="rVal">0</span></div>
-        <div class="sig-btn bear">SELL R-1: <span id="sellVal">0</span></div>
-        <div class="sig-btn bull">BUY S+1: <span id="buyVal">0</span></div>
-        <div style="color:var(--green)">S: <span id="sVal">0</span></div>
-    </div>
+        let prevData = JSON.parse(JSON.stringify(data));
 
-<script>
-    // --- GLOBAL VARIABLES ---
-    let spot = 25300.00;
-    let startTime = Date.now();
-    let pressure = 75; // Starting Pressure
-    let pressureDir = 1; // 1 = Increasing
-    
-    // --- MAIN ENGINE ---
-    function updateSniper() {
-        try {
-            // 1. Spot Movement (Simulation)
-            spot += (Math.random() * 6 - 3);
-            document.getElementById('liveSpot').innerText = spot.toFixed(2);
+        function updateDashboard() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
 
-            // 2. Rule 6 Calculation (Resistance Base)
-            let rStrike = Math.round(spot / 50) * 50;
-            let ceLtp = 24.50 + Math.random();
-            
-            let R = rStrike + ceLtp;
-            let R_1 = R - 50;      // Bearish Level
-            let S = R_1;           // Support
-            let S_1 = S + 50;      // Bullish Level
+            // 1. Pehle max values dhundte hain highlighting ke liye
+            let maxVol = Math.max(...data.map(d => Math.max(d.cVol, d.pVol)));
+            let maxOI = Math.max(...data.map(d => Math.max(d.cOI, d.pOI)));
+            let maxOIC = Math.max(...data.map(d => Math.max(d.cOIC, d.pOIC)));
+            let maxIV = Math.max(...data.map(d => Math.max(d.cIV, d.pIV)));
 
-            // Footer Update
-            document.getElementById('rVal').innerText = R.toFixed(2);
-            document.getElementById('sVal').innerText = S.toFixed(2);
-            document.getElementById('sellVal').innerText = R_1.toFixed(2);
-            document.getElementById('buyVal').innerText = S_1.toFixed(2);
+            data.forEach((row, index) => {
+                // Speed calculation
+                let cVolSpeed = row.cVol - prevData[index].cVol;
+                let pVolSpeed = row.pVol - prevData[index].pVol;
 
-            // 3. Pressure Logic (Rule 1: Tez Speed)
-            // Hum isko jaldi-jaldi move karayenge 75 se 100 ke beech
-            pressure += (Math.random() * 5 - 2); 
-            if(pressure > 100) pressure = 99;
-            if(pressure < 70) pressure = 71;
-            
-            let isBull = pressure > 80;
-            let color = isBull ? "var(--green)" : "var(--red)";
-            
-            document.getElementById('pressureFill').style.width = pressure + "%";
-            document.getElementById('pressureFill').style.background = color;
-            document.getElementById('pLabelRight').innerText = `${isBull ? "BULLISH" : "BEARISH"} (${pressure.toFixed(1)}%)`;
-            document.getElementById('pLabelRight').style.color = color;
-
-            // 4. Timer Logic
-            let mins = Math.floor((Date.now() - startTime) / 60000);
-            document.getElementById('timerDisplay').innerText = mins + "m";
-
-            // 5. Table Generation (Imaginary Line + Low OI Rule)
-            let html = "";
-            let mid = Math.floor(spot / 50) * 50;
-            let start = mid - 200;
-            let end = mid + 200;
-
-            for(let s = start; s <= end; s += 50) {
-                // IMAGINARY LINE LOGIC (Dynamic)
-                // Agar strike 'next' hai (spot ke just upar), toh line uske pehle lagao
-                if(s === mid + 50) {
-                    html += `<tr class="imaginary-row"><td colspan="6" class="imaginary-line">🔴 MARKET PRICE HERE (${spot.toFixed(2)}) 🔴</td></tr>`;
-                }
-
-                // Random Data
-                let ceOi = Math.floor(Math.random() * 150000);
-                let peOi = Math.floor(Math.random() * 150000);
-                
-                // RULE 3: Low OI Check (Kam OI Change)
-                let isLowData = (ceOi < 100000 && peOi < 100000); // Both side weak
-                let rowClass = isLowData ? "low-oi" : "";
-                
-                // Signals
-                let sig = "-";
-                if(!isLowData) { // Signal tabhi jab OI strong ho
-                    if(Math.abs(s - S_1) < 25) sig = "<span class='sig-btn bull'>BUY S+1</span>";
-                    else if(Math.abs(s - R_1) < 25) sig = "<span class='sig-btn bear'>SELL R-1</span>";
-                    
-                    // SOC Signal (Rule 4)
-                    if(mins > 180 && s === mid) sig = "<span class='sig-btn soc'>SOC TRADE</span>";
-                } else {
-                    sig = "<span style='font-size:10px; color:#555;'>LOW VOL</span>";
-                }
-
-                html += `
-                <tr class="${rowClass}">
-                    <td style="color:${ceOi > 120000 ? 'var(--red)' : '#666'}">${(ceOi/1000).toFixed(1)}k</td>
-                    <td style="color:var(--red)">${(Math.random()*50).toFixed(2)}</td>
-                    <td style="background:#222; color:var(--gold); border-left:1px solid #444; border-right:1px solid #444;">${s}</td>
-                    <td style="color:var(--green)">${(Math.random()*50).toFixed(2)}</td>
-                    <td style="color:${peOi > 120000 ? 'var(--green)' : '#666'}">${(peOi/1000).toFixed(1)}k</td>
-                    <td>${sig}</td>
-                </tr>`;
-
-                // 11K Alert Check (Simulated)
-                if(!isLowData && Math.random() > 0.995) {
-                    show11kAlert();
-                }
-            }
-    
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="${row.cIV === maxIV ? 'highest' : ''}">${row.cIV}</td>
+                    <td class="${row.cOIC === maxOIC ? 'highest' : ''}">${row.cOIC}</td>
+                    <td class="${row.cOI === maxOI ? 'highest' : ''}">${
