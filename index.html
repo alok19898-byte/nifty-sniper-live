@@ -1,182 +1,111 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nifty Speed Monitor - 10 Strike Prices</title>
+    <title>Dynamic Nifty Monitor</title>
     <style>
         :root {
-            --bg: #0b0f19;
-            --card: #161b22;
-            --border: #30363d;
-            --text: #c9d1d9;
-            --highlight: #ffd33d; /* Highest Value Color */
-            --call-bg: #1b281b;
-            --put-bg: #2d1616;
-            --speed-color: #3fb950;
+            --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9;
+            --atm-line: #58a6ff; --speed-bg: #21262d; --speed-fill: #238636;
+        }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); }
+        th, td { border: 1px solid var(--border); padding: 8px; text-align: center; font-size: 12px; }
+        .strike { background: #000; color: #ffd33d; font-weight: bold; width: 80px; }
+        
+        /* ATM Line Style */
+        .market-line-row td {
+            background: var(--atm-line) !important;
+            height: 4px;
+            padding: 0;
+            border: none;
         }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h2 { text-align: center; color: #58a6ff; margin-bottom: 20px; }
-
-        .container { overflow-x: auto; }
-
-        table {
+        /* Speed Progress Bar */
+        .speed-container {
+            background: var(--speed-bg);
+            border-radius: 4px;
+            height: 12px;
             width: 100%;
-            border-collapse: collapse;
-            background: var(--card);
-            border-radius: 8px;
             overflow: hidden;
-        }
-
-        th, td {
-            border: 1px solid var(--border);
-            padding: 10px 5px;
-            text-align: center;
-            font-size: 13px;
-            width: 10%;
-        }
-
-        th { background: #21262d; color: #8b949e; text-transform: uppercase; }
-
-        /* Strike Price Styling */
-        .strike {
-            background: #000 !important;
-            color: #ffd33d;
-            font-weight: bold;
-            font-size: 15px;
-        }
-
-        /* Highlighting for Top Values */
-        .highest {
-            background-color: var(--highlight) !important;
-            color: #000 !important;
-            font-weight: bold;
-        }
-
-        /* Speed Monitor Tag */
-        .speed-tag {
-            display: block;
-            font-size: 10px;
-            font-weight: bold;
-            color: var(--speed-color);
             margin-top: 4px;
         }
-
-        .call-side { background-color: var(--call-bg); }
-        .put-side { background-color: var(--put-bg); }
+        .speed-bar {
+            height: 100%;
+            background: var(--speed-fill);
+            transition: width 0.5s ease;
+        }
+        .speed-text { font-size: 10px; font-weight: bold; }
+        
+        .header-price { font-size: 20px; color: #ffd33d; text-align: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <h2>Live Volume Speed & OI Dashboard</h2>
+    <div class="header-price">Nifty Live: <span id="niftyPrice">24125</span></div>
 
-    <div class="container">
-        <table id="optionChain">
-            <thead>
-                <tr>
-                    <th colspan="4" style="background:#1b281b; color:#3fb950;">CALLS</th>
-                    <th class="strike">STRIKE</th>
-                    <th colspan="4" style="background:#2d1616; color:#f85149;">PUTS</th>
-                </tr>
-                <tr>
-                    <th>IV</th>
-                    <th>OI Chg</th>
-                    <th>OI</th>
-                    <th>Vol (Speed)</th>
-                    <th class="strike">Price</th>
-                    <th>Vol (Speed)</th>
-                    <th>OI</th>
-                    <th>OI Chg</th>
-                    <th>IV</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                </tbody>
-        </table>
-    </div>
+    <table>
+        <thead>
+            <tr style="background:#21262d">
+                <th>Speed Score</th>
+                <th>Vol (Call)</th>
+                <th class="strike">STRIKE</th>
+                <th>Vol (Put)</th>
+                <th>Speed Score</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 
     <script>
-        // 10 Strike Prices ka Demo Data
-        let strikes = [23800, 23850, 23900, 23950, 24000, 24050, 24100, 24150, 24200, 24250];
-        
+        let strikes = [23900, 23950, 24000, 24050, 24100, 24150, 24200, 24250, 24300, 24350];
+        let marketPrice = 24125;
+        let maxTargetSpeed = 2000; // Isse 100% mana jayega
+
         let data = strikes.map(s => ({
             strike: s,
-            cIV: (Math.random() * 5 + 10).toFixed(2),
-            cOIC: Math.floor(Math.random() * 10000),
-            cOI: Math.floor(Math.random() * 50000),
-            cVol: Math.floor(Math.random() * 500000),
-            pVol: Math.floor(Math.random() * 500000),
-            pOI: Math.floor(Math.random() * 50000),
-            pOIC: Math.floor(Math.random() * 10000),
-            pIV: (Math.random() * 5 + 10).toFixed(2)
+            cVol: 50000, pVol: 50000,
+            cPrevVol: 50000, pPrevVol: 50000
         }));
 
-        let prevData = JSON.parse(JSON.stringify(data));
-
-        function updateTable() {
+        function render() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-
-            // Max values for highlighting
-            let maxCVol = Math.max(...data.map(d => d.cVol));
-            let maxPVol = Math.max(...data.map(d => d.pVol));
-            let maxCOI = Math.max(...data.map(d => d.cOI));
-            let maxPOI = Math.max(...data.map(d => d.pOI));
-            let maxCOIC = Math.max(...data.map(d => d.cOIC));
-            let maxPOIC = Math.max(...data.map(d => d.pOIC));
+            document.getElementById('niftyPrice').innerText = marketPrice;
 
             data.forEach((row, i) => {
-                // Volume Speed Calculation (Current - Previous)
-                let cSpeed = row.cVol - prevData[i].cVol;
-                let pSpeed = row.pVol - prevData[i].pVol;
+                // Calculation for Speed %
+                let cSpeed = row.cVol - row.cPrevVol;
+                let pSpeed = row.pVol - row.pPrevVol;
+                let cPercent = Math.min((cSpeed / maxTargetSpeed) * 100, 100).toFixed(0);
+                let pPercent = Math.min((pSpeed / maxTargetSpeed) * 100, 100).toFixed(0);
 
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="call-side">${row.cIV}</td>
-                    <td class="call-side ${row.cOIC === maxCOIC ? 'highest' : ''}">${row.cOIC}</td>
-                    <td class="call-side ${row.cOI === maxCOI ? 'highest' : ''}">${row.cOI}</td>
-                    <td class="call-side ${row.cVol === maxCVol ? 'highest' : ''}">
-                        ${row.cVol} 
-                        <span class="speed-tag">🚀 +${cSpeed} v/s</span>
-                    </td>
-                    
-                    <td class="strike">${row.strike}</td>
-                    
-                    <td class="put-side ${row.pVol === maxPVol ? 'highest' : ''}">
-                        ${row.pVol}
-                        <span class="speed-tag">🚀 +${pSpeed} v/s</span>
-                    </td>
-                    <td class="put-side ${row.pOI === maxPOI ? 'highest' : ''}">${row.pOI}</td>
-                    <td class="put-side ${row.pOIC === maxPOIC ? 'highest' : ''}">${row.pOIC}</td>
-                    <td class="put-side">${row.pIV}</td>
+                // Check for ATM Line position
+                if (i > 0 && marketPrice > strikes[i-1] && marketPrice <= strikes[i]) {
+                    let lineRow = <tr class="market-line-row"><td colspan="5"></td></tr>;
+                    tbody.innerHTML += lineRow;
+                }
+
+                let tr = `
+                    <tr>
+                        <td>
+                            <div class="speed-text">${cPercent}%</div>
+                            <div class="speed-container"><div class="speed-bar" style="width:${cPercent}%"></div></div>
+                        </td>
+                        <td>${row.cVol} <br><small>+${cSpeed}</small></td>
+                        <td class="strike">${row.strike}</td>
+                        <td>${row.pVol} <br><small>+${pSpeed}</small></td>
+                        <td>
+                            <div class="speed-text">${pPercent}%</div>
+                            <div class="speed-container"><div class="speed-bar" style="width:${pPercent}%"></div></div>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
-
-            // Save current to previous before next update
-            prevData = JSON.parse(JSON.stringify(data));
-
-            // Demo logic: Randomly increase data to simulate live market
-            data.forEach(d => {
-                d.cVol += Math.floor(Math.random() * 1000);
-                d.pVol += Math.floor(Math.random() * 1000);
-                d.cOIC += Math.floor(Math.random() * 100);
-                d.pOIC += Math.floor(Math.random() * 100);
+                tbody.innerHTML += tr;
             });
         }
 
-        // Har 2 second mein refresh taaki speed monitor ho sake
-        setInterval(updateTable, 2000);
-        updateTable();
-    </script>
-
-</body>
-</html>
+        function updateData() {
+            data.forEach(d => {
+                d.cPrev
