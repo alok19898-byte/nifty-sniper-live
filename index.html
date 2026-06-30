@@ -1,46 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .table-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        th { background-color: #343a40; color: white; text-align: center; }
-        td { text-align: center; font-weight: bold; }
+        body { background: #0b0e11; color: #d1d4dc; font-size: 12px; }
+        .table-container { background: #161a1e; padding: 15px; border-radius: 8px; }
+        th { background: #2a2e39; color: #ffffff; text-align: center; border: 1px solid #363c4e; }
+        td { text-align: center; border: 1px solid #363c4e; color: #e0e0e0; }
+        .high-vol { background: rgba(0, 100, 255, 0.3) !important; } /* Blue for Vol */
+        .high-oi { background: rgba(218, 165, 32, 0.3) !important; } /* Gold for OI */
+        #tracker { position: fixed; right: 20px; top: 100px; width: 300px; background: #1c2227; padding: 15px; border: 1px solid #444; border-radius: 8px; }
     </style>
 </head>
 <body>
-    <div class="container table-container">
-        <h2 class="text-center">Nifty Sniper Option Chain 🎯</h2>
-        <table class="table table-bordered table-hover mt-4">
-            <thead>
-                <tr>
-                    <th>CALL LTP</th>
-                    <th>STRIKE PRICE</th>
-                    <th>PUT LTP</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-primary">₹ 250.50</td>
-                    <td>23250</td>
-                    <td class="text-danger">₹ 180.20</td>
-                </tr>
-                <tr>
-                    <td class="text-primary">₹ 210.30</td>
-                    <td>23300</td>
-                    <td class="text-danger">₹ 220.40</td>
-                </tr>
-                <tr>
-                    <td class="text-primary">₹ 175.90</td>
-                    <td>23350</td>
-                    <td class="text-danger">₹ 260.10</td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="text-center">
-            <button class="btn btn-primary" onclick="location.reload()">Refresh Data</button>
+    <div class="container-fluid mt-3">
+        <h3 class="text-center text-white">Nifty Sniper: Ultimate Volume Decoder 🎯</h3>
+        
+        <div class="table-container mt-3">
+            <table class="table table-dark table-sm">
+                <thead>
+                    <tr>
+                        <th>Vol %</th><th>CE Vol</th><th>CE OI</th><th>LTP</th>
+                        <th>Strike</th>
+                        <th>LTP</th><th>PE OI</th><th>PE Vol</th><th>Vol %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row Example -->
+                    <tr onclick="loadTracker(23500)">
+                        <td class="text-info">33%</td><td>15L</td><td>1.1L</td><td>120</td>
+                        <td class="fw-bold text-warning">23500</td>
+                        <td>65</td><td>3.5L</td><td>38L</td><td class="text-danger">84%</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+
+    <!-- Side Tracker -->
+    <div id="tracker">
+        <h5>🎯 Selected Strike: <span id="strike-val">-</span></h5>
+        <hr>
+        <div id="history">Click a strike to see 5-min history...</div>
+    </div>
+
+    <script>
+        function loadTracker(strike) {
+            document.getElementById('strike-val').innerText = strike;
+            document.getElementById('history').innerHTML = "Loading data for " + strike + "...";
+            // यहाँ हम बाद में API कॉल जोड़ेंगे
+        }
+    </script>
 </body>
 </html>
