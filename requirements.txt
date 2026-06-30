@@ -2,3 +2,4 @@ fastapi
 uvicorn
 dhanhq
 python-dotenv
+jinja2
