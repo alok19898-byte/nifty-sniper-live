@@ -2,297 +2,140 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trading Dashboard Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nifty Sniper Live Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 10px; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 10px; }
+        .top-bar { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; background: white; padding: 10px; border: 1px solid #ccc; font-size: 14px; }
+        .btn { padding: 6px 12px; border: 1px solid #555; background: white; cursor: pointer; border-radius: 4px; }
+        .btn:hover { background: #eee; }
+        .status-bar { background: #e2e2e2; padding: 8px 10px; font-size: 14px; margin-bottom: 10px; border: 1px solid #ccc; font-weight: bold; color: #333; }
         
-        /* Table Styles */
-        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 10px; }
-        th, td { border: 1px solid #a0a0a0; padding: 6px; }
-        .header-main { background-color: #d4d4d4; font-weight: bold; }
-        .header-sub { background-color: #ebebeb; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; text-align: center; background: white; font-size: 13px; }
+        th, td { border: 1px solid #aaa; padding: 6px; }
+        th { background: #d4d4d4; }
         
-        /* Control Panel Styles */
-        .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
-        .btn { padding: 8px 15px; cursor: pointer; border: 1px solid #555; background: #fff; border-radius: 4px; font-weight: bold;}
-        .btn:hover { background: #f0f0f0; }
-        .dropdown { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #555; cursor: pointer; }
+        /* Table Colors */
+        .itm-call { background-color: #fcebc7; }
+        .itm-put { background-color: #d1ecf1; }
+        .atm { background-color: #ffcc00; font-weight: bold; }
         
-        /* Live Info Bar */
-        .info-bar { 
-            display: flex; 
-            justify-content: space-between; 
-            background: #e9ecef; 
-            padding: 10px 15px; 
-            border-radius: 4px; 
-            margin-bottom: 15px; 
-            border: 1px solid #ccc; 
-            font-size: 14px;
-        }
-        .time-text { font-weight: bold; color: #d10000; }
-        .price-text { font-weight: bold; color: #0056b3; }
-        .price-val { color: #000; }
-
-        /* Dropdown Menus */
-        .dropdown-check-list { position: relative; display: inline-block; }
-        .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border: 1px solid #555; border-radius: 4px; margin-top: 5px; }
-        .dropdown-content label, .dropdown-content .menu-item { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
-        .dropdown-content label:hover, .dropdown-content .menu-item:hover { background-color: #f1f1f1; }
-        .show-menu { display: block; }
-        
-        .logout-btn { color: red; font-weight: bold; text-align: center !important; }
-
-        /* Color Coding for In-The-Money (ITM) */
-        .itm-call { background-color: #fff4cc; } 
-        .itm-put { background-color: #dcf2f5; }  
-        
-        /* Center Strike Price Column */
-        .strike-col { background-color: #f8f9fa; font-weight: bold; font-size: 14px; }
-
-        /* Percentage Box Styles */
-        .pct-box { display: block; font-size: 11px; margin-top: 2px; color: #555; font-weight: normal; }
-        .pct-100 { color: #d10000; font-weight: bold; }
-        
-        /* Highlight Maximum Values */
-        .max-highlight { font-weight: 900 !important; color: #d10000 !important; }
-
-        /* Hidden Columns Utility */
-        .hidden-col { display: none !important; }
+        /* Percentage Styling */
+        .pct-normal { display: block; font-size: 11px; color: #444; margin-top: 2px; }
+        .pct-100 { display: block; font-size: 12px; color: red; font-weight: bold; margin-top: 2px; }
     </style>
 </head>
 <body>
 
-    <!-- Controls Panel -->
-    <div class="controls">
-        <select class="dropdown" id="indexSelect" onchange="switchIndex()">
-            <option value="NIFTY">NIFTY 50</option>
-            <option value="BANKNIFTY">BANKNIFTY</option>
-            <option value="FINNIFTY">FINNIFTY</option>
-            <option value="MIDCPNIFTY">MIDCPNIFTY</option>
-            <option value="SENSEX">SENSEX</option>
-            <option value="BANKEX">BANKEX</option>
-        </select>
-        
-        <button class="btn" id="liveBtn" onclick="switchMode('live')">🔴 Live</button>
-        <button class="btn" id="histBtn" onclick="switchMode('historical')">📜 Historical</button>
-        
-        <!-- Historical Speed Control (Hidden by default) -->
-        <select class="dropdown" id="speedControl" style="display: none;" onchange="changeSpeed()">
-            <option value="1">⏩ 1x (1 Min)</option>
-            <option value="2">⏩ 2x (2 Min)</option>
-            <option value="5">⏩ 5x (5 Min)</option>
-            <option value="10">⏩ 10x (10 Min)</option>
-        </select>
-        
-        <!-- Greeks Toggle Menu -->
-        <div class="dropdown-check-list">
-            <button class="btn dropdown-btn" onclick="toggleMenu('greeksList')">📊 Toggle Greeks ▾</button>
-            <div id="greeksList" class="dropdown-content">
-                <label><input type="checkbox" onchange="toggleCol('iv')"> IV</label>
-                <label><input type="checkbox" onchange="toggleCol('vega')"> Vega</label>
-                <label><input type="checkbox" onchange="toggleCol('theta')"> Theta</label>
-                <label><input type="checkbox" onchange="toggleCol('gamma')"> Gamma</label>
-                <label><input type="checkbox" onchange="toggleCol('delta')"> D (Delta)</label>
-            </div>
-        </div>
-
-        <!-- Settings Dropdown -->
-        <div class="dropdown-check-list">
-            <button class="btn dropdown-btn" onclick="toggleMenu('settingsList')">⚙️ Settings ▾</button>
-            <div id="settingsList" class="dropdown-content">
-                <div class="menu-item">👤 Profile</div>
-                <div class="menu-item">🎨 Theme</div>
-                <hr style="margin: 2px 0;">
-                <div class="menu-item logout-btn" onclick="logoutApp()">🚪 Logout</div>
-            </div>
-        </div>
+    <div class="top-bar">
+        <select class="btn"><option>NIFTY 50</option></select>
+        <button class="btn" style="color:red; font-weight:bold;">● Live</button>
+        <button class="btn btn-historical">Historical</button>
+        <button class="btn btn-greeks">Toggle Greeks ▾</button>
+        <button class="btn">⚙️ Settings ▾</button>
     </div>
 
-    <!-- Live Info Bar -->
-    <div class="info-bar">
-        <span class="time-text" id="liveTime">Live Time: Loading...</span>
-        <span class="price-text">
-            Spot Price: <span class="price-val" id="spotPriceInfo">23,300.00</span> 
-            &nbsp; | &nbsp; 
-            Future Price: <span class="price-val" id="futurePriceInfo">23,345.50</span>
-        </span>
+    <div class="status-bar">
+        Live Time: <span id="live-time" style="color: #d10000;">Loading...</span>
     </div>
 
-    <!-- Options Chain Table -->
-    <table id="optionTable">
+    <table>
         <thead>
-            <tr class="header-main">
-                <th id="callHeader" colspan="4">Call Side</th>
+            <tr>
+                <th colspan="4">Call Side</th>
                 <th>Strike Price</th>
-                <th id="putHeader" colspan="4">Put Side</th>
+                <th colspan="4">Put Side</th>
             </tr>
-            <tr class="header-sub" id="subHeader">
-                <th class="col-iv hidden-col">IV</th>
-                <th class="col-vega hidden-col">Vega</th>
-                <th class="col-theta hidden-col">Theta</th>
-                <th class="col-gamma hidden-col">Gamma</th>
-                <th class="col-delta hidden-col">D (Delta)</th>
-                
+            <tr>
                 <th>OI Chg</th><th>OI</th><th>Volume</th><th>LTP</th>
                 <th>Spot Price</th>
                 <th>LTP</th><th>Volume</th><th>OI</th><th>OI Chg</th>
-                
-                <th class="col-delta hidden-col">D (Delta)</th>
-                <th class="col-gamma hidden-col">Gamma</th>
-                <th class="col-theta hidden-col">Theta</th>
-                <th class="col-vega hidden-col">Vega</th>
-                <th class="col-iv hidden-col">IV</th>
             </tr>
         </thead>
-        <tbody id="dataBody">
-            <!-- Row 1 -->
-            <tr>
-                <td class="col-iv hidden-col itm-call">12.5</td><td class="col-vega hidden-col itm-call">9.2</td><td class="col-theta hidden-col itm-call">-2.1</td><td class="col-gamma hidden-col itm-call">0.02</td><td class="col-delta hidden-col itm-call">0.85</td>
-                <td class="itm-call val-call-oichg">2000</td><td class="itm-call val-call-oi">15000</td><td class="itm-call val-call-vol">4500</td><td class="itm-call">240.50</td>
-                <td class="strike-col">23100</td>
-                <td>12.30</td><td class="val-put-vol">15000</td><td class="val-put-oi">45000</td><td class="val-put-oichg">-1200</td>
-                <td class="col-delta hidden-col">-0.15</td><td class="col-gamma hidden-col">0.02</td><td class="col-theta hidden-col">-1.2</td><td class="col-vega hidden-col">8.1</td><td class="col-iv hidden-col">13.1</td>
-            </tr>
-            <!-- Row 2 -->
-            <tr>
-                <td class="col-iv hidden-col itm-call">13.1</td><td class="col-vega hidden-col itm-call">9.5</td><td class="col-theta hidden-col itm-call">-2.5</td><td class="col-gamma hidden-col itm-call">0.05</td><td class="col-delta hidden-col itm-call">0.65</td>
-                <td class="itm-call val-call-oichg">4500</td><td class="itm-call val-call-oi">25000</td><td class="itm-call val-call-vol">9000</td><td class="itm-call">155.20</td>
-                <td class="strike-col">23200</td>
-                <td>28.10</td><td class="val-put-vol">32000</td><td class="val-put-oi">85000</td><td class="val-put-oichg">2500</td>
-                <td class="col-delta hidden-col">-0.30</td><td class="col-gamma hidden-col">0.05</td><td class="col-theta hidden-col">-1.8</td><td class="col-vega hidden-col">9.0</td><td class="col-iv hidden-col">13.5</td>
-            </tr>
-            <!-- Row 3 (ATM) -->
-            <tr>
-                <td class="col-iv hidden-col">14.0</td><td class="col-vega hidden-col">10.1</td><td class="col-theta hidden-col">-3.5</td><td class="col-gamma hidden-col">0.12</td><td class="col-delta hidden-col">0.50</td>
-                <td class="val-call-oichg">15000</td><td class="val-call-oi">135000</td><td class="val-call-vol">60000</td><td>90.50</td>
-                <td class="strike-col" style="background-color: #ffeb3b;">23300 (ATM)</td>
-                <td class="itm-put">65.00</td><td class="itm-put val-put-vol">75000</td><td class="itm-put val-put-oi">110000</td><td class="itm-put val-put-oichg">12000</td>
-                <td class="col-delta hidden-col itm-put">-0.50</td><td class="col-gamma hidden-col itm-put">0.12</td><td class="col-theta hidden-col itm-put">-3.0</td><td class="col-vega hidden-col itm-put">10.0</td><td class="col-iv hidden-col itm-put">14.2</td>
-            </tr>
-            <!-- Row 4 -->
-            <tr>
-                <td class="col-iv hidden-col">13.8</td><td class="col-vega hidden-col">9.8</td><td class="col-theta hidden-col">-2.5</td><td class="col-gamma hidden-col">0.06</td><td class="col-delta hidden-col">0.30</td>
-                <td class="val-call-oichg">8000</td><td class="val-call-oi">115000</td><td class="val-call-vol">42000</td><td>41.10</td>
-                <td class="strike-col">23400</td>
-                <td class="itm-put">130.50</td><td class="itm-put val-put-vol">12000</td><td class="itm-put val-put-oi">45000</td><td class="itm-put val-put-oichg">-500</td>
-                <td class="col-delta hidden-col itm-put">-0.70</td><td class="col-gamma hidden-col itm-put">0.06</td><td class="col-theta hidden-col itm-put">-2.2</td><td class="col-vega hidden-col itm-put">9.5</td><td class="col-iv hidden-col itm-put">14.8</td>
-            </tr>
-            <!-- Row 5 -->
-            <tr>
-                <td class="col-iv hidden-col">13.2</td><td class="col-vega hidden-col">8.5</td><td class="col-theta hidden-col">-1.2</td><td class="col-gamma hidden-col">0.02</td><td class="col-delta hidden-col">0.12</td>
-                <td class="val-call-oichg">-1500</td><td class="val-call-oi">185000</td><td class="val-call-vol">65000</td><td>15.20</td>
-                <td class="strike-col">23500</td>
-                <td class="itm-put">220.30</td><td class="itm-put val-put-vol">4000</td><td class="itm-put val-put-oi">15000</td><td class="itm-put val-put-oichg">-2000</td>
-                <td class="col-delta hidden-col itm-put">-0.88</td><td class="col-gamma hidden-col itm-put">0.02</td><td class="col-theta hidden-col itm-put">-1.0</td><td class="col-vega hidden-col itm-put">8.0</td><td class="col-iv hidden-col itm-put">15.5</td>
-            </tr>
+        <tbody id="data-body">
+            <!-- 20 rows data will generate here automatically -->
         </tbody>
     </table>
 
     <script>
-        // Live Time Logic
-        function updateLiveTime() {
-            const now = new Date();
-            document.getElementById('liveTime').innerText = "Live Time: " + now.toLocaleTimeString('en-IN', { hour12: true });
-        }
-        setInterval(updateLiveTime, 1000);
-        updateLiveTime();
-
-        // 100% PERFECT HIGHLIGHT & PERCENTAGE LOGIC
-        function applyPercentages() {
-            // Columns list - Call and Put sides processed separately
-            const columns = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
+        document.addEventListener("DOMContentLoaded", function() {
             
-            columns.forEach(cls => {
-                let cells = document.querySelectorAll('.' + cls);
-                let maxVal = -Infinity;
-                
-                // Step 1: Find Max Value safely
+            // 1. Live Time Logic (हर 1 सेकंड में अपडेट)
+            setInterval(() => {
+                let now = new Date();
+                document.getElementById('live-time').innerText = now.toLocaleTimeString('en-IN');
+            }, 1000);
+
+            // 2. Generate 20 Rows Mock Data (NIFTY 50 style)
+            const tbody = document.getElementById('data-body');
+            let startStrike = 22800; // Starting point
+
+            for(let i = 0; i < 20; i++) {
+                let strike = startStrike + (i * 50);
+                let isATM = (strike === 23300);
+                let callClass = strike < 23300 ? "itm-call" : "";
+                let putClass = strike > 23300 ? "itm-put" : "";
+                let strikeHtml = isATM ? <td class="atm">${strike} (ATM)</td> : <td style="font-weight:bold; background:#f8f9fa;">${strike}</td>;
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="${callClass} c-oichg">${Math.floor(Math.random()*15000) - 3000}</td>
+                    <td class="${callClass} c-oi">${Math.floor(Math.random()*150000)}</td>
+                    <td class="${callClass} c-vol">${Math.floor(Math.random()*80000)}</td>
+                    <td class="${callClass}">${(Math.random()*150).toFixed(2)}</td>
+                    ${strikeHtml}
+                    <td class="${putClass}">${(Math.random()*150).toFixed(2)}</td>
+                    <td class="${putClass} p-vol">${Math.floor(Math.random()*80000)}</td>
+                    <td class="${putClass} p-oi">${Math.floor(Math.random()*150000)}</td>
+                    <td class="${putClass} p-oichg">${Math.floor(Math.random()*15000) - 3000}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            // 3. 100% Percentage Logic (Highest value ko 100% karke compare karna)
+            function applyPercentages(columnClass) {
+                let cells = document.querySelectorAll('.' + columnClass);
+                let maxVal = 0;
+
+                // Step A: Find Maximum Absolute Value
                 cells.forEach(cell => {
-                    // Extract just the number (ignores any span added previously)
-                    let text = cell.innerText.split('\n')[0].replace(/,/g, '').trim();
-                    let val = parseFloat(text);
-                    if (!isNaN(val) && val > maxVal) { maxVal = val; }
+                    let val = Math.abs(parseInt(cell.innerText));
+                    if (val > maxVal) { maxVal = val; }
                 });
-                
-                // Step 2: Apply Highlight and Percentage safely without breaking HTML
-                cells.forEach(cell => {
-                    let originalNumber = cell.innerText.split('\n')[0].trim();
-                    let val = parseFloat(originalNumber.replace(/,/g, ''));
-                    
-                    if (!isNaN(val)) {
-                        let pct = (maxVal > 0) ? Math.round((Math.abs(val) / maxVal) * 100) : 0;
+
+                // Step B: Calculate and Append Percentage
+                if (maxVal > 0) {
+                    cells.forEach(cell => {
+                        let originalText = cell.innerText;
+                        let val = Math.abs(parseInt(originalText));
+                        let pct = Math.round((val / maxVal) * 100);
                         
-                        if (val === maxVal && maxVal > 0) {
-                            cell.classList.add('max-highlight');
-                            cell.innerHTML = originalNumber + <span class="pct-box pct-100">(100%)</span>;
-                        } else {
-                            cell.innerHTML = originalNumber + <span class="pct-box">(${pct}%)</span>;
-                        }
-                    }
-                });
-            });
-        }
-        // Run as soon as page loads
-        window.onload = applyPercentages;
-
-        // Toggle Menus (Settings & Greeks)
-        function toggleMenu(menuId) {
-            document.getElementById(menuId).classList.toggle("show-menu");
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-check-list')) {
-                let dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    if (dropdowns[i].classList.contains('show-menu')) {
-                        dropdowns[i].classList.remove('show-menu');
-                    }
+                        // Agar 100% hai toh red aur bold dikhega, warna normal
+                        let spanClass = (pct === 100) ? 'pct-100' : 'pct-normal';
+                        cell.innerHTML = ${originalText} <span class="${spanClass}">(${pct}%)</span>;
+                    });
                 }
             }
-        }
 
-        // Mode Switcher (Live / Historical Speed Control Fixed)
-        function switchMode(mode) {
-            let speedCtrl = document.getElementById("speedControl");
-            if (mode === 'historical') {
-                speedCtrl.style.display = "inline-block"; // Shows the speed dropdown properly
-                alert("Switched to Historical Mode.");
-            } else {
-                speedCtrl.style.display = "none"; // Hides it back on Live
-                alert("Switched to Live Mode.");
-            }
-        }
+            // Data load hone ke theek baad percentages apply karein
+            setTimeout(() => {
+                applyPercentages('c-oichg');
+                applyPercentages('c-oi');
+                applyPercentages('c-vol');
+                applyPercentages('p-vol');
+                applyPercentages('p-oi');
+                applyPercentages('p-oichg');
+            }, 100);
 
-        function changeSpeed() {
-            alert("Playback speed set to: " + document.getElementById("speedControl").value + "x");
-        }
-
-        function logoutApp() {
-            if (confirm("Are you sure you want to logout?")) { 
-                alert("Logging out successfully..."); 
-            }
-        }
-
-        // Greeks Toggle Logic (Fixed Colspan)
-        let greeksCount = 0;
-        function toggleCol(greekClass) {
-            let checkbox = event.target;
-            let cols = document.querySelectorAll('.col-' + greekClass);
-            if (checkbox.checked) {
-                cols.forEach(col => col.classList.remove('hidden-col'));
-                greeksCount++;
-            } else {
-                cols.forEach(col => col.classList.add('hidden-col'));
-                greeksCount--;
-            }
-            // Safely adjusts the main headers when Greeks are opened
-            document.getElementById("callHeader").colSpan = 4 + greeksCount;
-            document.getElementById("putHeader").colSpan = 4 + greeksCount;
-        }
-
-        function switchIndex() {
-            alert("Switched Data to: " + document.getElementById("indexSelect").value);
-        }
+            // 4. Buttons Reactivity (Jab click karo to chale)
+            document.querySelector('.btn-historical').addEventListener('click', function() {
+                alert('Historical Mode: Data fetch setup pending...');
+            });
+            
+            document.querySelector('.btn-greeks').addEventListener('click', function() {
+                alert('Greeks View: Delta, Gamma, Theta, IV calculation aayegi yahan...');
+            });
+        });
     </script>
 </body>
 </html>
