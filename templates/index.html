@@ -1,10 +1,12 @@
+<!DOCTYPE html>
 <html>
-<head>
-    <title>Nifty Sniper</title>
-</head>
 <body>
     <h1>Nifty Sniper Live Dashboard 🚀</h1>
-    <p>Message: {{ message }}</p>
     <p>Status: {{ status }}</p>
+    
+    <!-- यहाँ डेटा दिखेगा -->
+    <h2 style="color: green;">Live Nifty Price: ₹{{ price }}</h2>
+    
+    <button onclick="location.reload()">Refresh Price</button>
 </body>
 </html>
