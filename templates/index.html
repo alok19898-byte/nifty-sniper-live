@@ -3,48 +3,64 @@
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #0b0e11; color: #fff; font-size: 13px; margin: 0; padding: 10px; }
-        .table-container { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { padding: 6px; text-align: center; border: 1px solid #30363d; }
-        .g-col { display: none; } /* Default Hide */
-        .zoom-1 { font-size: 10px; } .zoom-2 { font-size: 14px; }
-        #sidebar { position: fixed; right: 0; top: 0; width: 250px; height: 100vh; background: #161a1e; padding: 10px; border-left: 1px solid #58a6ff; }
+        body { background: #0b0e11; color: #fff; font-size: 11px; margin: 0; padding: 5px; }
+        .controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .main-layout { display: flex; width: 100%; gap: 10px; }
+        .table-container { flex-grow: 1; overflow-x: auto; }
+        #tracker { width: 300px; background: #161a1e; border: 1px solid #58a6ff; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 4px; text-align: center; border: 1px solid #30363d; white-space: nowrap; }
+        .g-col { display: none; }
+        .show-g { display: table-cell !important; }
+        .zoom-large { font-size: 14px; }
     </style>
 </head>
-<body id="main-body">
-    <h5 class="text-center">Nifty Sniper Pro Terminal 🎯</h5>
-    
-    <!-- Controls -->
-    <div class="d-flex justify-content-center gap-2 mb-2">
-        <button onclick="toggleGreek('g-iv')">IV</button>
-        <button onclick="toggleGreek('g-delta')">Delta</button>
-        <button onclick="changeZoom(1)">Zoom -</button>
-        <button onclick="changeZoom(2)">Zoom +</button>
+<body id="body">
+    <h5 class="text-center">Nifty Sniper Master Terminal 🎯</h5>
+    <div class="controls">
+        <button class="btn btn-sm btn-success" onclick="fetch('/start-recording')">▶️ Play</button>
+        <button class="btn btn-sm btn-danger" onclick="fetch('/stop-recording')">⏸️ Pause</button>
+        <button class="btn btn-sm btn-info" onclick="document.querySelectorAll('.g-col').forEach(e=>e.classList.toggle('show-g'))">Toggle Greeks</button>
+        <button class="btn btn-sm btn-secondary" onclick="document.getElementById('body').classList.toggle('zoom-large')">Zoom</button>
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th class="g-col g-iv">IV</th><th class="g-col g-delta">Delta</th>
-                    <th>Vol%</th><th>Vol</th><th>LTP</th><th>STRIKE</th><th>LTP</th><th>Vol</th><th>Vol%</th>
-                </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-        </table>
+    <div class="main-layout">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="g-col">Delta</th><th class="g-col">Gamma</th><th class="g-col">Vega</th><th class="g-col">Theta</th><th class="g-col">IV</th>
+                        <th>OI</th><th>Chg OI</th><th>Vol</th><th>Vol%</th><th>LTP</th>
+                        <th class="bg-warning text-dark">STRIKE</th>
+                        <th>LTP</th><th>Vol%</th><th>Vol</th><th>Chg OI</th><th>OI</th>
+                        <th class="g-col">IV</th><th class="g-col">Theta</th><th class="g-col">Vega</th><th class="g-col">Gamma</th><th class="g-col">Delta</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+        <div id="tracker">
+            <h6>🎯 Strike Tracker</h6>
+            <div id="hist">Click a strike price to compare 5m volume history...</div>
+        </div>
     </div>
 
     <script>
-        function toggleGreek(c) { document.querySelectorAll('.'+c).forEach(e => e.style.display = (e.style.display==='table-cell'?'none':'table-cell')); }
-        function changeZoom(z) { document.getElementById('main-body').className = 'zoom-'+z; }
-        
-        // Data Render
-        let html = "";
-        for(let s=23400; s<=23800; s+=50) {
-            html += <tr><td class="g-col g-iv">14</td><td class="g-col g-delta">0.5</td><td>80%</td><td>40L</td><td>120</td><td class="text-warning fw-bold">${s}</td><td>85</td><td>50L</td><td>100%</td></tr>;
+        // डमी डेटा के साथ रेंडर (बाद में API से रिप्लेस करेंगे)
+        function renderTable() {
+            let html = "";
+            for(let s=23400; s<=23800; s+=50) {
+                html += `<tr onclick="document.getElementById('hist').innerText='Tracking ${s}...'">
+                    <td class="g-col">0.5</td><td class="g-col">0.02</td><td class="g-col">12</td><td class="g-col">-10</td><td class="g-col">14</td>
+                    <td>1.2L</td><td>+20k</td><td>40L</td><td class="text-info">80%</td><td>120</td>
+                    <td class="text-warning fw-bold">${s}</td>
+                    <td>85</td><td class="text-info">100%</td><td>50L</td><td>+10k</td><td>1.5L</td>
+                    <td class="g-col">13</td><td class="g-col">-9</td><td class="g-col">11</td><td class="g-col">0.02</td><td class="g-col">-0.5</td>
+                </tr>`;
+            }
+            document.getElementById('tbody').innerHTML = html;
         }
-        document.getElementById('tbody').innerHTML = html;
+        renderTable();
     </script>
 </body>
 </html>
