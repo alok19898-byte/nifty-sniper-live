@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trading Dashboard</title>
+    <title>Trading Dashboard Pro</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 10px; }
         
-        /* Table Styles */
+        /* Table Styles (Unchanged) */
         table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 15px; }
         th, td { border: 1px solid #a0a0a0; padding: 6px; }
         .header-main { background-color: #d4d4d4; font-weight: bold; }
@@ -18,27 +18,60 @@
         .btn:hover { background: #f0f0f0; }
         .dropdown { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #555; cursor: pointer; }
         
+        /* Greeks Checkbox Dropdown */
+        .dropdown-check-list { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border: 1px solid #555; border-radius: 4px; margin-top: 5px; }
+        .dropdown-content label { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
+        .dropdown-content label:hover { background-color: #f1f1f1; }
+        .show-menu { display: block; }
+        
         /* Color Coding for In-The-Money (ITM) */
-        .itm-call { background-color: #fff4cc; } /* Light Yellow for Call ITM */
-        .itm-put { background-color: #dcf2f5; }  /* Light Blue for Put ITM */
+        .itm-call { background-color: #fff4cc; } /* Light Yellow */
+        .itm-put { background-color: #dcf2f5; }  /* Light Blue */
         
         /* Center Strike Price Column Highlight */
         .strike-col { background-color: #f8f9fa; font-weight: bold; font-size: 14px; }
+
+        /* Highlight Maximum Values (Volume, OI, OI Chg) */
+        .max-highlight {
+            font-weight: 900 !important;
+            color: #d10000 !important; /* Dark Red text to pop out */
+            text-decoration: underline;
+        }
+
+        /* Hidden Columns Utility */
+        .hidden-col { display: none !important; }
     </style>
 </head>
 <body>
 
     <!-- Controls Panel -->
     <div class="controls">
-        <!-- Index Switcher -->
+        <!-- Extended Index Switcher -->
         <select class="dropdown" id="indexSelect" onchange="switchIndex()">
             <option value="NIFTY">NIFTY 50</option>
             <option value="BANKNIFTY">BANKNIFTY</option>
+            <option value="FINNIFTY">FINNIFTY</option>
+            <option value="MIDCPNIFTY">MIDCPNIFTY</option>
+            <option value="SENSEX">SENSEX</option>
+            <option value="BANKEX">BANKEX</option>
         </select>
         
         <button class="btn" onclick="switchMode('live')">🔴 Live</button>
         <button class="btn" onclick="switchMode('historical')">📜 Historical</button>
-        <button class="btn" onclick="toggleGreeks()">📊 Toggle Greeks</button>
+        
+        <!-- Greeks Toggle Checkbox Menu -->
+        <div class="dropdown-check-list">
+            <button class="btn" onclick="toggleGreeksMenu()">📊 Toggle Greeks ▾</button>
+            <div id="greeksList" class="dropdown-content">
+                <label><input type="checkbox" onchange="toggleCol('iv')"> IV</label>
+                <label><input type="checkbox" onchange="toggleCol('vega')"> Vega</label>
+                <label><input type="checkbox" onchange="toggleCol('theta')"> Theta</label>
+                <label><input type="checkbox" onchange="toggleCol('gamma')"> Gamma</label>
+                <label><input type="checkbox" onchange="toggleCol('delta')"> D (Delta)</label>
+            </div>
+        </div>
+
         <button class="btn" onclick="openSettings()">⚙️ Settings</button>
     </div>
 
@@ -46,101 +79,151 @@
     <table id="optionTable">
         <thead>
             <tr class="header-main">
-                <th colspan="6">Call Side</th>
+                <th id="callHeader" colspan="4">Call Side</th>
                 <th>Strike Price</th>
-                <th colspan="6">Put Side</th>
+                <th id="putHeader" colspan="4">Put Side</th>
             </tr>
             <tr class="header-sub" id="subHeader">
-                <!-- Call Side -->
-                <th>Theta</th><th>Gamma</th><th>D (Delta)</th><th>OI</th><th>Volume</th><th>LTP</th>
+                <!-- Call Side Greeks (Hidden by default) -->
+                <th class="col-iv hidden-col">IV</th>
+                <th class="col-vega hidden-col">Vega</th>
+                <th class="col-theta hidden-col">Theta</th>
+                <th class="col-gamma hidden-col">Gamma</th>
+                <th class="col-delta hidden-col">D (Delta)</th>
+                
+                <!-- Call Side Default -->
+                <th>OI Chg</th><th>OI</th><th>Volume</th><th>LTP</th>
+                
                 <!-- Center -->
                 <th>Spot Price</th>
-                <!-- Put Side -->
-                <th>LTP</th><th>OI</th><th>Volume</th><th>OI Chg</th><th>P (Delta)</th><th>Gamma</th>
+                
+                <!-- Put Side Default -->
+                <th>LTP</th><th>Volume</th><th>OI</th><th>OI Chg</th>
+                
+                <!-- Put Side Greeks (Hidden by default) -->
+                <th class="col-delta hidden-col">D (Delta)</th>
+                <th class="col-gamma hidden-col">Gamma</th>
+                <th class="col-theta hidden-col">Theta</th>
+                <th class="col-vega hidden-col">Vega</th>
+                <th class="col-iv hidden-col">IV</th>
             </tr>
         </thead>
         <tbody id="dataBody">
-            <!-- Row 1 (Call ITM, Put OTM) -->
+            <!-- Row 1 -->
             <tr>
-                <td class="itm-call">-1.2</td><td class="itm-call">0.02</td><td class="itm-call">0.85</td><td class="itm-call">12000</td><td class="itm-call">4500</td><td class="itm-call">240.50</td>
+                <td class="col-iv hidden-col itm-call">12.5</td><td class="col-vega hidden-col itm-call">9.2</td><td class="col-theta hidden-col itm-call">-2.1</td><td class="col-gamma hidden-col itm-call">0.02</td><td class="col-delta hidden-col itm-call">0.85</td>
+                <td class="itm-call val-call-oichg">2000</td><td class="itm-call val-call-oi">15000</td><td class="itm-call val-call-vol">4500</td><td class="itm-call">240.50</td>
                 <td class="strike-col">23100</td>
-                <td>12.30</td><td>45000</td><td>15000</td><td>-1200</td><td>-0.15</td><td>0.02</td>
+                <td>12.30</td><td class="val-put-vol">15000</td><td class="val-put-oi">45000</td><td class="val-put-oichg">-1200</td>
+                <td class="col-delta hidden-col">-0.15</td><td class="col-gamma hidden-col">0.02</td><td class="col-theta hidden-col">-1.2</td><td class="col-vega hidden-col">8.1</td><td class="col-iv hidden-col">13.1</td>
             </tr>
-            <!-- Row 2 (Call ITM, Put OTM) -->
+            <!-- Row 2 -->
             <tr>
-                <td class="itm-call">-1.5</td><td class="itm-call">0.03</td><td class="itm-call">0.75</td><td class="itm-call">15000</td><td class="itm-call">6000</td><td class="itm-call">195.00</td>
-                <td class="strike-col">23150</td>
-                <td>18.40</td><td>52000</td><td>18000</td><td>500</td><td>-0.20</td><td>0.03</td>
-            </tr>
-            <!-- Row 3 (Call ITM, Put OTM) -->
-            <tr>
-                <td class="itm-call">-2.1</td><td class="itm-call">0.05</td><td class="itm-call">0.65</td><td class="itm-call">25000</td><td class="itm-call">9000</td><td class="itm-call">155.20</td>
+                <td class="col-iv hidden-col itm-call">13.1</td><td class="col-vega hidden-col itm-call">9.5</td><td class="col-theta hidden-col itm-call">-2.5</td><td class="col-gamma hidden-col itm-call">0.05</td><td class="col-delta hidden-col itm-call">0.65</td>
+                <td class="itm-call val-call-oichg">4500</td><td class="itm-call val-call-oi">25000</td><td class="itm-call val-call-vol">9000</td><td class="itm-call">155.20</td>
                 <td class="strike-col">23200</td>
-                <td>28.10</td><td>85000</td><td>32000</td><td>2500</td><td>-0.30</td><td>0.05</td>
+                <td>28.10</td><td class="val-put-vol">32000</td><td class="val-put-oi">85000</td><td class="val-put-oichg">2500</td>
+                <td class="col-delta hidden-col">-0.30</td><td class="col-gamma hidden-col">0.05</td><td class="col-theta hidden-col">-1.8</td><td class="col-vega hidden-col">9.0</td><td class="col-iv hidden-col">13.5</td>
             </tr>
-            <!-- Row 4 (Call ITM, Put OTM) -->
+            <!-- Row 3 (ATM) -->
             <tr>
-                <td class="itm-call">-3.0</td><td class="itm-call">0.08</td><td class="itm-call">0.55</td><td class="itm-call">40000</td><td class="itm-call">15000</td><td class="itm-call">120.00</td>
-                <td class="strike-col">23250</td>
-                <td>42.50</td><td>110000</td><td>45000</td><td>8000</td><td>-0.40</td><td>0.08</td>
-            </tr>
-            <!-- Row 5 (At The Money - ATM) -->
-            <tr>
-                <td>-3.5</td><td>0.12</td><td>0.50</td><td>65000</td><td>25000</td><td>90.50</td>
+                <td class="col-iv hidden-col">14.0</td><td class="col-vega hidden-col">10.1</td><td class="col-theta hidden-col">-3.5</td><td class="col-gamma hidden-col">0.12</td><td class="col-delta hidden-col">0.50</td>
+                <td class="val-call-oichg">15000</td><td class="val-call-oi">135000</td><td class="val-call-vol">60000</td><td>90.50</td>
                 <td class="strike-col" style="background-color: #ffeb3b;">23300 (ATM)</td>
-                <td>65.00</td><td>135000</td><td>60000</td><td>15000</td><td>-0.50</td><td>0.12</td>
+                <td class="itm-put">65.00</td><td class="itm-put val-put-vol">75000</td><td class="itm-put val-put-oi">110000</td><td class="itm-put val-put-oichg">12000</td>
+                <td class="col-delta hidden-col itm-put">-0.50</td><td class="col-gamma hidden-col itm-put">0.12</td><td class="col-theta hidden-col itm-put">-3.0</td><td class="col-vega hidden-col itm-put">10.0</td><td class="col-iv hidden-col itm-put">14.2</td>
             </tr>
-            <!-- Row 6 (Call OTM, Put ITM) -->
+            <!-- Row 4 -->
             <tr>
-                <td>-3.2</td><td>0.09</td><td>0.42</td><td>85000</td><td>35000</td><td>62.30</td>
-                <td class="strike-col">23350</td>
-                <td class="itm-put">95.00</td><td class="itm-put">60000</td><td class="itm-put">22000</td><td class="itm-put">1000</td><td class="itm-put">-0.60</td><td class="itm-put">0.09</td>
-            </tr>
-            <!-- Row 7 (Call OTM, Put ITM) -->
-            <tr>
-                <td>-2.5</td><td>0.06</td><td>0.30</td><td>115000</td><td>42000</td><td>41.10</td>
+                <td class="col-iv hidden-col">13.8</td><td class="col-vega hidden-col">9.8</td><td class="col-theta hidden-col">-2.5</td><td class="col-gamma hidden-col">0.06</td><td class="col-delta hidden-col">0.30</td>
+                <td class="val-call-oichg">8000</td><td class="val-call-oi">115000</td><td class="val-call-vol">42000</td><td>41.10</td>
                 <td class="strike-col">23400</td>
-                <td class="itm-put">130.50</td><td class="itm-put">45000</td><td class="itm-put">12000</td><td class="itm-put">-500</td><td class="itm-put">-0.70</td><td class="itm-put">0.06</td>
+                <td class="itm-put">130.50</td><td class="itm-put val-put-vol">12000</td><td class="itm-put val-put-oi">45000</td><td class="itm-put val-put-oichg">-500</td>
+                <td class="col-delta hidden-col itm-put">-0.70</td><td class="col-gamma hidden-col itm-put">0.06</td><td class="col-theta hidden-col itm-put">-2.2</td><td class="col-vega hidden-col itm-put">9.5</td><td class="col-iv hidden-col itm-put">14.8</td>
             </tr>
-            <!-- Row 8 (Call OTM, Put ITM) -->
+            <!-- Row 5 -->
             <tr>
-                <td>-1.8</td><td>0.04</td><td>0.20</td><td>145000</td><td>55000</td><td>25.80</td>
-                <td class="strike-col">23450</td>
-                <td class="itm-put">175.00</td><td class="itm-put">25000</td><td class="itm-put">8000</td><td class="itm-put">-1200</td><td class="itm-put">-0.80</td><td class="itm-put">0.04</td>
-            </tr>
-            <!-- Row 9 (Call OTM, Put ITM) -->
-            <tr>
-                <td>-1.2</td><td>0.02</td><td>0.12</td><td>185000</td><td>65000</td><td>15.20</td>
+                <td class="col-iv hidden-col">13.2</td><td class="col-vega hidden-col">8.5</td><td class="col-theta hidden-col">-1.2</td><td class="col-gamma hidden-col">0.02</td><td class="col-delta hidden-col">0.12</td>
+                <td class="val-call-oichg">-1500</td><td class="val-call-oi">185000</td><td class="val-call-vol">65000</td><td>15.20</td>
                 <td class="strike-col">23500</td>
-                <td class="itm-put">220.30</td><td class="itm-put">15000</td><td class="itm-put">4000</td><td class="itm-put">-2000</td><td class="itm-put">-0.88</td><td class="itm-put">0.02</td>
-            </tr>
-            <!-- Row 10 (Call OTM, Put ITM) -->
-            <tr>
-                <td>-0.8</td><td>0.01</td><td>0.05</td><td>210000</td><td>80000</td><td>8.50</td>
-                <td class="strike-col">23550</td>
-                <td class="itm-put">265.80</td><td class="itm-put">8000</td><td class="itm-put">1500</td><td class="itm-put">-800</td><td class="itm-put">-0.95</td><td class="itm-put">0.01</td>
+                <td class="itm-put">220.30</td><td class="itm-put val-put-vol">4000</td><td class="itm-put val-put-oi">15000</td><td class="itm-put val-put-oichg">-2000</td>
+                <td class="col-delta hidden-col itm-put">-0.88</td><td class="col-gamma hidden-col itm-put">0.02</td><td class="col-theta hidden-col itm-put">-1.0</td><td class="col-vega hidden-col itm-put">8.0</td><td class="col-iv hidden-col itm-put">15.5</td>
             </tr>
         </tbody>
     </table>
 
     <script>
+        // 1. Highlight Maximum Values Function
+        function highlightMaxValues() {
+            // Arrays of classes we want to find the max value for
+            const classesToHighlight = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
+            
+            classesToHighlight.forEach(cls => {
+                let cells = document.querySelectorAll('.' + cls);
+                let maxVal = -Infinity;
+                let maxCell = null;
+                
+                cells.forEach(cell => {
+                    let val = parseFloat(cell.innerText.replace(/,/g, ''));
+                    if (!isNaN(val) && val > maxVal) {
+                        maxVal = val;
+                        maxCell = cell;
+                    }
+                });
+                
+                if (maxCell) {
+                    maxCell.classList.add('max-highlight');
+                }
+            });
+        }
+
+        // Run highlight logic as soon as page loads
+        window.onload = highlightMaxValues;
+
+        // 2. Toggle Greeks Menu Open/Close
+        function toggleGreeksMenu() {
+            document.getElementById("greeksList").classList.toggle("show-menu");
+        }
+
+        // Close dropdown if clicked outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.btn') && !event.target.closest('.dropdown-check-list')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show-menu')) {
+                        openDropdown.classList.remove('show-menu');
+                    }
+                }
+            }
+        }
+
+        // 3. Logic to Show/Hide specific Greek Columns
+        let greeksCount = 0;
+        function toggleCol(greekClass) {
+            let checkbox = event.target;
+            let cols = document.querySelectorAll('.col-' + greekClass);
+            
+            if (checkbox.checked) {
+                cols.forEach(col => col.classList.remove('hidden-col'));
+                greeksCount++;
+            } else {
+                cols.forEach(col => col.classList.add('hidden-col'));
+                greeksCount--;
+            }
+            
+            // Adjust top header colspan (Default is 4 columns: OI Chg, OI, Vol, LTP)
+            document.getElementById("callHeader").colSpan = 4 + greeksCount;
+            document.getElementById("putHeader").colSpan = 4 + greeksCount;
+        }
+
+        // Placeholder functions for other buttons
         function switchIndex() {
             var selectedIndex = document.getElementById("indexSelect").value;
             alert("Switched Data to: " + selectedIndex);
-            // यहाँ आप API को NIFTY या BANKNIFTY का पैरामीटर भेज सकते हैं
         }
-
-        function switchMode(mode) {
-            alert("Dashboard Mode: " + mode.toUpperCase());
-        }
-
-        function toggleGreeks() {
-            alert("Greeks Columns Toggled!");
-        }
-
-        function openSettings() {
-            alert("Settings Panel Opened!");
-        }
+        function switchMode(mode) { alert("Dashboard Mode: " + mode.toUpperCase()); }
+        function openSettings() { alert("Settings Panel Opened!"); }
     </script>
 </body>
 </html>
