@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Trading Dashboard Pro</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 10px; background: #f4f4f4; }
+        body { font-family: Arial, sans-serif; padding: 10px; background: #f4f4f4; margin: 0; }
         
         /* Table Styles */
         table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 10px; background: white; }
@@ -13,16 +13,19 @@
         .header-sub { background-color: #ebebeb; font-weight: bold; }
         
         /* Control Panel Styles */
-        .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+        .controls { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
         .btn { padding: 8px 15px; cursor: pointer; border: 1px solid #555; background: #fff; border-radius: 4px; font-weight: bold; transition: 0.2s;}
-        .btn:hover { background: #f0f0f0; }
+        .btn:hover { background: #e0e0e0; }
         .dropdown { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #555; cursor: pointer; }
         
-        /* Play Button Style */
-        #playBtn { display: none; background-color: #4CAF50; color: white; border: none; }
-        #playBtn:hover { background-color: #45a049; }
-        #playBtn.paused { background-color: #f44336; }
-        #playBtn.paused:hover { background-color: #da190b; }
+        /* Play/Pause Button */
+        #playBtn { display: none; background-color: #28a745; color: white; border: none; }
+        #playBtn:hover { background-color: #218838; }
+        #playBtn.paused { background-color: #dc3545; }
+        #playBtn.paused:hover { background-color: #c82333; }
+        
+        /* Live / Historical Buttons Active State */
+        .active-mode { box-shadow: inset 0 0 5px rgba(0,0,0,0.3); background-color: #e2e3e5; border-color: #000; }
 
         /* Live Info Bar */
         .info-bar { 
@@ -33,11 +36,12 @@
         .time-text { font-weight: bold; color: #d10000; }
         .price-text { font-weight: bold; color: #0056b3; }
 
-        /* Dropdown Menus */
+        /* Greeks Dropdown Menu */
         .dropdown-check-list { position: relative; display: inline-block; }
-        .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border: 1px solid #555; border-radius: 4px; margin-top: 5px; }
-        .dropdown-content label, .dropdown-content .menu-item { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
-        .dropdown-content label:hover, .dropdown-content .menu-item:hover { background-color: #f1f1f1; }
+        .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 150px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border: 1px solid #555; border-radius: 4px; margin-top: 5px; }
+        .dropdown-content label { display: block; padding: 10px; cursor: pointer; font-size: 14px; text-align: left; border-bottom: 1px solid #eee;}
+        .dropdown-content label:hover { background-color: #f1f1f1; }
+        .dropdown-content label:last-child { border-bottom: none; }
         .show-menu { display: block; }
 
         /* Colors & Highlights */
@@ -47,6 +51,8 @@
         .pct-box { display: block; font-size: 11px; margin-top: 2px; color: #555; font-weight: normal; }
         .pct-100 { color: #d10000; font-weight: bold; }
         .max-highlight { font-weight: 900 !important; color: #d10000 !important; }
+        
+        /* Class to Hide Columns */
         .hidden-col { display: none !important; }
     </style>
 </head>
@@ -59,29 +65,28 @@
             <option value="BANKNIFTY">BANKNIFTY</option>
         </select>
         
-        <button class="btn" id="liveBtn" onclick="switchMode('live')">🔴 Live</button>
-        <button class="btn" id="histBtn" onclick="switchMode('historical')">📜 Historical</button>
+        <!-- Mode Buttons -->
+        <button class="btn active-mode" id="liveBtn" onclick="switchMode('live')">🔴 Live Mode</button>
+        <button class="btn" id="histBtn" onclick="switchMode('historical')">📜 Historical Mode</button>
         
-        <!-- NEW PLAY BUTTON -->
+        <!-- PLAY BUTTON & SPEED (Hidden by default, shows on Historical) -->
         <button class="btn" id="playBtn" onclick="togglePlay()">▶️ Play</button>
-
-        <!-- Historical Speed Control -->
         <select class="dropdown" id="speedControl" style="display: none;">
-            <option value="1">⏩ 1 Min</option>
-            <option value="2">⏩ 2 Min</option>
-            <option value="3">⏩ 3 Min</option>
-            <option value="5">⏩ 5 Min</option>
+            <option value="1">⏩ 1 Min / sec</option>
+            <option value="2">⏩ 2 Min / sec</option>
+            <option value="3">⏩ 3 Min / sec</option>
+            <option value="5">⏩ 5 Min / sec</option>
         </select>
         
-        <!-- Greeks Toggle Menu -->
+        <!-- Greeks Menu -->
         <div class="dropdown-check-list">
             <button class="btn dropdown-btn" onclick="toggleMenu('greeksList')">📊 Toggle Greeks ▾</button>
             <div id="greeksList" class="dropdown-content">
-                <label><input type="checkbox" onchange="toggleCol('iv')"> IV</label>
-                <label><input type="checkbox" onchange="toggleCol('vega')"> Vega</label>
-                <label><input type="checkbox" onchange="toggleCol('theta')"> Theta</label>
-                <label><input type="checkbox" onchange="toggleCol('gamma')"> Gamma</label>
-                <label><input type="checkbox" onchange="toggleCol('delta')"> D (Delta)</label>
+                <label><input type="checkbox" class="greek-chk" id="chk-iv" onchange="toggleCol('iv')"> IV</label>
+                <label><input type="checkbox" class="greek-chk" id="chk-delta" onchange="toggleCol('delta')"> Delta (Δ)</label>
+                <label><input type="checkbox" class="greek-chk" id="chk-theta" onchange="toggleCol('theta')"> Theta (Θ)</label>
+                <label><input type="checkbox" class="greek-chk" id="chk-gamma" onchange="toggleCol('gamma')"> Gamma (Γ)</label>
+                <label><input type="checkbox" class="greek-chk" id="chk-vega" onchange="toggleCol('vega')"> Vega (V)</label>
             </div>
         </div>
     </div>
@@ -101,28 +106,42 @@
                 <th id="putHeader" colspan="4">Put Side</th>
             </tr>
             <tr class="header-sub" id="subHeader">
-                <th class="col-iv hidden-col">IV</th><th class="col-vega hidden-col">Vega</th><th class="col-theta hidden-col">Theta</th><th class="col-gamma hidden-col">Gamma</th><th class="col-delta hidden-col">D (Delta)</th>
+                <!-- Greeks Call Side -->
+                <th class="col-iv hidden-col">IV</th>
+                <th class="col-delta hidden-col">Delta</th>
+                <th class="col-theta hidden-col">Theta</th>
+                <th class="col-gamma hidden-col">Gamma</th>
+                <th class="col-vega hidden-col">Vega</th>
                 
+                <!-- Main Data Call -->
                 <th>OI Chg</th><th>OI</th><th>Volume</th><th>LTP</th>
+                
                 <th>Spot Price</th>
+                
+                <!-- Main Data Put -->
                 <th>LTP</th><th>Volume</th><th>OI</th><th>OI Chg</th>
                 
-                <th class="col-delta hidden-col">D (Delta)</th><th class="col-gamma hidden-col">Gamma</th><th class="col-theta hidden-col">Theta</th><th class="col-vega hidden-col">Vega</th><th class="col-iv hidden-col">IV</th>
+                <!-- Greeks Put Side -->
+                <th class="col-vega hidden-col">Vega</th>
+                <th class="col-gamma hidden-col">Gamma</th>
+                <th class="col-theta hidden-col">Theta</th>
+                <th class="col-delta hidden-col">Delta</th>
+                <th class="col-iv hidden-col">IV</th>
             </tr>
         </thead>
         <tbody id="dataBody">
-            <!-- Data will be auto-generated here by JavaScript -->
+            <!-- Data is injected here by JavaScript -->
         </tbody>
     </table>
 
     <script>
         // -------------------------
-        // 1. GENERATE 20 ROWS DATA
+        // 1. GENERATE ROWS & GREEKS DATA
         // -------------------------
         function generateRows() {
             const tbody = document.getElementById("dataBody");
-            tbody.innerHTML = ""; // Clear old data
-            let baseStrike = 22800; // Start strike
+            tbody.innerHTML = ""; 
+            let baseStrike = 22800; 
             
             for(let i=0; i<20; i++) {
                 let strike = baseStrike + (i*50);
@@ -134,10 +153,10 @@
                 let tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td class="col-iv hidden-col ${callCls}">12.5</td>
-                    <td class="col-vega hidden-col ${callCls}">9.2</td>
+                    <td class="col-delta hidden-col ${callCls}">0.85</td>
                     <td class="col-theta hidden-col ${callCls}">-2.1</td>
                     <td class="col-gamma hidden-col ${callCls}">0.02</td>
-                    <td class="col-delta hidden-col ${callCls}">0.85</td>
+                    <td class="col-vega hidden-col ${callCls}">9.2</td>
 
                     <td class="${callCls} val-call-oichg">${Math.floor(Math.random()*15000) - 3000}</td>
                     <td class="${callCls} val-call-oi">${Math.floor(Math.random()*150000)}</td>
@@ -151,10 +170,10 @@
                     <td class="${putCls} val-put-oi">${Math.floor(Math.random()*150000)}</td>
                     <td class="${putCls} val-put-oichg">${Math.floor(Math.random()*15000) - 3000}</td>
 
-                    <td class="col-delta hidden-col ${putCls}">-0.15</td>
+                    <td class="col-vega hidden-col ${putCls}">8.1</td>
                     <td class="col-gamma hidden-col ${putCls}">0.02</td>
                     <td class="col-theta hidden-col ${putCls}">-1.2</td>
-                    <td class="col-vega hidden-col ${putCls}">8.1</td>
+                    <td class="col-delta hidden-col ${putCls}">-0.15</td>
                     <td class="col-iv hidden-col ${putCls}">13.1</td>
                 `;
                 tbody.appendChild(tr);
@@ -162,7 +181,7 @@
         }
 
         // -------------------------
-        // 2. 100% HIGHLIGHT & PERCENTAGE LOGIC
+        // 2. 100% PERCENTAGE LOGIC
         // -------------------------
         function applyPercentages() {
             const columns = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
@@ -171,7 +190,6 @@
                 let cells = document.querySelectorAll('.' + cls);
                 let maxVal = 0;
                 
-                // Find Maximum
                 cells.forEach(cell => {
                     cell.classList.remove('max-highlight');
                     let text = cell.innerText.split('\n')[0].replace(/,/g, '').trim();
@@ -179,7 +197,6 @@
                     if (!isNaN(val) && val > maxVal) { maxVal = val; }
                 });
                 
-                // Apply Percentage
                 if (maxVal > 0) {
                     cells.forEach(cell => {
                         let originalNumber = cell.innerText.split('\n')[0].trim();
@@ -200,13 +217,47 @@
         }
 
         // -------------------------
-        // 3. TIMERS & PLAYBACK ENGINE
+        // 3. GREEKS ADD / REMOVE LOGIC
+        // -------------------------
+        function toggleMenu(menuId) { 
+            document.getElementById(menuId).classList.toggle("show-menu"); 
+        }
+
+        // Click outside closes the dropdown menu
+        window.onclick = function(e) {
+            if (!e.target.matches('.dropdown-btn') && !e.target.closest('.dropdown-check-list')) {
+                let dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) dropdowns[i].classList.remove('show-menu');
+            }
+        }
+
+        function toggleCol(greekName) {
+            // Check if that specific greek is ticked or not
+            let isChecked = document.getElementById('chk-' + greekName).checked;
+            let cols = document.querySelectorAll('.col-' + greekName);
+            
+            cols.forEach(col => {
+                if(isChecked) {
+                    col.classList.remove('hidden-col'); // Add to table
+                } else {
+                    col.classList.add('hidden-col'); // Remove from table
+                }
+            });
+
+            // Count how many greeks are active to expand the top header Call/Put span
+            let activeGreeks = document.querySelectorAll('.greek-chk:checked').length;
+            document.getElementById("callHeader").colSpan = 4 + activeGreeks;
+            document.getElementById("putHeader").colSpan = 4 + activeGreeks;
+        }
+
+        // -------------------------
+        // 4. LIVE & HISTORICAL LOGIC
         // -------------------------
         let liveTimerInterval;
         let playbackInterval;
         let isPlaying = false;
         let histTime = new Date();
-        histTime.setHours(9, 15, 0); // Market opens at 9:15 AM
+        histTime.setHours(9, 15, 0); // Open at 9:15 AM
 
         function startLiveTime() {
             clearInterval(playbackInterval);
@@ -216,27 +267,39 @@
             }, 1000);
         }
 
-        // -------------------------
-        // 4. MODE SWITCHER & SIMULATOR
-        // -------------------------
         function switchMode(mode) {
             let speedCtrl = document.getElementById("speedControl");
             let playBtn = document.getElementById("playBtn");
             let timeText = document.getElementById("liveTime");
+            let liveBtn = document.getElementById("liveBtn");
+            let histBtn = document.getElementById("histBtn");
 
             if (mode === 'historical') {
+                // Turn OFF Live, Turn ON Historical
                 clearInterval(liveTimerInterval);
+                histBtn.classList.add('active-mode');
+                liveBtn.classList.remove('active-mode');
+                
+                // Show Play & Speed
                 speedCtrl.style.display = "inline-block";
                 playBtn.style.display = "inline-block";
-                timeText.innerText = "Hist Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
+                
+                timeText.innerText = "Historical Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
                 timeText.style.color = "#ff8c00"; 
             } else {
+                // Turn OFF Historical, Turn ON Live
                 clearInterval(playbackInterval);
                 isPlaying = false;
                 playBtn.classList.remove('paused');
                 playBtn.innerText = "▶️ Play";
+                
+                liveBtn.classList.add('active-mode');
+                histBtn.classList.remove('active-mode');
+                
+                // Hide Play & Speed
                 speedCtrl.style.display = "none";
                 playBtn.style.display = "none";
+                
                 timeText.style.color = "#d10000";
                 startLiveTime();
             }
@@ -245,11 +308,13 @@
         function togglePlay() {
             let playBtn = document.getElementById("playBtn");
             if (isPlaying) {
+                // PAUSE
                 clearInterval(playbackInterval);
                 isPlaying = false;
                 playBtn.innerText = "▶️ Play";
                 playBtn.classList.remove('paused');
             } else {
+                // PLAY
                 isPlaying = true;
                 playBtn.innerText = "⏸️ Pause";
                 playBtn.classList.add('paused');
@@ -258,17 +323,16 @@
                 
                 playbackInterval = setInterval(() => {
                     histTime.setMinutes(histTime.getMinutes() + speed);
-                    document.getElementById('liveTime').innerText = "Hist Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
+                    document.getElementById('liveTime').innerText = "Historical Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
                     
-                    simulateDataMovement(); // Change Data
-                    applyPercentages();     // Re-calculate 100%
+                    simulateDataMovement(); 
+                    applyPercentages();     
                 }, 1000);
             }
         }
 
         function simulateDataMovement() {
             const cols = ['.val-call-oi', '.val-call-vol', '.val-call-oichg', '.val-put-oi', '.val-put-vol', '.val-put-oichg', '.ltp'];
-            
             cols.forEach(cls => {
                 document.querySelectorAll(cls).forEach(cell => {
                     let currentNum = parseFloat(cell.innerText.split('\n')[0].replace(/,/g, '').trim());
@@ -282,31 +346,7 @@
             });
         }
 
-        // -------------------------
-        // 5. TOGGLE GREEKS MENU
-        // -------------------------
-        function toggleMenu(menuId) { document.getElementById(menuId).classList.toggle("show-menu"); }
-        window.onclick = function(e) {
-            if (!e.target.matches('.dropdown-btn') && !e.target.closest('.dropdown-check-list')) {
-                let dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) dropdowns[i].classList.remove('show-menu');
-            }
-        }
-
-        let greeksCount = 0;
-        function toggleCol(greekClass) {
-            let checkbox = event.target;
-            let cols = document.querySelectorAll('.col-' + greekClass);
-            if (checkbox.checked) {
-                cols.forEach(col => col.classList.remove('hidden-col')); greeksCount++;
-            } else {
-                cols.forEach(col => col.classList.add('hidden-col')); greeksCount--;
-            }
-            document.getElementById("callHeader").colSpan = 4 + greeksCount;
-            document.getElementById("putHeader").colSpan = 4 + greeksCount;
-        }
-
-        // Initialize Everything on Load
+        // Initialize Everything on First Load
         document.addEventListener("DOMContentLoaded", () => {
             generateRows();
             applyPercentages();
