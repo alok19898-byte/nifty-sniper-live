@@ -1,111 +1,55 @@
 
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dynamic Nifty Monitor</title>
+    <title>Ultimate Volume Decoder</title>
     <style>
-        :root {
-            --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9;
-            --atm-line: #58a6ff; --speed-bg: #21262d; --speed-fill: #238636;
-        }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 10px; }
-        table { width: 100%; border-collapse: collapse; background: var(--card); }
-        th, td { border: 1px solid var(--border); padding: 8px; text-align: center; font-size: 12px; }
-        .strike { background: #000; color: #ffd33d; font-weight: bold; width: 80px; }
-        
-        /* ATM Line Style */
-        .market-line-row td {
-            background: var(--atm-line) !important;
-            height: 4px;
-            padding: 0;
-            border: none;
-        }
-
-        /* Speed Progress Bar */
-        .speed-container {
-            background: var(--speed-bg);
-            border-radius: 4px;
-            height: 12px;
-            width: 100%;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-        .speed-bar {
-            height: 100%;
-            background: var(--speed-fill);
-            transition: width 0.5s ease;
-        }
-        .speed-text { font-size: 10px; font-weight: bold; }
-        
-        .header-price { font-size: 20px; color: #ffd33d; text-align: center; margin-bottom: 10px; }
+        body { font-family: sans-serif; display: flex; background: #f4f4f4; padding: 10px; }
+        #main-chain { flex: 3; background: white; padding: 15px; border-radius: 8px; }
+        #side-tracker { flex: 1; margin-left: 15px; background: #2c3e50; color: white; padding: 15px; border-radius: 8px; position: sticky; top: 10px; height: fit-content; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; cursor: pointer; }
+        th { background: #34495e; color: white; }
+        .highlight-vol { background-color: #3498db; color: white; font-weight: bold; } /* Dark Blue */
+        .highlight-oi { background-color: #f1c40f; color: black; font-weight: bold; }  /* Gold */
     </style>
 </head>
 <body>
 
-    <div class="header-price">Nifty Live: <span id="niftyPrice">24125</span></div>
+    <!-- मेन ऑप्शन चेन -->
+    <div id="main-chain">
+        <h2>Ultimate Volume Decoder</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>CE Vol</th><th>CE %</th><th>CE OI</th><th>CE LTP</th><th>Strike</th><th>PE LTP</th><th>PE OI</th><th>PE %</th><th>PE Vol</th>
+                </tr>
+            </thead>
+            <tbody id="chain-body">
+                <!-- यहाँ डेटा लूप में आएगा, अभी ये सैंपल रो है -->
+                <tr onclick="trackStrike(23500, 'CE')">
+                    <td>45L</td><td class="highlight-vol">100%</td><td>3.2L</td><td>₹60</td><td><b>23500</b></td><td>₹110</td><td>1.8L</td><td>40%</td><td>18L</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-    <table>
-        <thead>
-            <tr style="background:#21262d">
-                <th>Speed Score</th>
-                <th>Vol (Call)</th>
-                <th class="strike">STRIKE</th>
-                <th>Vol (Put)</th>
-                <th>Speed Score</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <!-- राइट साइड ट्रैकर -->
+    <div id="side-tracker">
+        <h3>🎯 Selected Strike</h3>
+        <div id="tracker-content">Select a strike to see 5-min history...</div>
+    </div>
 
     <script>
-        let strikes = [23900, 23950, 24000, 24050, 24100, 24150, 24200, 24250, 24300, 24350];
-        let marketPrice = 24125;
-        let maxTargetSpeed = 2000; // Isse 100% mana jayega
-
-        let data = strikes.map(s => ({
-            strike: s,
-            cVol: 50000, pVol: 50000,
-            cPrevVol: 50000, pPrevVol: 50000
-        }));
-
-        function render() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            document.getElementById('niftyPrice').innerText = marketPrice;
-
-            data.forEach((row, i) => {
-                // Calculation for Speed %
-                let cSpeed = row.cVol - row.cPrevVol;
-                let pSpeed = row.pVol - row.pPrevVol;
-                let cPercent = Math.min((cSpeed / maxTargetSpeed) * 100, 100).toFixed(0);
-                let pPercent = Math.min((pSpeed / maxTargetSpeed) * 100, 100).toFixed(0);
-
-                // Check for ATM Line position
-                if (i > 0 && marketPrice > strikes[i-1] && marketPrice <= strikes[i]) {
-                    let lineRow = <tr class="market-line-row"><td colspan="5"></td></tr>;
-                    tbody.innerHTML += lineRow;
-                }
-
-                let tr = `
-                    <tr>
-                        <td>
-                            <div class="speed-text">${cPercent}%</div>
-                            <div class="speed-container"><div class="speed-bar" style="width:${cPercent}%"></div></div>
-                        </td>
-                        <td>${row.cVol} <br><small>+${cSpeed}</small></td>
-                        <td class="strike">${row.strike}</td>
-                        <td>${row.pVol} <br><small>+${pSpeed}</small></td>
-                        <td>
-                            <div class="speed-text">${pPercent}%</div>
-                            <div class="speed-container"><div class="speed-bar" style="width:${pPercent}%"></div></div>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += tr;
-            });
+        function trackStrike(strike, type) {
+            document.getElementById('tracker-content').innerHTML = `
+                <p><b>Target: ${strike} ${type}</b></p>
+                <p>09:15-09:20 ➔ 45k</p>
+                <p>09:20-09:25 ➔ 55k <small>(📈 Increasing)</small></p>
+                <p>09:25-09:30 ➔ 30k <small>(📉 Drying Up)</small></p>
+            `;
         }
-
-        function updateData() {
-            data.forEach(d => {
-                d.cPrev
+    </script>
+</body>
+</html>
