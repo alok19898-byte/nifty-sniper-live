@@ -3,54 +3,49 @@
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #0b0e11; color: #fff; font-size: 13px; }
-        .container-fluid { width: 98%; }
-        .greek-col { display: none; } /* Default hide */
-        .show-greeks .greek-col { display: table-cell; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 8px; text-align: center; border: 1px solid #363c4e; }
-        #sidebar { position: fixed; right: 0; top: 0; width: 300px; height: 100vh; background: #161a1e; border-left: 2px solid #58a6ff; padding: 20px; }
+        body { background: #0b0e11; color: #fff; font-size: 13px; margin: 0; padding: 10px; }
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th, td { padding: 6px; text-align: center; border: 1px solid #30363d; }
+        .g-col { display: none; } /* Default Hide */
+        .zoom-1 { font-size: 10px; } .zoom-2 { font-size: 14px; }
+        #sidebar { position: fixed; right: 0; top: 0; width: 250px; height: 100vh; background: #161a1e; padding: 10px; border-left: 1px solid #58a6ff; }
     </style>
 </head>
-<body class="show-greeks"> <!-- Class toggle se hide/show hoga -->
-    <div class="container-fluid">
-        <h4 class="text-center my-3">Nifty Sniper Pro Terminal 🎯</h4>
-        
-        <!-- Control Panel -->
-        <div class="d-flex justify-content-center gap-3 mb-3">
-            <button class="btn btn-sm btn-outline-primary" onclick="document.body.classList.toggle('show-greeks')">Toggle Greeks</button>
-            <button class="btn btn-sm btn-success" onclick="fetch('/start-recording')">▶️ Play History</button>
-            <button class="btn btn-sm btn-danger" onclick="fetch('/stop-recording')">⏸️ Pause History</button>
-        </div>
+<body id="main-body">
+    <h5 class="text-center">Nifty Sniper Pro Terminal 🎯</h5>
+    
+    <!-- Controls -->
+    <div class="d-flex justify-content-center gap-2 mb-2">
+        <button onclick="toggleGreek('g-iv')">IV</button>
+        <button onclick="toggleGreek('g-delta')">Delta</button>
+        <button onclick="changeZoom(1)">Zoom -</button>
+        <button onclick="changeZoom(2)">Zoom +</button>
+    </div>
 
+    <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th class="greek-col">Delta</th><th class="greek-col">Theta</th><th>OI</th><th>Vol</th><th>LTP</th>
-                    <th class="bg-warning text-dark">STRIKE</th>
-                    <th>LTP</th><th>Vol</th><th>OI</th><th class="greek-col">Theta</th><th class="greek-col">Delta</th>
+                    <th class="g-col g-iv">IV</th><th class="g-col g-delta">Delta</th>
+                    <th>Vol%</th><th>Vol</th><th>LTP</th><th>STRIKE</th><th>LTP</th><th>Vol</th><th>Vol%</th>
                 </tr>
             </thead>
-            <tbody id="table-body"></tbody>
+            <tbody id="tbody"></tbody>
         </table>
     </div>
 
-    <div id="sidebar">
-        <h5>🎯 Analysis Panel</h5>
-        <div id="hist-data">Click a Strike to view 5m History...</div>
-    </div>
-
     <script>
-        // 10 Strike rows generate karna
+        function toggleGreek(c) { document.querySelectorAll('.'+c).forEach(e => e.style.display = (e.style.display==='table-cell'?'none':'table-cell')); }
+        function changeZoom(z) { document.getElementById('main-body').className = 'zoom-'+z; }
+        
+        // Data Render
         let html = "";
-        for(let s=23400; s<=23850; s+=50) {
-            html += `<tr onclick="document.getElementById('hist-data').innerText='History for ${s} loaded...'">
-                <td class="greek-col">0.5</td><td class="greek-col">-10</td><td>1L</td><td>40L</td><td>120</td>
-                <td class="fw-bold text-warning">${s}</td>
-                <td>80</td><td>35L</td><td>1.5L</td><td class="greek-col">-9</td><td class="greek-col">-0.5</td>
-            </tr>`;
+        for(let s=23400; s<=23800; s+=50) {
+            html += <tr><td class="g-col g-iv">14</td><td class="g-col g-delta">0.5</td><td>80%</td><td>40L</td><td>120</td><td class="text-warning fw-bold">${s}</td><td>85</td><td>50L</td><td>100%</td></tr>;
         }
-        document.getElementById('table-body').innerHTML = html;
+        document.getElementById('tbody').innerHTML = html;
     </script>
 </body>
+</html>
 </html>
