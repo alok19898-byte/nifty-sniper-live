@@ -7,8 +7,11 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request, 
-        "message": "Bhai tera Backend aur Frontend dono connect ho gaye!",
-        "status": "Live & Running"
-    })
+    return templates.TemplateResponse(
+        "index.html", 
+        {
+            "request": request, 
+            "message": "Bhai tera Backend aur Frontend dono connect ho gaye!", 
+            "status": "Live & Running"
+        }
+    )
