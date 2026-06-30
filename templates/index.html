@@ -7,18 +7,33 @@
         body { font-family: Arial, sans-serif; padding: 10px; }
         
         /* Table Styles (Unchanged) */
-        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 10px; }
         th, td { border: 1px solid #a0a0a0; padding: 6px; }
         .header-main { background-color: #d4d4d4; font-weight: bold; }
         .header-sub { background-color: #ebebeb; font-weight: bold; }
         
-        /* Control Panel Styles */
+        /* Control Panel Styles (Unchanged) */
         .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
         .btn { padding: 8px 15px; cursor: pointer; border: 1px solid #555; background: #fff; border-radius: 4px; font-weight: bold;}
         .btn:hover { background: #f0f0f0; }
         .dropdown { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #555; cursor: pointer; }
         
-        /* Greeks Checkbox Dropdown */
+        /* Live Info Bar (NEW) */
+        .info-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            background: #e9ecef; 
+            padding: 10px 15px; 
+            border-radius: 4px; 
+            margin-bottom: 15px; 
+            border: 1px solid #ccc; 
+            font-size: 14px;
+        }
+        .time-text { font-weight: bold; color: #d10000; }
+        .price-text { font-weight: bold; color: #0056b3; }
+        .price-val { color: #000; }
+
+        /* Greeks Checkbox Dropdown (Unchanged) */
         .dropdown-check-list { position: relative; display: inline-block; }
         .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border: 1px solid #555; border-radius: 4px; margin-top: 5px; }
         .dropdown-content label { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
@@ -35,7 +50,7 @@
         /* Highlight Maximum Values (Volume, OI, OI Chg) */
         .max-highlight {
             font-weight: 900 !important;
-            color: #d10000 !important; /* Dark Red text to pop out */
+            color: #d10000 !important; 
             text-decoration: underline;
         }
 
@@ -47,7 +62,6 @@
 
     <!-- Controls Panel -->
     <div class="controls">
-        <!-- Extended Index Switcher -->
         <select class="dropdown" id="indexSelect" onchange="switchIndex()">
             <option value="NIFTY">NIFTY 50</option>
             <option value="BANKNIFTY">BANKNIFTY</option>
@@ -60,7 +74,6 @@
         <button class="btn" onclick="switchMode('live')">🔴 Live</button>
         <button class="btn" onclick="switchMode('historical')">📜 Historical</button>
         
-        <!-- Greeks Toggle Checkbox Menu -->
         <div class="dropdown-check-list">
             <button class="btn" onclick="toggleGreeksMenu()">📊 Toggle Greeks ▾</button>
             <div id="greeksList" class="dropdown-content">
@@ -75,6 +88,16 @@
         <button class="btn" onclick="openSettings()">⚙️ Settings</button>
     </div>
 
+    <!-- Live Info Bar (NEW) -->
+    <div class="info-bar">
+        <span class="time-text" id="liveTime">Live Time: Loading...</span>
+        <span class="price-text">
+            Spot Price: <span class="price-val" id="spotPriceInfo">23,300.00</span> 
+            &nbsp; | &nbsp; 
+            Future Price: <span class="price-val" id="futurePriceInfo">23,345.50</span>
+        </span>
+    </div>
+
     <!-- Options Chain Table -->
     <table id="optionTable">
         <thead>
@@ -84,7 +107,7 @@
                 <th id="putHeader" colspan="4">Put Side</th>
             </tr>
             <tr class="header-sub" id="subHeader">
-                <!-- Call Side Greeks (Hidden by default) -->
+                <!-- Call Side Greeks (Hidden) -->
                 <th class="col-iv hidden-col">IV</th>
                 <th class="col-vega hidden-col">Vega</th>
                 <th class="col-theta hidden-col">Theta</th>
@@ -100,7 +123,7 @@
                 <!-- Put Side Default -->
                 <th>LTP</th><th>Volume</th><th>OI</th><th>OI Chg</th>
                 
-                <!-- Put Side Greeks (Hidden by default) -->
+                <!-- Put Side Greeks (Hidden) -->
                 <th class="col-delta hidden-col">D (Delta)</th>
                 <th class="col-gamma hidden-col">Gamma</th>
                 <th class="col-theta hidden-col">Theta</th>
@@ -153,9 +176,19 @@
     </table>
 
     <script>
+        // --- NEW: Live Time Updater ---
+        function updateLiveTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-IN', { hour12: true });
+            document.getElementById('liveTime').innerText = "Live Time: " + timeString;
+        }
+        setInterval(updateLiveTime, 1000); // Har 1 second me update
+        updateLiveTime(); // Pehli baar turant call karne ke liye
+
+        // --- OLD LOGIC (Unchanged) ---
+        
         // 1. Highlight Maximum Values Function
         function highlightMaxValues() {
-            // Arrays of classes we want to find the max value for
             const classesToHighlight = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
             
             classesToHighlight.forEach(cls => {
@@ -176,16 +209,12 @@
                 }
             });
         }
-
-        // Run highlight logic as soon as page loads
         window.onload = highlightMaxValues;
 
-        // 2. Toggle Greeks Menu Open/Close
+        // 2. Toggle Greeks Menu
         function toggleGreeksMenu() {
             document.getElementById("greeksList").classList.toggle("show-menu");
         }
-
-        // Close dropdown if clicked outside
         window.onclick = function(event) {
             if (!event.target.matches('.btn') && !event.target.closest('.dropdown-check-list')) {
                 var dropdowns = document.getElementsByClassName("dropdown-content");
@@ -212,12 +241,11 @@
                 greeksCount--;
             }
             
-            // Adjust top header colspan (Default is 4 columns: OI Chg, OI, Vol, LTP)
             document.getElementById("callHeader").colSpan = 4 + greeksCount;
             document.getElementById("putHeader").colSpan = 4 + greeksCount;
         }
 
-        // Placeholder functions for other buttons
+        // Placeholder functions
         function switchIndex() {
             var selectedIndex = document.getElementById("indexSelect").value;
             alert("Switched Data to: " + selectedIndex);
