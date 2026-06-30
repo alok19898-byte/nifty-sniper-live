@@ -1,20 +1,29 @@
-import random
-from fastapi import FastAPI, Request
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+security = HTTPBasic()
 
-@app.get("/", response_class=HTMLResponse)
-def read_root(request: Request):
-    # निफ्टी का रैंडम भाव जनरेट हो रहा है
-    random_price = round(random.uniform(23000, 24000), 2)
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={
-            "price": random_price,
-            "status": "Live & Running"
-        }
-    )
+# अपना यूजरनेम और पासवर्ड यहाँ सेट करें
+USERNAME = "admin"
+PASSWORD = "password123" 
+
+def verify_login(credentials: HTTPBasicCredentials = Depends(security)):
+    # पासवर्ड चेक करने का तरीका
+    correct_username = secrets.compare_digest(credentials.username, USERNAME)
+    correct_password = secrets.compare_digest(credentials.password, PASSWORD)
+    
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="गलत पासवर्ड! वापस कोशिश करें.",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+# अब किसी भी राउट के आगे 'dependencies=[Depends(verify_login)]' जोड़ दें
+@app.get("/", dependencies=[Depends(verify_login)])
+async def get_dashboard():
+    # आपकी वेबसाइट का बाकी कोड यहाँ आएगा
+    return {"message": "पासवर्ड सही है, डैशबोर्ड में आपका स्वागत है!"}
