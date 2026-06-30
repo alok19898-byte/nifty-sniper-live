@@ -3,55 +3,54 @@
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #0b0e11; color: #e0e0e0; font-family: sans-serif; }
-        .table-responsive { overflow-x: auto; margin-top: 20px; }
-        table { font-size: 11px; white-space: nowrap; border: 1px solid #363c4e; }
-        th { background: #1f242c; color: #fff; text-align: center; padding: 10px; }
-        td { text-align: center; padding: 8px; border: 1px solid #2a2e39; cursor: pointer; }
-        tr:hover { background: #161a1e; }
-        #tracker { position: fixed; right: 10px; top: 100px; width: 300px; background: #161a1e; border: 2px solid #58a6ff; padding: 15px; border-radius: 8px; display: none; }
+        body { background: #0b0e11; color: #fff; font-size: 13px; }
+        .container-fluid { width: 98%; }
+        .greek-col { display: none; } /* Default hide */
+        .show-greeks .greek-col { display: table-cell; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: center; border: 1px solid #363c4e; }
+        #sidebar { position: fixed; right: 0; top: 0; width: 300px; height: 100vh; background: #161a1e; border-left: 2px solid #58a6ff; padding: 20px; }
     </style>
 </head>
-<body>
-<div class="container-fluid">
-    <h4 class="text-center mt-3">Nifty Sniper Pro Decoder 🎯</h4>
-    <div class="table-responsive">
-        <table class="table table-dark table-sm">
+<body class="show-greeks"> <!-- Class toggle se hide/show hoga -->
+    <div class="container-fluid">
+        <h4 class="text-center my-3">Nifty Sniper Pro Terminal 🎯</h4>
+        
+        <!-- Control Panel -->
+        <div class="d-flex justify-content-center gap-3 mb-3">
+            <button class="btn btn-sm btn-outline-primary" onclick="document.body.classList.toggle('show-greeks')">Toggle Greeks</button>
+            <button class="btn btn-sm btn-success" onclick="fetch('/start-recording')">▶️ Play History</button>
+            <button class="btn btn-sm btn-danger" onclick="fetch('/stop-recording')">⏸️ Pause History</button>
+        </div>
+
+        <table>
             <thead>
                 <tr>
-                    <th>Delta</th><th>Gamma</th><th>Theta</th><th>Vega</th><th>IV</th><th>OI</th><th>Chng OI</th><th>Vol</th><th>LTP</th>
+                    <th class="greek-col">Delta</th><th class="greek-col">Theta</th><th>OI</th><th>Vol</th><th>LTP</th>
                     <th class="bg-warning text-dark">STRIKE</th>
-                    <th>LTP</th><th>Vol</th><th>Chng OI</th><th>OI</th><th>IV</th><th>Vega</th><th>Theta</th><th>Gamma</th><th>Delta</th>
+                    <th>LTP</th><th>Vol</th><th>OI</th><th class="greek-col">Theta</th><th class="greek-col">Delta</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- 10 Rows -->
-                <script>
-                    for(let i=0; i<10; i++) {
-                        let strike = 23400 + (i * 50);
-                        document.write(`<tr onclick="showTracker(${strike})">
-                            <td>0.5</td><td>0.02</td><td>-10</td><td>12</td><td>14</td><td>1.2L</td><td>+20k</td><td>40L</td><td>120</td>
-                            <td class="fw-bold text-warning">${strike}</td>
-                            <td>80</td><td>35L</td><td>+10k</td><td>1.5L</td><td>13</td><td>11</td><td>-9</td><td>0.02</td><td>-0.5</td>
-                        </tr>`);
-                    }
-                </script>
-            </tbody>
+            <tbody id="table-body"></tbody>
         </table>
     </div>
-</div>
 
-<div id="tracker">
-    <h6>🎯 Analysis: <span id="s-val">-</span></h6>
-    <div id="hist">Click strike to see 5-min history...</div>
-</div>
+    <div id="sidebar">
+        <h5>🎯 Analysis Panel</h5>
+        <div id="hist-data">Click a Strike to view 5m History...</div>
+    </div>
 
-<script>
-    function showTracker(s) {
-        document.getElementById('tracker').style.display = 'block';
-        document.getElementById('s-val').innerText = s;
-        document.getElementById('hist').innerHTML = "Loading 5-min volume for " + s + "...";
-    }
-</script>
+    <script>
+        // 10 Strike rows generate karna
+        let html = "";
+        for(let s=23400; s<=23850; s+=50) {
+            html += `<tr onclick="document.getElementById('hist-data').innerText='History for ${s} loaded...'">
+                <td class="greek-col">0.5</td><td class="greek-col">-10</td><td>1L</td><td>40L</td><td>120</td>
+                <td class="fw-bold text-warning">${s}</td>
+                <td>80</td><td>35L</td><td>1.5L</td><td class="greek-col">-9</td><td class="greek-col">-0.5</td>
+            </tr>`;
+        }
+        document.getElementById('table-body').innerHTML = html;
+    </script>
 </body>
 </html>
