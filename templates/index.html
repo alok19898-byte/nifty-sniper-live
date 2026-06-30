@@ -1,71 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Trading Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 10px; }
-        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 10px; }
-        th, td { border: 1px solid #a0a0a0; padding: 6px; }
-        .header-main { background-color: #d4d4d4; font-weight: bold; }
-        .itm-call { background-color: #fff4cc; }
-        .itm-put { background-color: #dcf2f5; }
-        .strike-col { background-color: #f8f9fa; font-weight: bold; }
-        .controls { margin-bottom: 10px; }
-        .btn { padding: 8px 15px; cursor: pointer; border: 1px solid #555; background: #fff; }
-        /* Percentage style - Ye tere design ko change nahi karega */
-        .pct { display: block; font-size: 10px; color: #d10000; font-weight: bold; }
-    </style>
-</head>
-<body>
+<style>
 
-    <div class="controls">
-        <button class="btn">Historical</button>
-        <button class="btn">Toggle Greeks ▾</button>
-        <button class="btn">Settings ▾</button>
-    </div>
+.highest{
+background:#ffe066 !important;
+font-weight:bold;
+border-radius:4px;
+padding:2px;
+}
 
-    <table id="data-table">
-        <tr class="header-main">
-            <th colspan="4">Call Side</th><th>Strike Price</th><th colspan="3">Put Side</th>
-        </tr>
-        <tr>
-            <th>OI Chg</th><th>OI</th><th>Volume</th><th>LTP</th><th>Spot</th>
-            <th>LTP</th><th>Volume</th><th>OI</th>
-        </tr>
-        <!-- 20 rows data -->
-        <script>
-            // 20 Strike Prices ka loop
-            for(let i=1; i<=20; i++){
-                let sp = 23000 + (i*50);
-                document.write(`<tr>
-                    <td class="itm-call val-oi-chg">${Math.floor(Math.random()*20000)}</td>
-                    <td class="itm-call val-oi">${Math.floor(Math.random()*200000)}</td>
-                    <td class="itm-call val-vol">${Math.floor(Math.random()*80000)}</td>
-                    <td class="itm-call">${(Math.random()*200).toFixed(2)}</td>
-                    <td class="strike-col">${sp}</td>
-                    <td>${(Math.random()*200).toFixed(2)}</td>
-                    <td class="val-vol">${Math.floor(Math.random()*80000)}</td>
-                    <td class="val-oi">${Math.floor(Math.random()*200000)}</td>
-                </tr>`);
-            }
-        </script>
-    </table>
+.percent{
+display:block;
+font-size:12px;
+color:red;
+font-weight:bold;
+}
 
-    <script>
-        // Percentage Calculation logic (Calls Side & Put Side alag-alag)
-        function calculatePercentages() {
-            ['val-oi', 'val-vol', 'val-oi-chg'].forEach(cls => {
-                let cells = document.querySelectorAll('.' + cls);
-                let max = 0;
-                cells.forEach(c => max = Math.max(max, parseInt(c.innerText)));
-                cells.forEach(c => {
-                    let pct = Math.round((parseInt(c.innerText) / max) * 100);
-                    c.innerHTML += <span class="pct">${pct}%</span>;
-                });
-            });
-        }
-        window.onload = calculatePercentages;
-    </script>
-</body>
-</html>
+</style>
+
+<script>
+
+function calculateVolumePercent(data){
+
+const maxCall=Math.max(
+...data.map(r=>Number(r.callVolume||0))
+);
+
+const maxPut=Math.max(
+...data.map(r=>Number(r=>r.putVolume||0))
+);
+
+return data.map(r=>({
+...r,
+
+callPercent:
+maxCall>0
+?((r.callVolume/maxCall)*100).toFixed(0)
+:0,
+
+putPercent:
+maxPut>0
+?((r.putVolume/maxPut)*100).toFixed(0)
+:0
+
+}));
+
+}
+
+
+function renderTable(data){
+
+data=calculateVolumePercent(data);
+
+let html="";
+
+data.forEach(row=>{
+
+html+=`
+<tr>
+
+<td class="${
+row.callPercent==100
+?'highest':''
+}">
+${row.callVolume}
+<span class="percent">
+${row.callPercent}%
+</span>
+</td>
+
+<td>
+${row.strikePrice}
+</td>
+
+<td class="${
+row.putPercent==100
+?'highest':''
+}">
+${row.putVolume}
+<span class="percent">
+${row.putPercent}%
+</span>
+</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById("tableBody").innerHTML=html;
+
+}
+
+</script>
+
+
+<table border="1">
+
+<thead>
+<tr>
+<th>Call Volume</th>
+<th>Strike</th>
+<th>Put Volume</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
