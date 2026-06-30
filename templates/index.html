@@ -6,19 +6,19 @@
     <style>
         body { font-family: Arial, sans-serif; padding: 10px; }
         
-        /* Table Styles (Unchanged) */
+        /* Table Styles */
         table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 10px; }
         th, td { border: 1px solid #a0a0a0; padding: 6px; }
         .header-main { background-color: #d4d4d4; font-weight: bold; }
         .header-sub { background-color: #ebebeb; font-weight: bold; }
         
-        /* Control Panel Styles (Unchanged) */
+        /* Control Panel Styles */
         .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
         .btn { padding: 8px 15px; cursor: pointer; border: 1px solid #555; background: #fff; border-radius: 4px; font-weight: bold;}
         .btn:hover { background: #f0f0f0; }
         .dropdown { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #555; cursor: pointer; }
         
-        /* Live Info Bar (Unchanged) */
+        /* Live Info Bar */
         .info-bar { 
             display: flex; 
             justify-content: space-between; 
@@ -33,7 +33,7 @@
         .price-text { font-weight: bold; color: #0056b3; }
         .price-val { color: #000; }
 
-        /* Dropdown Menus (Greeks & Settings) */
+        /* Dropdown Menus */
         .dropdown-check-list { position: relative; display: inline-block; }
         .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border: 1px solid #555; border-radius: 4px; margin-top: 5px; }
         .dropdown-content label, .dropdown-content .menu-item { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
@@ -47,14 +47,17 @@
         .itm-call { background-color: #fff4cc; } 
         .itm-put { background-color: #dcf2f5; }  
         
-        /* Center Strike Price Column Highlight */
+        /* Center Strike Price Column */
         .strike-col { background-color: #f8f9fa; font-weight: bold; font-size: 14px; }
 
+        /* Percentage Box Styles (NEW) */
+        .pct-box { display: block; font-size: 11px; margin-top: 3px; color: #666; font-weight: normal; }
+        .pct-100 { color: #d10000; font-weight: bold; }
+        
         /* Highlight Maximum Values */
         .max-highlight {
             font-weight: 900 !important;
             color: #d10000 !important; 
-            text-decoration: underline;
         }
 
         /* Hidden Columns Utility */
@@ -77,7 +80,7 @@
         <button class="btn" id="liveBtn" onclick="switchMode('live')">🔴 Live</button>
         <button class="btn" id="histBtn" onclick="switchMode('historical')">📜 Historical</button>
         
-        <!-- NEW: Historical Speed Control (Hidden by default) -->
+        <!-- Historical Speed Control -->
         <select class="dropdown" id="speedControl" style="display: none;" onchange="changeSpeed()">
             <option value="1">⏩ 1x (1 Min)</option>
             <option value="2">⏩ 2x (2 Min)</option>
@@ -85,7 +88,7 @@
             <option value="10">⏩ 10x (10 Min)</option>
         </select>
         
-        <!-- Greeks Toggle Checkbox Menu -->
+        <!-- Greeks Toggle Menu -->
         <div class="dropdown-check-list">
             <button class="btn dropdown-btn" onclick="toggleMenu('greeksList')">📊 Toggle Greeks ▾</button>
             <div id="greeksList" class="dropdown-content">
@@ -97,7 +100,7 @@
             </div>
         </div>
 
-        <!-- NEW: Settings Dropdown Menu -->
+        <!-- Settings Dropdown -->
         <div class="dropdown-check-list">
             <button class="btn dropdown-btn" onclick="toggleMenu('settingsList')">⚙️ Settings ▾</button>
             <div id="settingsList" class="dropdown-content">
@@ -199,28 +202,55 @@
         setInterval(updateLiveTime, 1000);
         updateLiveTime();
 
-        // Highlight Logic
-        function highlightMaxValues() {
-            const classesToHighlight = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
-            classesToHighlight.forEach(cls => {
+        // Highlight & Calculate Percentages Logic (100% Comparison)
+        function calculatePercentagesAndHighlight() {
+            // Arrays of classes representing Call and Put columns independently
+            const columns = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
+            
+            columns.forEach(cls => {
                 let cells = document.querySelectorAll('.' + cls);
                 let maxVal = -Infinity;
-                let maxCell = null;
+                
+                // Step 1: Find the maximum absolute value in the specific column
                 cells.forEach(cell => {
-                    let val = parseFloat(cell.innerText.replace(/,/g, ''));
-                    if (!isNaN(val) && val > maxVal) { maxVal = val; maxCell = cell; }
+                    let rawText = cell.innerText.split('\n')[0].replace(/,/g, '').trim();
+                    let val = parseFloat(rawText);
+                    if (!isNaN(val) && val > maxVal) { 
+                        maxVal = val; 
+                    }
                 });
-                if (maxCell) { maxCell.classList.add('max-highlight'); }
+                
+                // Step 2: Calculate percentage relative to maxVal and update HTML
+                cells.forEach(cell => {
+                    let rawText = cell.innerText.split('\n')[0].trim();
+                    let val = parseFloat(rawText.replace(/,/g, ''));
+                    
+                    if (!isNaN(val)) {
+                        let pct = 0;
+                        if (maxVal > 0) {
+                            // Using Math.abs in case of negative OI Chg
+                            pct = Math.round((Math.abs(val) / maxVal) * 100);
+                        }
+                        
+                        if (val === maxVal && maxVal > 0) {
+                            cell.classList.add('max-highlight');
+                            // Injecting 100% text safely below the number
+                            cell.innerHTML = ${rawText} <span class="pct-box pct-100">(100%)</span>;
+                        } else {
+                            // Injecting calculated percentage text
+                            cell.innerHTML = ${rawText} <span class="pct-box">(${pct}%)</span>;
+                        }
+                    }
+                });
             });
         }
-        window.onload = highlightMaxValues;
+        window.onload = calculatePercentagesAndHighlight;
 
-        // Toggle Menus (Works for both Greeks and Settings)
+        // Toggle Menus
         function toggleMenu(menuId) {
             document.getElementById(menuId).classList.toggle("show-menu");
         }
 
-        // Close dropdowns if clicked outside
         window.onclick = function(event) {
             if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-check-list')) {
                 var dropdowns = document.getElementsByClassName("dropdown-content");
@@ -236,27 +266,22 @@
         function switchMode(mode) {
             let speedCtrl = document.getElementById("speedControl");
             if (mode === 'historical') {
-                speedCtrl.style.display = "inline-block"; // Show speed control
-                alert("Switched to Historical Mode. Choose playback speed.");
+                speedCtrl.style.display = "inline-block";
+                alert("Switched to Historical Mode.");
             } else {
-                speedCtrl.style.display = "none"; // Hide speed control
+                speedCtrl.style.display = "none";
                 alert("Switched to Live Mode.");
             }
         }
 
-        // Playback Speed Change
         function changeSpeed() {
             let speed = document.getElementById("speedControl").value;
-            alert("Historical Data playback speed set to: " + speed + "x");
+            alert("Playback speed set to: " + speed + "x");
         }
 
-        // Logout Logic
         function logoutApp() {
             let confirmLogout = confirm("Are you sure you want to logout?");
-            if (confirmLogout) {
-                alert("Logging out successfully...");
-                // yaha apni website ka redirect code dal dena (jaise: window.location.href = '/login')
-            }
+            if (confirmLogout) { alert("Logging out successfully..."); }
         }
 
         // Greeks Toggle Logic
