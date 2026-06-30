@@ -3,53 +3,55 @@
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #0b0e11; color: #d1d4dc; font-size: 12px; }
-        .table-container { background: #161a1e; padding: 15px; border-radius: 8px; }
-        th { background: #2a2e39; color: #ffffff; text-align: center; border: 1px solid #363c4e; }
-        td { text-align: center; border: 1px solid #363c4e; color: #e0e0e0; }
-        .high-vol { background: rgba(0, 100, 255, 0.3) !important; } /* Blue for Vol */
-        .high-oi { background: rgba(218, 165, 32, 0.3) !important; } /* Gold for OI */
-        #tracker { position: fixed; right: 20px; top: 100px; width: 300px; background: #1c2227; padding: 15px; border: 1px solid #444; border-radius: 8px; }
+        body { background: #0b0e11; color: #e0e0e0; font-family: sans-serif; }
+        .table-responsive { overflow-x: auto; margin-top: 20px; }
+        table { font-size: 11px; white-space: nowrap; border: 1px solid #363c4e; }
+        th { background: #1f242c; color: #fff; text-align: center; padding: 10px; }
+        td { text-align: center; padding: 8px; border: 1px solid #2a2e39; cursor: pointer; }
+        tr:hover { background: #161a1e; }
+        #tracker { position: fixed; right: 10px; top: 100px; width: 300px; background: #161a1e; border: 2px solid #58a6ff; padding: 15px; border-radius: 8px; display: none; }
     </style>
 </head>
 <body>
-    <div class="container-fluid mt-3">
-        <h3 class="text-center text-white">Nifty Sniper: Ultimate Volume Decoder 🎯</h3>
-        
-        <div class="table-container mt-3">
-            <table class="table table-dark table-sm">
-                <thead>
-                    <tr>
-                        <th>Vol %</th><th>CE Vol</th><th>CE OI</th><th>LTP</th>
-                        <th>Strike</th>
-                        <th>LTP</th><th>PE OI</th><th>PE Vol</th><th>Vol %</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Row Example -->
-                    <tr onclick="loadTracker(23500)">
-                        <td class="text-info">33%</td><td>15L</td><td>1.1L</td><td>120</td>
-                        <td class="fw-bold text-warning">23500</td>
-                        <td>65</td><td>3.5L</td><td>38L</td><td class="text-danger">84%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+<div class="container-fluid">
+    <h4 class="text-center mt-3">Nifty Sniper Pro Decoder 🎯</h4>
+    <div class="table-responsive">
+        <table class="table table-dark table-sm">
+            <thead>
+                <tr>
+                    <th>Delta</th><th>Gamma</th><th>Theta</th><th>Vega</th><th>IV</th><th>OI</th><th>Chng OI</th><th>Vol</th><th>LTP</th>
+                    <th class="bg-warning text-dark">STRIKE</th>
+                    <th>LTP</th><th>Vol</th><th>Chng OI</th><th>OI</th><th>IV</th><th>Vega</th><th>Theta</th><th>Gamma</th><th>Delta</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 10 Rows -->
+                <script>
+                    for(let i=0; i<10; i++) {
+                        let strike = 23400 + (i * 50);
+                        document.write(`<tr onclick="showTracker(${strike})">
+                            <td>0.5</td><td>0.02</td><td>-10</td><td>12</td><td>14</td><td>1.2L</td><td>+20k</td><td>40L</td><td>120</td>
+                            <td class="fw-bold text-warning">${strike}</td>
+                            <td>80</td><td>35L</td><td>+10k</td><td>1.5L</td><td>13</td><td>11</td><td>-9</td><td>0.02</td><td>-0.5</td>
+                        </tr>`);
+                    }
+                </script>
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <!-- Side Tracker -->
-    <div id="tracker">
-        <h5>🎯 Selected Strike: <span id="strike-val">-</span></h5>
-        <hr>
-        <div id="history">Click a strike to see 5-min history...</div>
-    </div>
+<div id="tracker">
+    <h6>🎯 Analysis: <span id="s-val">-</span></h6>
+    <div id="hist">Click strike to see 5-min history...</div>
+</div>
 
-    <script>
-        function loadTracker(strike) {
-            document.getElementById('strike-val').innerText = strike;
-            document.getElementById('history').innerHTML = "Loading data for " + strike + "...";
-            // यहाँ हम बाद में API कॉल जोड़ेंगे
-        }
-    </script>
+<script>
+    function showTracker(s) {
+        document.getElementById('tracker').style.display = 'block';
+        document.getElementById('s-val').innerText = s;
+        document.getElementById('hist').innerHTML = "Loading 5-min volume for " + s + "...";
+    }
+</script>
 </body>
 </html>
