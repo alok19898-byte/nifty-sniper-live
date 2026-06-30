@@ -18,7 +18,7 @@
         .btn:hover { background: #f0f0f0; }
         .dropdown { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #555; cursor: pointer; }
         
-        /* Live Info Bar (NEW) */
+        /* Live Info Bar (Unchanged) */
         .info-bar { 
             display: flex; 
             justify-content: space-between; 
@@ -33,21 +33,24 @@
         .price-text { font-weight: bold; color: #0056b3; }
         .price-val { color: #000; }
 
-        /* Greeks Checkbox Dropdown (Unchanged) */
+        /* Dropdown Menus (Greeks & Settings) */
         .dropdown-check-list { position: relative; display: inline-block; }
         .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border: 1px solid #555; border-radius: 4px; margin-top: 5px; }
-        .dropdown-content label { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
-        .dropdown-content label:hover { background-color: #f1f1f1; }
+        .dropdown-content label, .dropdown-content .menu-item { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
+        .dropdown-content label:hover, .dropdown-content .menu-item:hover { background-color: #f1f1f1; }
         .show-menu { display: block; }
         
+        /* Logout Text Style */
+        .logout-btn { color: red; font-weight: bold; text-align: center !important; }
+
         /* Color Coding for In-The-Money (ITM) */
-        .itm-call { background-color: #fff4cc; } /* Light Yellow */
-        .itm-put { background-color: #dcf2f5; }  /* Light Blue */
+        .itm-call { background-color: #fff4cc; } 
+        .itm-put { background-color: #dcf2f5; }  
         
         /* Center Strike Price Column Highlight */
         .strike-col { background-color: #f8f9fa; font-weight: bold; font-size: 14px; }
 
-        /* Highlight Maximum Values (Volume, OI, OI Chg) */
+        /* Highlight Maximum Values */
         .max-highlight {
             font-weight: 900 !important;
             color: #d10000 !important; 
@@ -71,11 +74,20 @@
             <option value="BANKEX">BANKEX</option>
         </select>
         
-        <button class="btn" onclick="switchMode('live')">🔴 Live</button>
-        <button class="btn" onclick="switchMode('historical')">📜 Historical</button>
+        <button class="btn" id="liveBtn" onclick="switchMode('live')">🔴 Live</button>
+        <button class="btn" id="histBtn" onclick="switchMode('historical')">📜 Historical</button>
         
+        <!-- NEW: Historical Speed Control (Hidden by default) -->
+        <select class="dropdown" id="speedControl" style="display: none;" onchange="changeSpeed()">
+            <option value="1">⏩ 1x (1 Min)</option>
+            <option value="2">⏩ 2x (2 Min)</option>
+            <option value="5">⏩ 5x (5 Min)</option>
+            <option value="10">⏩ 10x (10 Min)</option>
+        </select>
+        
+        <!-- Greeks Toggle Checkbox Menu -->
         <div class="dropdown-check-list">
-            <button class="btn" onclick="toggleGreeksMenu()">📊 Toggle Greeks ▾</button>
+            <button class="btn dropdown-btn" onclick="toggleMenu('greeksList')">📊 Toggle Greeks ▾</button>
             <div id="greeksList" class="dropdown-content">
                 <label><input type="checkbox" onchange="toggleCol('iv')"> IV</label>
                 <label><input type="checkbox" onchange="toggleCol('vega')"> Vega</label>
@@ -85,10 +97,19 @@
             </div>
         </div>
 
-        <button class="btn" onclick="openSettings()">⚙️ Settings</button>
+        <!-- NEW: Settings Dropdown Menu -->
+        <div class="dropdown-check-list">
+            <button class="btn dropdown-btn" onclick="toggleMenu('settingsList')">⚙️ Settings ▾</button>
+            <div id="settingsList" class="dropdown-content">
+                <div class="menu-item">👤 Profile</div>
+                <div class="menu-item">🎨 Theme</div>
+                <hr style="margin: 2px 0;">
+                <div class="menu-item logout-btn" onclick="logoutApp()">🚪 Logout</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Live Info Bar (NEW) -->
+    <!-- Live Info Bar -->
     <div class="info-bar">
         <span class="time-text" id="liveTime">Live Time: Loading...</span>
         <span class="price-text">
@@ -107,23 +128,16 @@
                 <th id="putHeader" colspan="4">Put Side</th>
             </tr>
             <tr class="header-sub" id="subHeader">
-                <!-- Call Side Greeks (Hidden) -->
                 <th class="col-iv hidden-col">IV</th>
                 <th class="col-vega hidden-col">Vega</th>
                 <th class="col-theta hidden-col">Theta</th>
                 <th class="col-gamma hidden-col">Gamma</th>
                 <th class="col-delta hidden-col">D (Delta)</th>
                 
-                <!-- Call Side Default -->
                 <th>OI Chg</th><th>OI</th><th>Volume</th><th>LTP</th>
-                
-                <!-- Center -->
                 <th>Spot Price</th>
-                
-                <!-- Put Side Default -->
                 <th>LTP</th><th>Volume</th><th>OI</th><th>OI Chg</th>
                 
-                <!-- Put Side Greeks (Hidden) -->
                 <th class="col-delta hidden-col">D (Delta)</th>
                 <th class="col-gamma hidden-col">Gamma</th>
                 <th class="col-theta hidden-col">Theta</th>
@@ -176,63 +190,80 @@
     </table>
 
     <script>
-        // --- NEW: Live Time Updater ---
+        // Live Time Logic
         function updateLiveTime() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-IN', { hour12: true });
             document.getElementById('liveTime').innerText = "Live Time: " + timeString;
         }
-        setInterval(updateLiveTime, 1000); // Har 1 second me update
-        updateLiveTime(); // Pehli baar turant call karne ke liye
+        setInterval(updateLiveTime, 1000);
+        updateLiveTime();
 
-        // --- OLD LOGIC (Unchanged) ---
-        
-        // 1. Highlight Maximum Values Function
+        // Highlight Logic
         function highlightMaxValues() {
             const classesToHighlight = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
-            
             classesToHighlight.forEach(cls => {
                 let cells = document.querySelectorAll('.' + cls);
                 let maxVal = -Infinity;
                 let maxCell = null;
-                
                 cells.forEach(cell => {
                     let val = parseFloat(cell.innerText.replace(/,/g, ''));
-                    if (!isNaN(val) && val > maxVal) {
-                        maxVal = val;
-                        maxCell = cell;
-                    }
+                    if (!isNaN(val) && val > maxVal) { maxVal = val; maxCell = cell; }
                 });
-                
-                if (maxCell) {
-                    maxCell.classList.add('max-highlight');
-                }
+                if (maxCell) { maxCell.classList.add('max-highlight'); }
             });
         }
         window.onload = highlightMaxValues;
 
-        // 2. Toggle Greeks Menu
-        function toggleGreeksMenu() {
-            document.getElementById("greeksList").classList.toggle("show-menu");
+        // Toggle Menus (Works for both Greeks and Settings)
+        function toggleMenu(menuId) {
+            document.getElementById(menuId).classList.toggle("show-menu");
         }
+
+        // Close dropdowns if clicked outside
         window.onclick = function(event) {
-            if (!event.target.matches('.btn') && !event.target.closest('.dropdown-check-list')) {
+            if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-check-list')) {
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show-menu')) {
-                        openDropdown.classList.remove('show-menu');
+                    if (dropdowns[i].classList.contains('show-menu')) {
+                        dropdowns[i].classList.remove('show-menu');
                     }
                 }
             }
         }
 
-        // 3. Logic to Show/Hide specific Greek Columns
+        // Mode Switcher (Live / Historical)
+        function switchMode(mode) {
+            let speedCtrl = document.getElementById("speedControl");
+            if (mode === 'historical') {
+                speedCtrl.style.display = "inline-block"; // Show speed control
+                alert("Switched to Historical Mode. Choose playback speed.");
+            } else {
+                speedCtrl.style.display = "none"; // Hide speed control
+                alert("Switched to Live Mode.");
+            }
+        }
+
+        // Playback Speed Change
+        function changeSpeed() {
+            let speed = document.getElementById("speedControl").value;
+            alert("Historical Data playback speed set to: " + speed + "x");
+        }
+
+        // Logout Logic
+        function logoutApp() {
+            let confirmLogout = confirm("Are you sure you want to logout?");
+            if (confirmLogout) {
+                alert("Logging out successfully...");
+                // yaha apni website ka redirect code dal dena (jaise: window.location.href = '/login')
+            }
+        }
+
+        // Greeks Toggle Logic
         let greeksCount = 0;
         function toggleCol(greekClass) {
             let checkbox = event.target;
             let cols = document.querySelectorAll('.col-' + greekClass);
-            
             if (checkbox.checked) {
                 cols.forEach(col => col.classList.remove('hidden-col'));
                 greeksCount++;
@@ -240,18 +271,14 @@
                 cols.forEach(col => col.classList.add('hidden-col'));
                 greeksCount--;
             }
-            
             document.getElementById("callHeader").colSpan = 4 + greeksCount;
             document.getElementById("putHeader").colSpan = 4 + greeksCount;
         }
 
-        // Placeholder functions
         function switchIndex() {
             var selectedIndex = document.getElementById("indexSelect").value;
             alert("Switched Data to: " + selectedIndex);
         }
-        function switchMode(mode) { alert("Dashboard Mode: " + mode.toUpperCase()); }
-        function openSettings() { alert("Settings Panel Opened!"); }
     </script>
 </body>
 </html>
