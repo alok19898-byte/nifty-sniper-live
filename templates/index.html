@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <title>Trading Dashboard Pro</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 10px; }
+        body { font-family: Arial, sans-serif; padding: 10px; background: #f4f4f4; }
         
         /* Table Styles */
-        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 10px; background: white; }
         th, td { border: 1px solid #a0a0a0; padding: 6px; }
         .header-main { background-color: #d4d4d4; font-weight: bold; }
         .header-sub { background-color: #ebebeb; font-weight: bold; }
@@ -32,7 +32,6 @@
         }
         .time-text { font-weight: bold; color: #d10000; }
         .price-text { font-weight: bold; color: #0056b3; }
-        .price-val { color: #000; }
 
         /* Dropdown Menus */
         .dropdown-check-list { position: relative; display: inline-block; }
@@ -40,7 +39,6 @@
         .dropdown-content label, .dropdown-content .menu-item { display: block; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
         .dropdown-content label:hover, .dropdown-content .menu-item:hover { background-color: #f1f1f1; }
         .show-menu { display: block; }
-        .logout-btn { color: red; font-weight: bold; text-align: center !important; }
 
         /* Colors & Highlights */
         .itm-call { background-color: #fff4cc; } 
@@ -68,7 +66,7 @@
         <button class="btn" id="playBtn" onclick="togglePlay()">▶️ Play</button>
 
         <!-- Historical Speed Control -->
-        <select class="dropdown" id="speedControl" style="display: none;" onchange="changeSpeed()">
+        <select class="dropdown" id="speedControl" style="display: none;">
             <option value="1">⏩ 1 Min</option>
             <option value="2">⏩ 2 Min</option>
             <option value="3">⏩ 3 Min</option>
@@ -91,7 +89,7 @@
     <!-- Live/Historical Info Bar -->
     <div class="info-bar">
         <span class="time-text" id="liveTime">Live Time: Loading...</span>
-        <span class="price-text">Spot Price: <span class="price-val">23,300.00</span></span>
+        <span class="price-text">Spot Price: <span id="spotPriceVal">23,300.00</span></span>
     </div>
 
     <!-- Options Chain Table -->
@@ -104,163 +102,67 @@
             </tr>
             <tr class="header-sub" id="subHeader">
                 <th class="col-iv hidden-col">IV</th><th class="col-vega hidden-col">Vega</th><th class="col-theta hidden-col">Theta</th><th class="col-gamma hidden-col">Gamma</th><th class="col-delta hidden-col">D (Delta)</th>
+                
                 <th>OI Chg</th><th>OI</th><th>Volume</th><th>LTP</th>
                 <th>Spot Price</th>
                 <th>LTP</th><th>Volume</th><th>OI</th><th>OI Chg</th>
+                
                 <th class="col-delta hidden-col">D (Delta)</th><th class="col-gamma hidden-col">Gamma</th><th class="col-theta hidden-col">Theta</th><th class="col-vega hidden-col">Vega</th><th class="col-iv hidden-col">IV</th>
             </tr>
         </thead>
         <tbody id="dataBody">
-            <!-- Row 1 -->
-            <tr>
-                <td class="col-iv hidden-col itm-call">12.5</td><td class="col-vega hidden-col itm-call">9.2</td><td class="col-theta hidden-col itm-call">-2.1</td><td class="col-gamma hidden-col itm-call">0.02</td><td class="col-delta hidden-col itm-call">0.85</td>
-                <td class="itm-call val-call-oichg">2000</td><td class="itm-call val-call-oi">15000</td><td class="itm-call val-call-vol">4500</td><td class="itm-call ltp">240.50</td>
-                <td class="strike-col">23100</td>
-                <td class="ltp">12.30</td><td class="val-put-vol">15000</td><td class="val-put-oi">45000</td><td class="val-put-oichg">-1200</td>
-                <td class="col-delta hidden-col">-0.15</td><td class="col-gamma hidden-col">0.02</td><td class="col-theta hidden-col">-1.2</td><td class="col-vega hidden-col">8.1</td><td class="col-iv hidden-col">13.1</td>
-            </tr>
-            <!-- Row 2 -->
-            <tr>
-                <td class="col-iv hidden-col itm-call">13.1</td><td class="col-vega hidden-col itm-call">9.5</td><td class="col-theta hidden-col itm-call">-2.5</td><td class="col-gamma hidden-col itm-call">0.05</td><td class="col-delta hidden-col itm-call">0.65</td>
-                <td class="itm-call val-call-oichg">4500</td><td class="itm-call val-call-oi">25000</td><td class="itm-call val-call-vol">9000</td><td class="itm-call ltp">155.20</td>
-                <td class="strike-col">23200</td>
-                <td class="ltp">28.10</td><td class="val-put-vol">32000</td><td class="val-put-oi">85000</td><td class="val-put-oichg">2500</td>
-                <td class="col-delta hidden-col">-0.30</td><td class="col-gamma hidden-col">0.05</td><td class="col-theta hidden-col">-1.8</td><td class="col-vega hidden-col">9.0</td><td class="col-iv hidden-col">13.5</td>
-            </tr>
-            <!-- Row 3 (ATM) -->
-            <tr>
-                <td class="col-iv hidden-col">14.0</td><td class="col-vega hidden-col">10.1</td><td class="col-theta hidden-col">-3.5</td><td class="col-gamma hidden-col">0.12</td><td class="col-delta hidden-col">0.50</td>
-                <td class="val-call-oichg">15000</td><td class="val-call-oi">135000</td><td class="val-call-vol">60000</td><td class="ltp">90.50</td>
-                <td class="strike-col" style="background-color: #ffeb3b;">23300 (ATM)</td>
-                <td class="itm-put ltp">65.00</td><td class="itm-put val-put-vol">75000</td><td class="itm-put val-put-oi">110000</td><td class="itm-put val-put-oichg">12000</td>
-                <td class="col-delta hidden-col itm-put">-0.50</td><td class="col-gamma hidden-col itm-put">0.12</td><td class="col-theta hidden-col itm-put">-3.0</td><td class="col-vega hidden-col itm-put">10.0</td><td class="col-iv hidden-col itm-put">14.2</td>
-            </tr>
-            <!-- Row 4 -->
-            <tr>
-                <td class="col-iv hidden-col">13.8</td><td class="col-vega hidden-col">9.8</td><td class="col-theta hidden-col">-2.5</td><td class="col-gamma hidden-col">0.06</td><td class="col-delta hidden-col">0.30</td>
-                <td class="val-call-oichg">8000</td><td class="val-call-oi">115000</td><td class="val-call-vol">42000</td><td class="ltp">41.10</td>
-                <td class="strike-col">23400</td>
-                <td class="itm-put ltp">130.50</td><td class="itm-put val-put-vol">12000</td><td class="itm-put val-put-oi">45000</td><td class="itm-put val-put-oichg">-500</td>
-                <td class="col-delta hidden-col itm-put">-0.70</td><td class="col-gamma hidden-col itm-put">0.06</td><td class="col-theta hidden-col itm-put">-2.2</td><td class="col-vega hidden-col itm-put">9.5</td><td class="col-iv hidden-col itm-put">14.8</td>
-            </tr>
-            <!-- Row 5 -->
-            <tr>
-                <td class="col-iv hidden-col">13.2</td><td class="col-vega hidden-col">8.5</td><td class="col-theta hidden-col">-1.2</td><td class="col-gamma hidden-col">0.02</td><td class="col-delta hidden-col">0.12</td>
-                <td class="val-call-oichg">-1500</td><td class="val-call-oi">185000</td><td class="val-call-vol">65000</td><td class="ltp">15.20</td>
-                <td class="strike-col">23500</td>
-                <td class="itm-put ltp">220.30</td><td class="itm-put val-put-vol">4000</td><td class="itm-put val-put-oi">15000</td><td class="itm-put val-put-oichg">-2000</td>
-                <td class="col-delta hidden-col itm-put">-0.88</td><td class="col-gamma hidden-col itm-put">0.02</td><td class="col-theta hidden-col itm-put">-1.0</td><td class="col-vega hidden-col itm-put">8.0</td><td class="col-iv hidden-col itm-put">15.5</td>
-            </tr>
+            <!-- Data will be auto-generated here by JavaScript -->
         </tbody>
     </table>
 
     <script>
         // -------------------------
-        // 1. TIMERS & PLAYBACK ENGINE
+        // 1. GENERATE 20 ROWS DATA
         // -------------------------
-        let liveTimerInterval;
-        let playbackInterval;
-        let isPlaying = false;
-        let histTime = new Date();
-        histTime.setHours(9, 15, 0); // Market opens at 9:15 AM
-
-        function startLiveTime() {
-            clearInterval(playbackInterval);
-            liveTimerInterval = setInterval(() => {
-                const now = new Date();
-                document.getElementById('liveTime').innerText = "Live Time: " + now.toLocaleTimeString('en-IN', { hour12: true });
-            }, 1000);
-        }
-        
-        startLiveTime(); // Start normally
-
-        // -------------------------
-        // 2. MODE SWITCHER (Live / Hist)
-        // -------------------------
-        function switchMode(mode) {
-            let speedCtrl = document.getElementById("speedControl");
-            let playBtn = document.getElementById("playBtn");
-            let timeText = document.getElementById("liveTime");
-
-            if (mode === 'historical') {
-                clearInterval(liveTimerInterval); // Stop real clock
-                speedCtrl.style.display = "inline-block";
-                playBtn.style.display = "inline-block";
-                timeText.innerText = "Hist Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
-                timeText.style.color = "#ff8c00"; // Orange color for Historical
-                alert("Historical Mode ON. Click Play to start!");
-            } else {
-                clearInterval(playbackInterval);
-                isPlaying = false;
-                playBtn.classList.remove('paused');
-                playBtn.innerText = "▶️ Play";
-                
-                speedCtrl.style.display = "none";
-                playBtn.style.display = "none";
-                timeText.style.color = "#d10000"; // Red color for Live
-                
-                startLiveTime();
-                alert("Live Mode ON.");
-            }
-        }
-
-        // -------------------------
-        // 3. PLAY / PAUSE LOGIC
-        // -------------------------
-        function togglePlay() {
-            let playBtn = document.getElementById("playBtn");
-            if (isPlaying) {
-                // PAUSE
-                clearInterval(playbackInterval);
-                isPlaying = false;
-                playBtn.innerText = "▶️ Play";
-                playBtn.classList.remove('paused');
-            } else {
-                // PLAY
-                isPlaying = true;
-                playBtn.innerText = "⏸️ Pause";
-                playBtn.classList.add('paused');
-                
-                let speed = parseInt(document.getElementById("speedControl").value);
-                
-                playbackInterval = setInterval(() => {
-                    // Update Time based on Speed Selection (1 min, 2 min, etc.)
-                    histTime.setMinutes(histTime.getMinutes() + speed);
-                    document.getElementById('liveTime').innerText = "Hist Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
-                    
-                    // Simulate Data Movement & apply 100% logic
-                    simulateDataMovement();
-                    applyPercentages();
-                }, 1000); // 1 tick every 1 second in UI
-            }
-        }
-
-        // -------------------------
-        // 4. DATA SIMULATOR (Creates Market Movement)
-        // -------------------------
-        function simulateDataMovement() {
-            const cols = ['.val-call-oi', '.val-call-vol', '.val-call-oichg', '.val-put-oi', '.val-put-vol', '.val-put-oichg', '.ltp'];
+        function generateRows() {
+            const tbody = document.getElementById("dataBody");
+            tbody.innerHTML = ""; // Clear old data
+            let baseStrike = 22800; // Start strike
             
-            cols.forEach(cls => {
-                document.querySelectorAll(cls).forEach(cell => {
-                    // Extract exact number string and convert
-                    let currentNum = parseFloat(cell.innerText.split('\n')[0].replace(/,/g, '').trim());
-                    if (!isNaN(currentNum)) {
-                        // Generate random fluctuation between -8% and +8%
-                        let fluctuation = currentNum * (Math.random() * 0.16 - 0.08);
-                        let newVal = Math.round(currentNum + fluctuation);
-                        
-                        // Prevent numbers from going weird or negative
-                        if(cls !== '.val-call-oichg' && cls !== '.val-put-oichg' && newVal < 0) newVal = 100;
-                        
-                        cell.innerHTML = newVal; // Assign new raw value before percentage calculation
-                    }
-                });
-            });
+            for(let i=0; i<20; i++) {
+                let strike = baseStrike + (i*50);
+                let isATM = (strike === 23300);
+                let callCls = strike < 23300 ? "itm-call" : "";
+                let putCls = strike > 23300 ? "itm-put" : "";
+                let strikeHtml = isATM ? <td class="strike-col" style="background-color: #ffcc00;">${strike} (ATM)</td> : <td class="strike-col">${strike}</td>;
+
+                let tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="col-iv hidden-col ${callCls}">12.5</td>
+                    <td class="col-vega hidden-col ${callCls}">9.2</td>
+                    <td class="col-theta hidden-col ${callCls}">-2.1</td>
+                    <td class="col-gamma hidden-col ${callCls}">0.02</td>
+                    <td class="col-delta hidden-col ${callCls}">0.85</td>
+
+                    <td class="${callCls} val-call-oichg">${Math.floor(Math.random()*15000) - 3000}</td>
+                    <td class="${callCls} val-call-oi">${Math.floor(Math.random()*150000)}</td>
+                    <td class="${callCls} val-call-vol">${Math.floor(Math.random()*80000)}</td>
+                    <td class="${callCls} ltp">${(Math.random()*250).toFixed(2)}</td>
+
+                    ${strikeHtml}
+
+                    <td class="${putCls} ltp">${(Math.random()*250).toFixed(2)}</td>
+                    <td class="${putCls} val-put-vol">${Math.floor(Math.random()*80000)}</td>
+                    <td class="${putCls} val-put-oi">${Math.floor(Math.random()*150000)}</td>
+                    <td class="${putCls} val-put-oichg">${Math.floor(Math.random()*15000) - 3000}</td>
+
+                    <td class="col-delta hidden-col ${putCls}">-0.15</td>
+                    <td class="col-gamma hidden-col ${putCls}">0.02</td>
+                    <td class="col-theta hidden-col ${putCls}">-1.2</td>
+                    <td class="col-vega hidden-col ${putCls}">8.1</td>
+                    <td class="col-iv hidden-col ${putCls}">13.1</td>
+                `;
+                tbody.appendChild(tr);
+            }
         }
 
         // -------------------------
-        // 5. 100% HIGHLIGHT & PERCENTAGE LOGIC
+        // 2. 100% HIGHLIGHT & PERCENTAGE LOGIC
         // -------------------------
         function applyPercentages() {
             const columns = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
@@ -271,7 +173,7 @@
                 
                 // Find Maximum
                 cells.forEach(cell => {
-                    cell.classList.remove('max-highlight'); // Remove old highlights
+                    cell.classList.remove('max-highlight');
                     let text = cell.innerText.split('\n')[0].replace(/,/g, '').trim();
                     let val = Math.abs(parseFloat(text));
                     if (!isNaN(val) && val > maxVal) { maxVal = val; }
@@ -296,12 +198,92 @@
                 }
             });
         }
-        
-        // Initial load calculation
-        document.addEventListener("DOMContentLoaded", applyPercentages);
 
         // -------------------------
-        // 6. TOGGLE GREEKS MENU
+        // 3. TIMERS & PLAYBACK ENGINE
+        // -------------------------
+        let liveTimerInterval;
+        let playbackInterval;
+        let isPlaying = false;
+        let histTime = new Date();
+        histTime.setHours(9, 15, 0); // Market opens at 9:15 AM
+
+        function startLiveTime() {
+            clearInterval(playbackInterval);
+            liveTimerInterval = setInterval(() => {
+                const now = new Date();
+                document.getElementById('liveTime').innerText = "Live Time: " + now.toLocaleTimeString('en-IN', { hour12: true });
+            }, 1000);
+        }
+
+        // -------------------------
+        // 4. MODE SWITCHER & SIMULATOR
+        // -------------------------
+        function switchMode(mode) {
+            let speedCtrl = document.getElementById("speedControl");
+            let playBtn = document.getElementById("playBtn");
+            let timeText = document.getElementById("liveTime");
+
+            if (mode === 'historical') {
+                clearInterval(liveTimerInterval);
+                speedCtrl.style.display = "inline-block";
+                playBtn.style.display = "inline-block";
+                timeText.innerText = "Hist Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
+                timeText.style.color = "#ff8c00"; 
+            } else {
+                clearInterval(playbackInterval);
+                isPlaying = false;
+                playBtn.classList.remove('paused');
+                playBtn.innerText = "▶️ Play";
+                speedCtrl.style.display = "none";
+                playBtn.style.display = "none";
+                timeText.style.color = "#d10000";
+                startLiveTime();
+            }
+        }
+
+        function togglePlay() {
+            let playBtn = document.getElementById("playBtn");
+            if (isPlaying) {
+                clearInterval(playbackInterval);
+                isPlaying = false;
+                playBtn.innerText = "▶️ Play";
+                playBtn.classList.remove('paused');
+            } else {
+                isPlaying = true;
+                playBtn.innerText = "⏸️ Pause";
+                playBtn.classList.add('paused');
+                
+                let speed = parseInt(document.getElementById("speedControl").value);
+                
+                playbackInterval = setInterval(() => {
+                    histTime.setMinutes(histTime.getMinutes() + speed);
+                    document.getElementById('liveTime').innerText = "Hist Time: " + histTime.toLocaleTimeString('en-IN', { hour12: true });
+                    
+                    simulateDataMovement(); // Change Data
+                    applyPercentages();     // Re-calculate 100%
+                }, 1000);
+            }
+        }
+
+        function simulateDataMovement() {
+            const cols = ['.val-call-oi', '.val-call-vol', '.val-call-oichg', '.val-put-oi', '.val-put-vol', '.val-put-oichg', '.ltp'];
+            
+            cols.forEach(cls => {
+                document.querySelectorAll(cls).forEach(cell => {
+                    let currentNum = parseFloat(cell.innerText.split('\n')[0].replace(/,/g, '').trim());
+                    if (!isNaN(currentNum)) {
+                        let fluctuation = currentNum * (Math.random() * 0.16 - 0.08);
+                        let newVal = Math.round(currentNum + fluctuation);
+                        if(cls !== '.val-call-oichg' && cls !== '.val-put-oichg' && newVal < 0) newVal = 100;
+                        cell.innerHTML = newVal;
+                    }
+                });
+            });
+        }
+
+        // -------------------------
+        // 5. TOGGLE GREEKS MENU
         // -------------------------
         function toggleMenu(menuId) { document.getElementById(menuId).classList.toggle("show-menu"); }
         window.onclick = function(e) {
@@ -323,6 +305,13 @@
             document.getElementById("callHeader").colSpan = 4 + greeksCount;
             document.getElementById("putHeader").colSpan = 4 + greeksCount;
         }
+
+        // Initialize Everything on Load
+        document.addEventListener("DOMContentLoaded", () => {
+            generateRows();
+            applyPercentages();
+            startLiveTime();
+        });
     </script>
 </body>
 </html>
