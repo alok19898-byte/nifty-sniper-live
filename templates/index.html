@@ -4,48 +4,142 @@
     <meta charset="UTF-8">
     <title>Trading Dashboard</title>
     <style>
-        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; }
-        th, td { border: 1px solid #000; padding: 5px; }
-        .header-main { background-color: #ddd; font-weight: bold; }
-        .controls { margin-bottom: 10px; }
+        body { font-family: Arial, sans-serif; padding: 10px; }
+        
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; margin-top: 15px; }
+        th, td { border: 1px solid #a0a0a0; padding: 6px; }
+        .header-main { background-color: #d4d4d4; font-weight: bold; }
+        .header-sub { background-color: #ebebeb; font-weight: bold; }
+        
+        /* Control Panel Styles */
+        .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+        .btn { padding: 8px 15px; cursor: pointer; border: 1px solid #555; background: #fff; border-radius: 4px; font-weight: bold;}
+        .btn:hover { background: #f0f0f0; }
+        .dropdown { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #555; cursor: pointer; }
+        
+        /* Color Coding for In-The-Money (ITM) */
+        .itm-call { background-color: #fff4cc; } /* Light Yellow for Call ITM */
+        .itm-put { background-color: #dcf2f5; }  /* Light Blue for Put ITM */
+        
+        /* Center Strike Price Column Highlight */
+        .strike-col { background-color: #f8f9fa; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
+    <!-- Controls Panel -->
     <div class="controls">
-        <button onclick="switchMode('live')">Live</button>
-        <button onclick="switchMode('historical')">Historical</button>
-        <button onclick="toggleGreeks()">Toggle Greeks</button>
+        <!-- Index Switcher -->
+        <select class="dropdown" id="indexSelect" onchange="switchIndex()">
+            <option value="NIFTY">NIFTY 50</option>
+            <option value="BANKNIFTY">BANKNIFTY</option>
+        </select>
+        
+        <button class="btn" onclick="switchMode('live')">🔴 Live</button>
+        <button class="btn" onclick="switchMode('historical')">📜 Historical</button>
+        <button class="btn" onclick="toggleGreeks()">📊 Toggle Greeks</button>
+        <button class="btn" onclick="openSettings()">⚙️ Settings</button>
     </div>
 
+    <!-- Options Chain Table -->
     <table id="optionTable">
-        <tr class="header-main">
-            <th colspan="6">Call Side</th>
-            <th>Strike Price</th>
-            <th colspan="5">Put Side</th>
-        </tr>
-        <tr id="subHeader">
-            <th>Theta</th><th>Gamma</th><th>D</th><th>OI</th><th>Volume</th><th>LTP</th>
-            <th>Spot Price</th>
-            <th>LTP</th><th>OI</th><th>Volume</th><th>OI Chg</th><th>P</th>
-        </tr>
+        <thead>
+            <tr class="header-main">
+                <th colspan="6">Call Side</th>
+                <th>Strike Price</th>
+                <th colspan="6">Put Side</th>
+            </tr>
+            <tr class="header-sub" id="subHeader">
+                <!-- Call Side -->
+                <th>Theta</th><th>Gamma</th><th>D (Delta)</th><th>OI</th><th>Volume</th><th>LTP</th>
+                <!-- Center -->
+                <th>Spot Price</th>
+                <!-- Put Side -->
+                <th>LTP</th><th>OI</th><th>Volume</th><th>OI Chg</th><th>P (Delta)</th><th>Gamma</th>
+            </tr>
+        </thead>
         <tbody id="dataBody">
-            <!-- Random Data -->
+            <!-- Row 1 (Call ITM, Put OTM) -->
             <tr>
-                <td>0.05</td><td>0.12</td><td>0.55</td><td>15000</td><td>2000</td><td>120</td>
-                <td>23300</td>
-                <td>80</td><td>12000</td><td>1500</td><td>500</td><td>0.45</td>
+                <td class="itm-call">-1.2</td><td class="itm-call">0.02</td><td class="itm-call">0.85</td><td class="itm-call">12000</td><td class="itm-call">4500</td><td class="itm-call">240.50</td>
+                <td class="strike-col">23100</td>
+                <td>12.30</td><td>45000</td><td>15000</td><td>-1200</td><td>-0.15</td><td>0.02</td>
+            </tr>
+            <!-- Row 2 (Call ITM, Put OTM) -->
+            <tr>
+                <td class="itm-call">-1.5</td><td class="itm-call">0.03</td><td class="itm-call">0.75</td><td class="itm-call">15000</td><td class="itm-call">6000</td><td class="itm-call">195.00</td>
+                <td class="strike-col">23150</td>
+                <td>18.40</td><td>52000</td><td>18000</td><td>500</td><td>-0.20</td><td>0.03</td>
+            </tr>
+            <!-- Row 3 (Call ITM, Put OTM) -->
+            <tr>
+                <td class="itm-call">-2.1</td><td class="itm-call">0.05</td><td class="itm-call">0.65</td><td class="itm-call">25000</td><td class="itm-call">9000</td><td class="itm-call">155.20</td>
+                <td class="strike-col">23200</td>
+                <td>28.10</td><td>85000</td><td>32000</td><td>2500</td><td>-0.30</td><td>0.05</td>
+            </tr>
+            <!-- Row 4 (Call ITM, Put OTM) -->
+            <tr>
+                <td class="itm-call">-3.0</td><td class="itm-call">0.08</td><td class="itm-call">0.55</td><td class="itm-call">40000</td><td class="itm-call">15000</td><td class="itm-call">120.00</td>
+                <td class="strike-col">23250</td>
+                <td>42.50</td><td>110000</td><td>45000</td><td>8000</td><td>-0.40</td><td>0.08</td>
+            </tr>
+            <!-- Row 5 (At The Money - ATM) -->
+            <tr>
+                <td>-3.5</td><td>0.12</td><td>0.50</td><td>65000</td><td>25000</td><td>90.50</td>
+                <td class="strike-col" style="background-color: #ffeb3b;">23300 (ATM)</td>
+                <td>65.00</td><td>135000</td><td>60000</td><td>15000</td><td>-0.50</td><td>0.12</td>
+            </tr>
+            <!-- Row 6 (Call OTM, Put ITM) -->
+            <tr>
+                <td>-3.2</td><td>0.09</td><td>0.42</td><td>85000</td><td>35000</td><td>62.30</td>
+                <td class="strike-col">23350</td>
+                <td class="itm-put">95.00</td><td class="itm-put">60000</td><td class="itm-put">22000</td><td class="itm-put">1000</td><td class="itm-put">-0.60</td><td class="itm-put">0.09</td>
+            </tr>
+            <!-- Row 7 (Call OTM, Put ITM) -->
+            <tr>
+                <td>-2.5</td><td>0.06</td><td>0.30</td><td>115000</td><td>42000</td><td>41.10</td>
+                <td class="strike-col">23400</td>
+                <td class="itm-put">130.50</td><td class="itm-put">45000</td><td class="itm-put">12000</td><td class="itm-put">-500</td><td class="itm-put">-0.70</td><td class="itm-put">0.06</td>
+            </tr>
+            <!-- Row 8 (Call OTM, Put ITM) -->
+            <tr>
+                <td>-1.8</td><td>0.04</td><td>0.20</td><td>145000</td><td>55000</td><td>25.80</td>
+                <td class="strike-col">23450</td>
+                <td class="itm-put">175.00</td><td class="itm-put">25000</td><td class="itm-put">8000</td><td class="itm-put">-1200</td><td class="itm-put">-0.80</td><td class="itm-put">0.04</td>
+            </tr>
+            <!-- Row 9 (Call OTM, Put ITM) -->
+            <tr>
+                <td>-1.2</td><td>0.02</td><td>0.12</td><td>185000</td><td>65000</td><td>15.20</td>
+                <td class="strike-col">23500</td>
+                <td class="itm-put">220.30</td><td class="itm-put">15000</td><td class="itm-put">4000</td><td class="itm-put">-2000</td><td class="itm-put">-0.88</td><td class="itm-put">0.02</td>
+            </tr>
+            <!-- Row 10 (Call OTM, Put ITM) -->
+            <tr>
+                <td>-0.8</td><td>0.01</td><td>0.05</td><td>210000</td><td>80000</td><td>8.50</td>
+                <td class="strike-col">23550</td>
+                <td class="itm-put">265.80</td><td class="itm-put">8000</td><td class="itm-put">1500</td><td class="itm-put">-800</td><td class="itm-put">-0.95</td><td class="itm-put">0.01</td>
             </tr>
         </tbody>
     </table>
 
     <script>
-        function toggleGreeks() {
-            alert("Greeks Hidden/Shown");
-            // यहाँ आप CSS से columns को hide/show कर सकते हो
+        function switchIndex() {
+            var selectedIndex = document.getElementById("indexSelect").value;
+            alert("Switched Data to: " + selectedIndex);
+            // यहाँ आप API को NIFTY या BANKNIFTY का पैरामीटर भेज सकते हैं
         }
+
         function switchMode(mode) {
-            alert("Switched to: " + mode);
+            alert("Dashboard Mode: " + mode.toUpperCase());
+        }
+
+        function toggleGreeks() {
+            alert("Greeks Columns Toggled!");
+        }
+
+        function openSettings() {
+            alert("Settings Panel Opened!");
         }
     </script>
 </body>
