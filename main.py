@@ -20,15 +20,15 @@ app.add_middleware(
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
 ACCESS_TOKEN = os.environ.get('DHAN_ACCESS_TOKEN')
 
-# 1. FIX: Dhan API को सही तरीके से कनेक्ट करना (Keyword Arguments के साथ)
+# Dhan API Safe Connection
 try:
-    dhan = dhanhq(client_id=CLIENT_ID, access_token=ACCESS_TOKEN)
+    dhan = dhanhq(CLIENT_ID, ACCESS_TOKEN)
     print("Dhan API Connected Successfully!")
 except Exception as e:
     dhan = None
     print("Dhan API Warning (Server will still run):", e)
 
-# 2. FIX: Safe Static Folders (अगर फोल्डर नहीं मिला तो सर्वर क्रैश नहीं होगा)
+# Static Folders Connection
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 else:
@@ -36,7 +36,7 @@ else:
 
 @app.get("/")
 async def serve_dashboard():
-    # 3. FIX: Safe HTML Loading (चाहे फाइल templates में हो या बाहर, यह ढूँढ लेगा)
+    # HTML File Loading
     if os.path.exists("templates/index.html"):
         return FileResponse("templates/index.html")
     elif os.path.exists("index.html"):
@@ -46,9 +46,8 @@ async def serve_dashboard():
 
 @app.get("/api/option-chain")
 async def get_live_chain():
-    spot_price = 23300.00 # Default/Fallback price
+    spot_price = 23300.00 # Default fallback
     
-    # अगर Dhan कनेक्ट हो गया है, तो असली डेटा लाएगा
     if dhan:
         try:
             nifty_req = dhan.get_ltp_data(exchange_segment='NSE_EQ', security_id='26000')
@@ -80,6 +79,7 @@ async def get_live_chain():
         "chain": chain_data
     }
 
+# YAHAN THI GALTI - Ise dhyan se dekh, double underscore (__) lagaye hain
 if _name_ == '_main_':
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host='0.0.0.0', port=port)
