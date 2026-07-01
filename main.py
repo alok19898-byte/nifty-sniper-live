@@ -10,14 +10,14 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=[""], allow_methods=[""], allow_headers=["*"])
 
-# Render Dashboard ke 'Key' se match karte hue variables
+# क्रेडेंशियल्स - जो तूने Render के Environment Variables में रखे हैं
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
 ACCESS_TOKEN = os.environ.get('DHAN_ACCESS_TOKEN')
 
-# Dhan Initialization
-dhan = dhanhq(CLIENT_ID, ACCESS_TOKEN)
+# Dhan Initialization - लेटेस्ट वर्ज़न के हिसाब से keyword arguments का उपयोग
+dhan = dhanhq(client_id=CLIENT_ID, access_token=ACCESS_TOKEN)
 
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -41,6 +41,6 @@ async def get_live_chain():
     except Exception as e:
         return {"error": str(e)}
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
