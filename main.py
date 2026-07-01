@@ -12,11 +12,11 @@ app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# क्रेडेंशियल्स - बस ये दो ही वेरिएबल लेने हैं
+# Render Dashboard ke 'Key' se match karte hue variables
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
 ACCESS_TOKEN = os.environ.get('DHAN_ACCESS_TOKEN')
 
-# Dhan Initialization - यहाँ पक्का ध्यान रख, सिर्फ 2 ही चीज़ें पास हो रही हैं
+# Dhan Initialization
 dhan = dhanhq(CLIENT_ID, ACCESS_TOKEN)
 
 if os.path.exists("static"):
@@ -31,8 +31,7 @@ async def serve_dashboard():
 @app.get("/api/option-chain")
 async def get_live_chain():
     try:
-        # Option Chain Data fetch करना
-        # आज 01-07-2026 है, तो एक्सपायरी डेट उसी हिसाब से रखें
+        # Option Chain Data fetch
         data = dhan.get_option_chain(
             underlying_security_id="26000",
             underlying_type="INDEX",
@@ -45,4 +44,3 @@ async def get_live_chain():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
-  
