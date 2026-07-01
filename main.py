@@ -31,20 +31,25 @@ async def serve_dashboard():
         return FileResponse("templates/index.html")
     return FileResponse("index.html")
 
-# Live Data Route (Fully Fixed)
 @app.get("/api/option-chain")
 async def get_live_chain():
     if not dhan:
         return {"error": "Dhan API not connected"}
     
     try:
-        # Nifty 50 LTP (Security ID 26000)
-        ltp_data = dhan.ltp(exchange_segment='NSE_EQ', security_id='26000')
-        spot_price = float(ltp_data[0]['ltp'])
-        
+        # यहाँ हम try-except लगा रहे हैं ताकि अगर एक कमांड काम न करे तो दूसरा चल जाए
+        try:
+            # कोशिश करते हैं पहले नए तरीके से
+            ltp_data = dhan.ltp(exchange_segment='NSE_EQ', security_id='26000')
+            spot_price = float(ltp_data[0]['ltp'])
+        except:
+            # अगर नया काम न करे, तो पुराने तरीके से ट्राई करते हैं
+            ltp_data = dhan.get_ltp_data(exchange_segment='NSE_EQ', security_id='26000')
+            spot_price = float(ltp_data['data']['last_price'])
+            
         return {
             "spot_price": spot_price,
-            "data": [] # Yahan tera data structure aayega
+            "data": [] 
         }
     except Exception as e:
         return {"error": str(e)}
