@@ -22,9 +22,11 @@ function applyPercentages() {
                 let pct = (maxVal > 0) ? Math.round((Math.abs(val) / maxVal) * 100) : 0;
                 if (val === maxVal && maxVal > 0) {
                     cell.classList.add('max-highlight');
-                    cell.innerHTML = originalNumber + <span class="pct-box pct-100">(100%)</span>;
+                    // यहाँ मैंने नया और एकदम सेफ तरीका इस्तेमाल किया है
+                    cell.innerHTML = originalNumber + "<span class='pct-box pct-100'>(100%)</span>";
                 } else {
-                    cell.innerHTML = originalNumber + <span class="pct-box">(${pct}%)</span>;
+                    // यहाँ भी सेफ तरीका लगा दिया है
+                    cell.innerHTML = originalNumber + "<span class='pct-box'>(" + pct + "%)</span>";
                 }
             }
         });
