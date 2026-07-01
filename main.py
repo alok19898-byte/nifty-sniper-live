@@ -30,9 +30,24 @@ async def serve_dashboard():
         return FileResponse("templates/index.html")
     return FileResponse("index.html")
 
+# यह रहा असली डेटा फेच करने वाला हिस्सा
 @app.get("/api/option-chain")
 async def get_live_chain():
-    return {"status": "ok"}
+    try:
+        # NIFTY 50 का स्पॉट प्राइस फेच करना
+        ltp_data = dhan.get_ltp_data(exchange_segment='NSE_EQ', security_id='26000')
+        spot = float(ltp_data['data']['last_price'])
+        
+        # यहाँ हम ऑप्शन चेन का डेटा लेंगे
+        # ध्यान दें: dhanhq में ऑप्शन चेन के लिए सही symbol और exchange_segment ज़रूरी है
+        chain = dhan.get_option_chain_data(symbol='NIFTY', exchange_segment='NSE_FNO')
+        
+        return {
+            "spot_price": spot,
+            "data": chain
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
