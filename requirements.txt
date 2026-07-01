@@ -1,5 +1,7 @@
 fastapi
 uvicorn
 requests
+dhanhq
 python-dotenv
+jinja2
 aiofiles
