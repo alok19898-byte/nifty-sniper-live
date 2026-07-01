@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 
-app.add_middleware(CORSMiddleware, allow_origins=[""], allow_methods=[""], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # क्रेडेंशियल्स - जो तूने Render के Environment Variables में रखे हैं
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
@@ -41,6 +41,6 @@ async def get_live_chain():
     except Exception as e:
         return {"error": str(e)}
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
