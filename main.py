@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse
-from dhanhq import dhanhq
+# 1. FIX: यहाँ DhanContext को इम्पोर्ट किया गया है
+from dhanhq import DhanContext, dhanhq  
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,9 +21,10 @@ app.add_middleware(
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
 ACCESS_TOKEN = os.environ.get('DHAN_ACCESS_TOKEN')
 
-# Dhan API Safe Connection
+# 2. FIX: Dhan API को नए वर्ज़न के हिसाब से कनेक्ट करना
 try:
-    dhan = dhanhq(CLIENT_ID, ACCESS_TOKEN)
+    context = DhanContext(CLIENT_ID, ACCESS_TOKEN)
+    dhan = dhanhq(context)
     print("Dhan API Connected Successfully!")
 except Exception as e:
     dhan = None
@@ -79,7 +81,6 @@ async def get_live_chain():
         "chain": chain_data
     }
 
-# YAHAN THI GALTI - Ise dhyan se dekh, double underscore (__) lagaye hain
 if _name_ == '_main_':
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host='0.0.0.0', port=port)
