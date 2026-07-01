@@ -1,35 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Trading Dashboard</title>
 </head>
 <body>
-    <h2>Trading Dashboard</h2>
-    <table border="1" style="width:100%; text-align:center;">
-        <thead>
-            <tr><th>OI Chg</th><th>OI</th><th>Volume</th><th>LTP</th></tr>
-        </thead>
-        <tbody id="dataBody">
-            <!-- यहाँ डेटा आएगा -->
-        </tbody>
+    <h1>Dashboard Working</h1>
+    <table border="1">
+        <thead><tr><th>Data</th></tr></thead>
+        <tbody id="dataBody"></tbody>
     </table>
 
     <script>
-        // यह फंक्शन सुनिश्चित करेगा कि जब पूरा HTML लोड हो जाए, तभी डेटा दिखे
-        window.addEventListener('load', function() {
-            console.log("Page fully loaded, starting data injection...");
-            
-            const tbody = document.getElementById("dataBody");
-            
-            // डेटा बनाने का लूप
-            for(let i = 0; i < 5; i++) {
-                let tr = document.createElement("tr");
-                tr.innerHTML = <td>2000</td><td>50000</td><td>15000</td><td>145.50</td>;
-                tbody.appendChild(tr);
-            }
-            console.log("Data injection complete!");
-        });
+        // यह सीधे HTML के अंदर है, कोई बाहर की फाइल नहीं
+        console.log("Script running...");
+        const tbody = document.getElementById("dataBody");
+        let tr = document.createElement("tr");
+        tr.innerHTML = "<td>Test Data Working</td>";
+        tbody.appendChild(tr);
     </script>
 </body>
 </html>
