@@ -12,12 +12,16 @@ app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=[""], allow_methods=[""], allow_headers=["*"])
 
-# क्रेडेंशियल्स एन्वायरमेंट वेरिएबल्स से लें
+# क्रेडेंशियल्स
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
 ACCESS_TOKEN = os.environ.get('DHAN_ACCESS_TOKEN')
 
-# Dhan ऑब्जेक्ट को इनिशियलाइज करें
-dhan = dhanhq(CLIENT_ID, ACCESS_TOKEN)
+# Dhan API Connection (Sahi Tarika - Sirf 2 arguments)
+try:
+    dhan = dhanhq(CLIENT_ID, ACCESS_TOKEN)
+except Exception as e:
+    print(f"Connection Error: {e}")
+    dhan = None
 
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -30,21 +34,16 @@ async def serve_dashboard():
 
 @app.get("/api/option-chain")
 async def get_live_chain():
+    if not dhan:
+        return {"error": "Dhan API not connected"}
     try:
-        # लेटेस्ट लाइव ऑप्शन चेन डेटा प्राप्त करें
-        # सिक्योरिटी आईडी 26000 (Nifty) और आज की या आने वाली एक्सपायरी डेट डालें
+        # Option Chain Data
         data = dhan.get_option_chain(
             underlying_security_id="26000",
             underlying_type="INDEX",
-            expiry_date="2026-07-02" # इसे अपने हिसाब से अपडेट करते रहना भाई
+            expiry_date="2026-07-02"
         )
-        
-        # चूँकि हमें स्पॉट प्राइस भी चाहिए, हम इसे यहाँ से निकाल सकते हैं
-        # या अलग से LTP कॉल कर सकते हैं
-        return {
-            "spot_price": "Live", 
-            "data": data
-        }
+        return {"spot_price": "Live", "data": data}
     except Exception as e:
         return {"error": str(e)}
 
