@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
-# यह लाइन सर्वर को static फोल्डर के बारे में बताती है
+# static folder को लिंक करने की लाइन
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
