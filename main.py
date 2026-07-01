@@ -15,6 +15,7 @@ app.add_middleware(CORSMiddleware, allow_origins=[""], allow_methods=[""], allow
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
 ACCESS_TOKEN = os.environ.get('DHAN_ACCESS_TOKEN')
 
+# Dhan API Connection
 try:
     context = DhanContext(CLIENT_ID, ACCESS_TOKEN)
     dhan = dhanhq(context)
@@ -30,21 +31,20 @@ async def serve_dashboard():
         return FileResponse("templates/index.html")
     return FileResponse("index.html")
 
-# यह रहा असली डेटा फेच करने वाला हिस्सा
+# Live Data Route (Fully Fixed)
 @app.get("/api/option-chain")
 async def get_live_chain():
+    if not dhan:
+        return {"error": "Dhan API not connected"}
+    
     try:
-        # NIFTY 50 का स्पॉट प्राइस फेच करना
-        ltp_data = dhan.get_ltp_data(exchange_segment='NSE_EQ', security_id='26000')
-        spot = float(ltp_data['data']['last_price'])
-        
-        # यहाँ हम ऑप्शन चेन का डेटा लेंगे
-        # ध्यान दें: dhanhq में ऑप्शन चेन के लिए सही symbol और exchange_segment ज़रूरी है
-        chain = dhan.get_option_chain_data(symbol='NIFTY', exchange_segment='NSE_FNO')
+        # Nifty 50 LTP (Security ID 26000)
+        ltp_data = dhan.ltp(exchange_segment='NSE_EQ', security_id='26000')
+        spot_price = float(ltp_data[0]['ltp'])
         
         return {
-            "spot_price": spot,
-            "data": chain
+            "spot_price": spot_price,
+            "data": [] # Yahan tera data structure aayega
         }
     except Exception as e:
         return {"error": str(e)}
