@@ -1,43 +1,35 @@
 import os
 import uvicorn
+import requests
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from dhanhq import dhanhq
 from dotenv import load_dotenv
+from dhanhq import dhanhq  # यह लाइन जरूरी है क्योंकि तुम इसे इस्तेमाल कर रहे हो
 
 load_dotenv()
 app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# क्रेडेंशियल्स - जो तूने Render के Environment Variables में रखे हैं
 CLIENT_ID = os.environ.get('DHAN_CLIENT_ID')
 ACCESS_TOKEN = os.environ.get('DHAN_ACCESS_TOKEN')
 
-# Dhan Initialization - लेटेस्ट वर्ज़न के हिसाब से keyword arguments का उपयोग
-dhan = dhanhq(client_id=CLIENT_ID, access_token=ACCESS_TOKEN)
-
-if os.path.exists("static"):
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.get("/")
-async def serve_dashboard():
-    if os.path.exists("templates/index.html"):
-        return FileResponse("templates/index.html")
-    return FileResponse("index.html")
-
-@app.get("/api/option-chain")
-async def get_live_chain():
+# API का सही इस्तेमाल
+@app.get("/api/expiry-list")
+async def get_expiry():
+    url = "https://api.dhan.co/v2/optionchain/expirylist"
+    headers = {
+        "Content-Type": "application/json",
+        "access-token": ACCESS_TOKEN,
+        "client-id": CLIENT_ID
+    }
+    payload = {
+        "UnderlyingScrip": 13,
+        "UnderlyingSeg": "IDX_I"
+    }
     try:
-        # Option Chain Data fetch
-        data = dhan.get_option_chain(
-            underlying_security_id="26000",
-            underlying_type="INDEX",
-            expiry_date="2026-07-02"
-        )
-        return {"spot_price": "Live", "data": data}
+        response = requests.post(url, json=payload, headers=headers)
+        return response.json()
     except Exception as e:
         return {"error": str(e)}
 
