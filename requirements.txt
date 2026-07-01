@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-dhanhq
+dhanhq==1.0.9
 python-dotenv
 jinja2
 aiofiles
