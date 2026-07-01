@@ -1,89 +1,24 @@
-function updateLiveTime() {
-    const now = new Date();
-    document.getElementById('liveTime').innerText = "Live Time: " + now.toLocaleTimeString('en-IN', { hour12: true });
-}
-setInterval(updateLiveTime, 1000);
-updateLiveTime();
-
-function applyPercentages() {
-    const columns = ['val-call-oi', 'val-call-vol', 'val-call-oichg', 'val-put-oi', 'val-put-vol', 'val-put-oichg'];
-    columns.forEach(cls => {
-        let cells = document.querySelectorAll('.' + cls);
-        let maxVal = -Infinity;
-        cells.forEach(cell => {
-            let text = cell.innerText.split('\n')[0].replace(/,/g, '').trim();
-            let val = parseFloat(text);
-            if (!isNaN(val) && val > maxVal) { maxVal = val; }
-        });
-        cells.forEach(cell => {
-            let originalNumber = cell.innerText.split('\n')[0].trim();
-            let val = parseFloat(originalNumber.replace(/,/g, ''));
-            if (!isNaN(val)) {
-                let pct = (maxVal > 0) ? Math.round((Math.abs(val) / maxVal) * 100) : 0;
-                if (val === maxVal && maxVal > 0) {
-                    cell.classList.add('max-highlight');
-                    // यहाँ मैंने नया और एकदम सेफ तरीका इस्तेमाल किया है
-                    cell.innerHTML = originalNumber + "<span class='pct-box pct-100'>(100%)</span>";
-                } else {
-                    // यहाँ भी सेफ तरीका लगा दिया है
-                    cell.innerHTML = originalNumber + "<span class='pct-box'>(" + pct + "%)</span>";
-                }
-            }
-        });
-    });
-}
-window.onload = applyPercentages;
-
-function toggleMenu(menuId) {
-    document.getElementById(menuId).classList.toggle("show-menu");
-}
-
-window.onclick = function(event) {
-    if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-check-list')) {
-        let dropdowns = document.getElementsByClassName("dropdown-content");
-        for (let i = 0; i < dropdowns.length; i++) {
-            if (dropdowns[i].classList.contains('show-menu')) {
-                dropdowns[i].classList.remove('show-menu');
-            }
+async function fetchLiveChain() {
+    try {
+        const response = await fetch('/api/option-chain');
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error("API Error:", data.error);
+            return;
         }
+
+        // यहाँ 'data.data' वो है जो Python से आ रहा है
+        // अब रैंडम डेटा की जगह API वाला data.data यूज़ होगा
+        console.log("Real Data Received:", data);
+        
+        // अब तुझे बस इस डेटा को टेबल के सेल्स (td) में मैप करना है
+        // जैसे: document.getElementById('price').innerText = data.spot_price;
+        
+    } catch (error) {
+        console.error("Fetch failed:", error);
     }
 }
 
-function switchMode(mode) {
-    let speedCtrl = document.getElementById("speedControl");
-    if (mode === 'historical') {
-        speedCtrl.style.display = "inline-block";
-        alert("Switched to Historical Mode.");
-    } else {
-        speedCtrl.style.display = "none";
-        alert("Switched to Live Mode.");
-    }
-}
-
-function changeSpeed() {
-    alert("Playback speed set to: " + document.getElementById("speedControl").value + "x");
-}
-
-function logoutApp() {
-    if (confirm("Are you sure you want to logout?")) { 
-        alert("Logging out successfully..."); 
-    }
-}
-
-let greeksCount = 0;
-function toggleCol(greekClass) {
-    let cols = document.querySelectorAll('.col-' + greekClass);
-    if (event.target.checked) {
-        cols.forEach(col => col.classList.remove('hidden-col'));
-        greeksCount++;
-    } else {
-        cols.forEach(col => col.classList.add('hidden-col'));
-        greeksCount--;
-    }
-    document.getElementById("callHeader").colSpan = 4 + greeksCount;
-    document.getElementById("putHeader").colSpan = 4 + greeksCount;
-}
-
-function switchIndex() {
-    alert("Switched Data to: " + document.getElementById("indexSelect").value);
-}
+setInterval(fetchLiveChain, 5000);
+fetchLiveChain();
