@@ -101,4 +101,3 @@ function toggleCol(greekClass) {
 
 function switchIndex() {
     alert("Switched Data to: " + document.getElementById("indexSelect").value);
-}
