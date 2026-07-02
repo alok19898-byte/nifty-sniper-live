@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nifty Sniper Pro Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="controls-left">
+            <select id="indexSelect">
+                <option value="13">NIFTY 50</option>
+            </select>
+            <select id="expirySelect" disabled>
+                <option value="">Load Expiry...</option>
+            </select>
+            <button id="getExpiryBtn" class="btn-primary">Get Expiry</button>
+            <button id="getOptionChainBtn" class="btn-primary" disabled>Load Data</button>
+        </div>
+        <div class="controls-right">
+            <button class="btn-outline active">⚫ Live</button>
+            <button class="btn-outline">📊 Historical</button>
+            <button class="btn-outline">⏩ 1x (1 Min)</button>
+            <button class="btn-outline">🧮 Toggle Greeks</button>
+            <button class="btn-outline">⚙️ Settings</button>
+        </div>
+    </div>
 
+    <div class="info-bar">
+        <div class="time-info">Live Time: <span id="liveTime">-</span></div>
+        <div class="price-info">
+            Spot Price: <span id="spotPrice">-</span> | 
+            Future Price: <span id="futurePrice">-</span>
+        </div>
+    </div>
+
+    <div id="loader" class="hidden">Fetching live data from Dhan...</div>
+
+    <div class="table-container">
+        <table id="optionChainTable">
+            <thead>
+                <tr class="main-header">
+                    <th colspan="4" class="call-header">Call Side</th>
+                    <th colspan="1" class="strike-header">Strike Price</th>
+                    <th colspan="4" class="put-header">Put Side</th>
+                </tr>
+                <tr class="sub-header">
+                    <th>OI Chg</th>
+                    <th>OI</th>
+                    <th>Volume</th>
+                    <th>LTP</th>
+                    <th>Spot Price</th>
+                    <th>LTP</th>
+                    <th>Volume</th>
+                    <th>OI</th>
+                    <th>OI Chg</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>
